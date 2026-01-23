@@ -1,3 +1,5 @@
+import type { Priority } from "../classifier/types.js";
+
 export interface DigestItem {
   id: string;
   from: string;
@@ -9,6 +11,9 @@ export interface DigestItem {
   category: "urgent" | "action_soon" | "waiting" | "info" | "low_priority";
   role?: "university" | "startups" | "personal" | "general";
   originalDate: string;
+  // Extended fields from unified classifier
+  priority?: Priority;
+  confidence?: number;
 }
 
 export interface MessageDigestItem {
@@ -19,6 +24,9 @@ export interface MessageDigestItem {
   category: "urgent" | "needs_reply" | "fyi" | "personal";
   action?: string;
   date: string;
+  // Extended fields from unified classifier
+  priority?: Priority;
+  confidence?: number;
 }
 
 export interface DigestSection {

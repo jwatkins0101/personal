@@ -1,4 +1,3 @@
-import { spawn } from "child_process";
 import type { EmailMessage } from "../mail/types.js";
 import type { DailyDigest, DigestItem, DigestOptions, MessageDigestItem } from "./types.js";
 import {
@@ -7,306 +6,92 @@ import {
   formatEventTime,
 } from "../calendar/apple.js";
 import { messagesClient, type Message } from "../messages/index.js";
+import {
+  classifyItems,
+  emailsToClassifiable,
+  messagesToClassifiable,
+  type ClassificationResult,
+} from "../classifier/index.js";
 
-const DEFAULT_ROLE_KEYWORDS = {
-  university: [
-    "edu",
-    "student",
-    "faculty",
-    "professor",
-    "class",
-    "course",
-    "assignment",
-    "grade",
-    "lecture",
-    "campus",
-    "academic",
-    "school",
-    "sacred-heart",
-  ],
-  startups: [
-    "investor",
-    "pitch",
-    "funding",
-    "startup",
-    "product",
-    "launch",
-    "customer",
-    "revenue",
-    "venture",
-    "founder",
-    "business",
-    "contract",
-    "partnership",
-  ],
-  personal: [
-    "family",
-    "friend",
-    "personal",
-    "home",
-    "appointment",
-    "doctor",
-    "health",
-    "birthday",
-    "holiday",
-  ],
+// Map unified categories to digest categories
+const CATEGORY_TO_DIGEST: Record<string, string> = {
+  urgent: "urgent",
+  work: "action_soon",
+  personal: "info",
+  newsletter: "low_priority",
+  finance: "action_soon",
+  health: "urgent",
+  admin: "info",
+  idea: "info",
+  "waiting-on": "waiting",
+  reference: "low_priority",
 };
 
-function buildDigestPrompt(emails: EmailMessage[]): string {
-  const emailList = emails
-    .map(
-      (e, i) =>
-        `${i + 1}. ID: ${e.id}
-   From: ${e.from}
-   Subject: ${e.subject}
-   Snippet: ${e.snippet.substring(0, 300)}
-   Date: ${e.date}`
-    )
-    .join("\n\n");
+// Map unified categories to roles
+const CATEGORY_TO_ROLE: Record<string, string | undefined> = {
+  work: "startups",
+  personal: "personal",
+};
 
-  return `You are an executive assistant creating a daily email digest. Analyze each email and extract actionable intelligence.
+// Map unified categories to message digest categories
+const CATEGORY_TO_MESSAGE: Record<string, string> = {
+  urgent: "urgent",
+  work: "needs_reply",
+  personal: "personal",
+  "waiting-on": "needs_reply",
+  health: "urgent",
+  finance: "needs_reply",
+  admin: "fyi",
+  newsletter: "fyi",
+  idea: "fyi",
+  reference: "fyi",
+};
 
-For each email, determine:
-1. **Category**: urgent (needs action today), action_soon (needs action this week), waiting (awaiting response from others), info (FYI only), low_priority (newsletters/promos)
-2. **Role context**: university (academic/school related), startups (business/ventures), personal (family/health/personal matters), general (everything else)
-3. **Summary**: One sentence capturing the key point or decision needed
-4. **Action**: What specific action is needed (reply, decide, approve, review, none)
-5. **Owner**: Who needs to act - "me" or "other"
-6. **Due date**: Extract any explicit or implied deadline (or null)
+function classificationToDigestItem(
+  result: ClassificationResult,
+  email: EmailMessage
+): DigestItem {
+  const digestCategory = CATEGORY_TO_DIGEST[result.category] || "info";
+  const role = CATEGORY_TO_ROLE[result.category];
 
-Also provide:
-- A "today's focus" recommendation (one sentence on what to prioritize based on urgency and importance)
-
-Emails to analyze:
-
-${emailList}
-
-Respond with ONLY valid JSON (no markdown, no code blocks):
-{
-  "todaysFocus": "One sentence recommendation for today's priority",
-  "items": [
-    {
-      "id": "email_id",
-      "category": "urgent|action_soon|waiting|info|low_priority",
-      "role": "university|startups|personal|general",
-      "summary": "One sentence summary",
-      "action": "reply|decide|approve|review|none",
-      "owner": "me|other",
-      "dueDate": "date string or null"
-    }
-  ]
-}`;
+  return {
+    id: result.id,
+    from: email.from,
+    subject: email.subject,
+    summary: result.reason,
+    action: result.suggested_next_action !== "Review manually"
+      ? result.suggested_next_action
+      : undefined,
+    owner: result.priority === "P0" || result.priority === "P1" ? "me" : "other",
+    category: digestCategory as DigestItem["category"],
+    role: role as DigestItem["role"],
+    originalDate: email.date,
+    // Extended fields
+    priority: result.priority,
+    confidence: result.confidence,
+  };
 }
 
-interface ClaudeDigestResponse {
-  todaysFocus: string;
-  items: Array<{
-    id: string;
-    category: "urgent" | "action_soon" | "waiting" | "info" | "low_priority";
-    role: "university" | "startups" | "personal" | "general";
-    summary: string;
-    action: string;
-    owner: "me" | "other";
-    dueDate: string | null;
-  }>;
-}
+function classificationToMessageItem(
+  result: ClassificationResult,
+  message: Message
+): MessageDigestItem {
+  const msgCategory = CATEGORY_TO_MESSAGE[result.category] || "fyi";
 
-function buildMessageDigestPrompt(messages: Message[]): string {
-  const messageList = messages
-    .map(
-      (m, i) =>
-        `${i + 1}. ID: ${m.id}
-   From: ${m.handleId}
-   Text: ${m.text.substring(0, 500)}
-   Date: ${m.date.toISOString()}
-   Is Reply Thread: ${m.threadOriginatorGuid ? "yes" : "no"}`
-    )
-    .join("\n\n");
-
-  return `You are an executive assistant analyzing text messages (iMessage/SMS) to identify important items.
-
-For each message, determine:
-1. **Category**: urgent (needs immediate response), needs_reply (should respond soon), fyi (informational), personal (casual/social)
-2. **Summary**: One brief sentence capturing what this message is about or needs
-3. **Action**: What response or action is needed (reply, call, none)
-
-Focus on identifying:
-- Messages that need a response (questions, requests)
-- Time-sensitive information
-- Important updates from key contacts
-
-Messages to analyze:
-
-${messageList}
-
-Respond with ONLY valid JSON (no markdown, no code blocks):
-{
-  "items": [
-    {
-      "id": message_id_number,
-      "category": "urgent|needs_reply|fyi|personal",
-      "summary": "Brief summary",
-      "action": "reply|call|none"
-    }
-  ]
-}`;
-}
-
-interface ClaudeMessageResponse {
-  items: Array<{
-    id: number;
-    category: "urgent" | "needs_reply" | "fyi" | "personal";
-    summary: string;
-    action: string;
-  }>;
-}
-
-async function invokeClaudeForMessages(
-  messages: Message[]
-): Promise<ClaudeMessageResponse> {
-  const prompt = buildMessageDigestPrompt(messages);
-
-  return new Promise((resolve, reject) => {
-    const args = [
-      "-p",
-      prompt,
-      "--output-format",
-      "json",
-      "--model",
-      "haiku",
-    ];
-
-    const claude = spawn("claude", args, {
-      stdio: ["ignore", "pipe", "pipe"],
-    });
-
-    let stdout = "";
-    let stderr = "";
-
-    claude.stdout.on("data", (data) => {
-      stdout += data.toString();
-    });
-
-    claude.stderr.on("data", (data) => {
-      stderr += data.toString();
-    });
-
-    claude.on("close", (code) => {
-      if (code !== 0) {
-        console.error("Claude CLI stderr:", stderr);
-        reject(new Error(`Claude CLI exited with code ${code}`));
-        return;
-      }
-
-      try {
-        const response = JSON.parse(stdout);
-        let content: string;
-        if (response.result) {
-          content = response.result;
-        } else if (response.content) {
-          content = response.content;
-        } else if (typeof response === "string") {
-          content = response;
-        } else {
-          content = stdout;
-        }
-
-        let jsonStr = content;
-        const jsonMatch = content.match(/```(?:json)?\s*([\s\S]*?)```/);
-        if (jsonMatch) {
-          jsonStr = jsonMatch[1].trim();
-        }
-
-        const objectMatch = jsonStr.match(/\{[\s\S]*\}/);
-        if (objectMatch) {
-          jsonStr = objectMatch[0];
-        }
-
-        resolve(JSON.parse(jsonStr));
-      } catch (err) {
-        console.error("Failed to parse Claude response for messages:", stdout);
-        resolve({ items: [] });
-      }
-    });
-
-    claude.on("error", (err) => {
-      reject(new Error(`Failed to spawn Claude CLI: ${err.message}`));
-    });
-  });
-}
-
-async function invokeClaudeForDigest(
-  emails: EmailMessage[]
-): Promise<ClaudeDigestResponse> {
-  const prompt = buildDigestPrompt(emails);
-
-  return new Promise((resolve, reject) => {
-    const args = [
-      "-p",
-      prompt,
-      "--output-format",
-      "json",
-      "--model",
-      "sonnet",
-    ];
-
-    const claude = spawn("claude", args, {
-      stdio: ["ignore", "pipe", "pipe"],
-    });
-
-    let stdout = "";
-    let stderr = "";
-
-    claude.stdout.on("data", (data) => {
-      stdout += data.toString();
-    });
-
-    claude.stderr.on("data", (data) => {
-      stderr += data.toString();
-    });
-
-    claude.on("close", (code) => {
-      if (code !== 0) {
-        console.error("Claude CLI stderr:", stderr);
-        reject(new Error(`Claude CLI exited with code ${code}`));
-        return;
-      }
-
-      try {
-        const response = JSON.parse(stdout);
-        let content: string;
-        if (response.result) {
-          content = response.result;
-        } else if (response.content) {
-          content = response.content;
-        } else if (typeof response === "string") {
-          content = response;
-        } else {
-          content = stdout;
-        }
-
-        let jsonStr = content;
-        const jsonMatch = content.match(/```(?:json)?\s*([\s\S]*?)```/);
-        if (jsonMatch) {
-          jsonStr = jsonMatch[1].trim();
-        }
-
-        const objectMatch = jsonStr.match(/\{[\s\S]*\}/);
-        if (objectMatch) {
-          jsonStr = objectMatch[0];
-        }
-
-        resolve(JSON.parse(jsonStr));
-      } catch (err) {
-        console.error("Failed to parse Claude response:", stdout);
-        reject(new Error("Failed to parse Claude CLI response as JSON"));
-      }
-    });
-
-    claude.on("error", (err) => {
-      reject(new Error(`Failed to spawn Claude CLI: ${err.message}`));
-    });
-  });
+  return {
+    id: parseInt(result.id),
+    from: message.handleId,
+    text: message.text.substring(0, 200),
+    summary: result.reason,
+    category: msgCategory as MessageDigestItem["category"],
+    action: result.suggested_next_action !== "Review manually"
+      ? result.suggested_next_action
+      : undefined,
+    date: message.date.toISOString(),
+    // Extended fields
+    priority: result.priority,
+    confidence: result.confidence,
+  };
 }
 
 export async function generateDigest(
@@ -323,7 +108,7 @@ export async function generateDigest(
     `Found ${todayEvents.length} events today, ${tomorrowEvents.length} tomorrow`
   );
 
-  // Fetch messages if enabled (default: true)
+  // Fetch and classify messages if enabled (default: true)
   let messagesData: DailyDigest["messages"] | undefined;
   if (options.includeMessages !== false) {
     console.log("Fetching recent messages...");
@@ -339,31 +124,30 @@ export async function generateDigest(
 
       console.log(`Found ${incomingUnread.length} unread, ${incomingToday.length} incoming today`);
 
-      // Analyze messages with Claude if we have any
+      // Dedupe and limit messages to analyze
       const messagesToAnalyze = [...new Map(
         [...incomingUnread, ...incomingToday.slice(0, 20)]
           .map((m) => [m.id, m])
       ).values()].slice(0, 30);
 
       if (messagesToAnalyze.length > 0) {
-        console.log(`Analyzing ${messagesToAnalyze.length} messages...`);
-        const analysis = await invokeClaudeForMessages(messagesToAnalyze);
+        console.log(`Classifying ${messagesToAnalyze.length} messages...`);
 
-        const messageDigestItems: MessageDigestItem[] = analysis.items.map((item) => {
-          const msg = messagesToAnalyze.find((m) => m.id === item.id);
-          return {
-            id: item.id,
-            from: msg?.handleId || "Unknown",
-            text: msg?.text.substring(0, 200) || "",
-            summary: item.summary,
-            category: item.category,
-            action: item.action !== "none" ? item.action : undefined,
-            date: msg?.date.toISOString() || new Date().toISOString(),
-          };
+        // Use unified classifier
+        const classifiableMessages = messagesToClassifiable(messagesToAnalyze);
+        const classifications = await classifyItems(classifiableMessages);
+
+        const messageDigestItems: MessageDigestItem[] = classifications.map((result) => {
+          const msg = messagesToAnalyze.find((m) => String(m.id) === result.id);
+          return classificationToMessageItem(result, msg!);
         });
 
-        const urgentMessages = messageDigestItems.filter((m) => m.category === "urgent");
-        const needsReply = messageDigestItems.filter((m) => m.category === "needs_reply");
+        const urgentMessages = messageDigestItems.filter(
+          (m) => m.category === "urgent" || m.priority === "P0"
+        );
+        const needsReply = messageDigestItems.filter(
+          (m) => m.category === "needs_reply" || m.priority === "P1"
+        );
         const recentMessages = messageDigestItems.filter(
           (m) => m.category === "fyi" || m.category === "personal"
         ).slice(0, 5);
@@ -391,37 +175,42 @@ export async function generateDigest(
     return createEmptyDigest(todayEvents, tomorrowEvents, messagesData);
   }
 
-  console.log(`Analyzing ${emails.length} emails for digest...`);
-  const analysis = await invokeClaudeForDigest(emails);
+  console.log(`Classifying ${emails.length} emails...`);
 
-  // Build digest items with full email info
-  const digestItems: DigestItem[] = analysis.items.map((item) => {
-    const email = emails.find((e) => e.id === item.id);
-    return {
-      id: item.id,
-      from: email?.from || "Unknown",
-      subject: email?.subject || "No subject",
-      summary: item.summary,
-      action: item.action !== "none" ? item.action : undefined,
-      owner: item.owner,
-      dueDate: item.dueDate || undefined,
-      category: item.category,
-      role: item.role === "general" ? undefined : item.role,
-      originalDate: email?.date || new Date().toISOString(),
-    };
+  // Use unified classifier for emails
+  const classifiableEmails = emailsToClassifiable(emails);
+  const classifications = await classifyItems(classifiableEmails);
+
+  // Build digest items
+  const digestItems: DigestItem[] = classifications.map((result) => {
+    const email = emails.find((e) => e.id === result.id);
+    return classificationToDigestItem(result, email!);
   });
 
-  // Organize into sections
-  const urgent = digestItems.filter((i) => i.category === "urgent");
-  const actionSoon = digestItems.filter((i) => i.category === "action_soon");
+  // Organize into sections based on priority and category
+  const urgent = digestItems.filter(
+    (i) => i.category === "urgent" || i.priority === "P0"
+  );
+  const actionSoon = digestItems.filter(
+    (i) => i.category === "action_soon" || i.priority === "P1"
+  );
   const waiting = digestItems.filter((i) => i.category === "waiting");
   const info = digestItems.filter((i) => i.category === "info");
   const lowPriority = digestItems.filter((i) => i.category === "low_priority");
 
-  // Organize by role
-  const university = digestItems.filter((i) => i.role === "university");
-  const startups = digestItems.filter((i) => i.role === "startups");
+  // Organize by role (inferred from category keywords in content)
+  const university = digestItems.filter((i) =>
+    i.role === "university" ||
+    /\b(edu|class|course|professor|student|campus|academic)\b/i.test(i.subject + " " + i.from)
+  );
+  const startups = digestItems.filter((i) =>
+    i.role === "startups" ||
+    /\b(investor|funding|startup|venture|founder|pitch)\b/i.test(i.subject + " " + i.summary)
+  );
   const personal = digestItems.filter((i) => i.role === "personal");
+
+  // Generate today's focus based on classifications
+  const todaysFocus = generateTodaysFocus(urgent, actionSoon, digestItems);
 
   const digest: DailyDigest = {
     date: new Date().toLocaleDateString("en-US", {
@@ -437,7 +226,7 @@ export async function generateDigest(
       actionCount: actionSoon.length,
       waitingCount: waiting.length,
       infoCount: info.length + lowPriority.length,
-      todaysFocus: analysis.todaysFocus,
+      todaysFocus,
     },
     urgent,
     actionSoon,
@@ -466,6 +255,27 @@ export async function generateDigest(
   };
 
   return digest;
+}
+
+function generateTodaysFocus(
+  urgent: DigestItem[],
+  actionSoon: DigestItem[],
+  all: DigestItem[]
+): string {
+  if (urgent.length > 0) {
+    const topUrgent = urgent[0];
+    return `Priority: ${topUrgent.subject} - ${topUrgent.action || "Review immediately"}`;
+  }
+
+  if (actionSoon.length > 0) {
+    return `${actionSoon.length} item(s) need attention today. Start with: ${actionSoon[0].subject}`;
+  }
+
+  if (all.length === 0) {
+    return "No new emails to process. Enjoy your clear inbox!";
+  }
+
+  return `${all.length} emails processed. No urgent items - focus on your planned work.`;
 }
 
 function createEmptyDigest(

@@ -36,19 +36,46 @@ This is a macOS-only productivity assistant that uses **AppleScript** (via bash 
 
 ### Key Modules
 
+- `src/classifier/` - **Unified classifier** for all item types (emails, messages, notes, calendar)
 - `src/mail/client.ts` - Apple Mail interface via `scripts/get-mail.sh`, `archive-mail.sh`, `flag-mail.sh`
 - `src/calendar/apple.ts` - Apple Calendar interface via `scripts/get-calendar-events.sh`
 - `src/messages/client.ts` - iMessage/SMS via direct SQLite queries on `~/Library/Messages/chat.db`
-- `src/claude/invoke.ts` - Spawns Claude CLI with prompts, parses JSON responses
-- `src/digest/generator.ts` - Orchestrates fetching from all sources, calls Claude for analysis
+- `src/claude/invoke.ts` - Wraps classifier for backwards-compatible email classification
+- `src/digest/generator.ts` - Orchestrates fetching from all sources, uses unified classifier
 
-### Email Categories and Actions
+### Unified Classifier
 
-Categories defined in `src/mail/types.ts`:
-- **Archived automatically**: newsletter, receipt, social, spam, promotional
-- **Kept in inbox**: work, teaching, important, urgent, personal, uncategorized
+The `src/classifier/` module provides a single `classifyItems()` function for all item types:
 
-Each category maps to an Apple Mail flag color (red=urgent, orange=important, blue=work, etc.).
+```typescript
+import { classifyItems, emailsToClassifiable } from "./classifier/index.js";
+
+const items = emailsToClassifiable(emails);
+const results = await classifyItems(items);
+```
+
+**Classification output:**
+- `type`: email | message | note | calendar
+- `category`: urgent | work | personal | newsletter | finance | health | admin | idea | waiting-on | reference
+- `priority`: P0 (critical) | P1 (today) | P2 (this week) | P3 (low)
+- `confidence`: 0-1
+- `reason`: short explanation
+- `suggested_next_action`: specific action to take
+
+**Adapters** in `src/classifier/adapters.ts` convert domain objects to classifiable items:
+- `emailsToClassifiable()`, `messagesToClassifiable()`, `notesToClassifiable()`, `calendarEventsToClassifiable()`
+
+### Categories and Priorities
+
+| Category | Flag Color | Auto-Archive |
+|----------|------------|--------------|
+| urgent | red | no |
+| work | blue | no |
+| personal | green | no |
+| finance | yellow | no |
+| health | purple | no |
+| newsletter | gray | yes |
+| reference | none | yes |
 
 ### Environment Variables
 

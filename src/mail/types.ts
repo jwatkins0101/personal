@@ -16,6 +16,10 @@ export interface EmailClassification {
   action: "archive" | "keep";
   flagColor?: number;
   reason?: string;
+  // Extended fields from unified classifier
+  priority?: "P0" | "P1" | "P2" | "P3";
+  confidence?: number;
+  suggestedAction?: string;
 }
 
 export interface ClaudeResponse {

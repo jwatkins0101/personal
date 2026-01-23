@@ -1,139 +1,86 @@
-import { spawn } from "child_process";
 import type { EmailMessage, EmailClassification } from "../mail/types.js";
-import { ARCHIVE_CATEGORIES, CATEGORY_FLAGS } from "../mail/types.js";
+import { CATEGORY_FLAGS } from "../mail/types.js";
+import {
+  classifyItems,
+  emailsToClassifiable,
+  type ClassificationResult,
+  ARCHIVE_CATEGORIES,
+  CATEGORY_FLAG_COLORS,
+} from "../classifier/index.js";
 
-function buildPrompt(emails: EmailMessage[]): string {
-  const emailList = emails
-    .map(
-      (e, i) =>
-        `${i + 1}. ID: ${e.id}
-   From: ${e.from}
-   Subject: ${e.subject}
-   Snippet: ${e.snippet.substring(0, 200)}...
-   Date: ${e.date}${e.account ? `\n   Account: ${e.account}` : ""}`
-    )
-    .join("\n\n");
+// Map new categories to legacy categories for backwards compatibility
+const CATEGORY_MAP: Record<string, string> = {
+  urgent: "urgent",
+  work: "work",
+  personal: "important",
+  newsletter: "newsletter",
+  finance: "receipt",
+  health: "important",
+  admin: "uncategorized",
+  idea: "uncategorized",
+  "waiting-on": "work",
+  reference: "newsletter",
+};
 
-  return `You are an email classifier. Analyze each email and categorize it.
+// Map new categories to archive behavior
+const LEGACY_ARCHIVE_CATEGORIES = [
+  "newsletter",
+  "receipt",
+  "social",
+  "spam",
+  "promotional",
+];
 
-Categories:
-- newsletter: Newsletters, digests, marketing emails, promotional content
-- receipt: Order confirmations, receipts, shipping notifications, invoices
-- social: Social media notifications (LinkedIn, Twitter, Facebook, etc.)
-- work: Work-related emails, important communications from colleagues/clients
-- teaching: Education-related, school notifications, course materials
-- important: Personal important emails, appointments, account security
-- urgent: Time-sensitive matters requiring immediate attention
-- spam: Unwanted emails, obvious spam, phishing attempts
-- promotional: Sales, discounts, marketing campaigns
-- uncategorized: Emails that don't fit other categories clearly
-
-For each email, provide:
-1. The category that best fits
-2. A brief reason for the classification
-
-Emails to classify:
-
-${emailList}
-
-Respond with ONLY a valid JSON object in this exact format (no markdown, no code blocks):
-{
-  "classifications": [
-    {"id": "email_id", "category": "category_name", "reason": "brief reason"}
-  ]
-}`;
-}
-
+/**
+ * Classify emails using the unified classifier
+ * Returns legacy EmailClassification format for backwards compatibility
+ */
 export async function invokeClaudeForClassification(
   emails: EmailMessage[]
 ): Promise<EmailClassification[]> {
-  const prompt = buildPrompt(emails);
+  if (emails.length === 0) {
+    return [];
+  }
 
-  return new Promise((resolve, reject) => {
-    const args = [
-      "-p", // Print mode (non-interactive)
-      prompt,
-      "--output-format",
-      "json",
-      "--model",
-      "sonnet", // Use faster model for classification
-    ];
+  // Convert emails to classifiable items
+  const items = emailsToClassifiable(emails);
 
-    const claude = spawn("claude", args, {
-      stdio: ["ignore", "pipe", "pipe"], // Don't need stdin
-    });
+  // Classify using unified classifier
+  const results = await classifyItems(items);
 
-    let stdout = "";
-    let stderr = "";
+  // Convert to legacy format
+  return results.map((result) => {
+    const legacyCategory = CATEGORY_MAP[result.category] || "uncategorized";
+    const shouldArchive =
+      ARCHIVE_CATEGORIES.includes(result.category) ||
+      result.priority === "P3";
 
-    claude.stdout.on("data", (data) => {
-      stdout += data.toString();
-    });
-
-    claude.stderr.on("data", (data) => {
-      stderr += data.toString();
-    });
-
-    claude.on("close", (code) => {
-      if (code !== 0) {
-        console.error("Claude CLI stderr:", stderr);
-        reject(new Error(`Claude CLI exited with code ${code}`));
-        return;
-      }
-
-      try {
-        // Parse the JSON output from Claude
-        const response = JSON.parse(stdout);
-
-        // Handle different response formats from Claude CLI
-        let content: string;
-        if (response.result) {
-          content = response.result;
-        } else if (response.content) {
-          content = response.content;
-        } else if (typeof response === "string") {
-          content = response;
-        } else {
-          content = stdout;
-        }
-
-        // Extract JSON from the content (might be wrapped in markdown code blocks)
-        let jsonStr = content;
-        const jsonMatch = content.match(/```(?:json)?\s*([\s\S]*?)```/);
-        if (jsonMatch) {
-          jsonStr = jsonMatch[1].trim();
-        }
-
-        // Try to find JSON object in the response
-        const objectMatch = jsonStr.match(/\{[\s\S]*\}/);
-        if (objectMatch) {
-          jsonStr = objectMatch[0];
-        }
-
-        const parsed = JSON.parse(jsonStr);
-        const classifications: EmailClassification[] =
-          parsed.classifications.map(
-            (c: { id: string; category: string; reason?: string }) => ({
-              id: c.id,
-              category: c.category,
-              action: ARCHIVE_CATEGORIES.includes(c.category)
-                ? "archive"
-                : "keep",
-              flagColor: CATEGORY_FLAGS[c.category] ?? 0,
-              reason: c.reason,
-            })
-          );
-
-        resolve(classifications);
-      } catch (err) {
-        console.error("Failed to parse Claude response:", stdout);
-        console.error("Parse error:", err);
-        reject(new Error("Failed to parse Claude CLI response as JSON"));
-      }
-    });
-
-    claude.on("error", (err) => {
-      reject(new Error(`Failed to spawn Claude CLI: ${err.message}`));
-    });
+    return {
+      id: result.id,
+      category: legacyCategory,
+      action: shouldArchive ? "archive" : "keep",
+      flagColor:
+        CATEGORY_FLAG_COLORS[result.category] ??
+        CATEGORY_FLAGS[legacyCategory] ??
+        0,
+      reason: result.reason,
+      // Extended fields from unified classifier
+      priority: result.priority,
+      confidence: result.confidence,
+      suggestedAction: result.suggested_next_action,
+    } as EmailClassification;
   });
 }
+
+/**
+ * Classify emails and return full classification results
+ */
+export async function classifyEmails(
+  emails: EmailMessage[]
+): Promise<ClassificationResult[]> {
+  const items = emailsToClassifiable(emails);
+  return classifyItems(items);
+}
+
+// Re-export classifier functions for direct use
+export { classifyItems, classifyItem } from "../classifier/index.js";
