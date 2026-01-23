@@ -9,7 +9,7 @@ import {
   type MemoryItem,
 } from "../storage/index.js";
 import { getTodayEvents } from "../calendar/apple.js";
-import { upsertNote, generateBriefingView } from "../notes/index.js";
+import { createBriefingFromTemplate, upsertNote, generateBriefingView } from "../notes/index.js";
 import {
   listPeopleToNudge,
   getRecentConnections,
@@ -85,24 +85,54 @@ async function generateBriefing(): Promise<void> {
   const urgentItems = getUrgentItems(highPriorityItems);
   const todayItems = getTodayActionItems(highPriorityItems);
 
-  const content = generateBriefingView(
-    now,
-    urgentItems,
-    todayItems,
-    calendarEvents,
-    queuedItems.length,
-    {
-      newConnections,
-      nudges,
-      waitingOn,
-    }
-  );
+  // Try template-based approach first
+  const sections = {
+    urgent: urgentItems.length > 0
+      ? urgentItems.map(item => `${item.title}`).join("\n")
+      : "No urgent items",
+    schedule: calendarEvents.length > 0
+      ? calendarEvents.map(e => {
+          const time = e.isAllDay ? "All day" : new Date(e.startTime).toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" });
+          return `${time} - ${e.title}${e.location ? ` (${e.location})` : ""}`;
+        }).join("\n")
+      : "No events scheduled",
+    connections: newConnections.length > 0
+      ? newConnections.map(p => `${p.display_name}${p.company ? ` @ ${p.company}` : ""}`).join("\n")
+      : "",
+    reconnect: nudges.length > 0
+      ? nudges.map(n => `${n.person.display_name}${n.person.company ? ` @ ${n.person.company}` : ""} - ${n.reason}`).join("\n")
+      : "",
+    actionItems: todayItems.length > 0
+      ? todayItems.map(item => `${item.title}`).join("\n")
+      : "No action items",
+    reviewQueue: queuedItems.length > 0
+      ? `${queuedItems.length} items need review`
+      : "",
+  };
 
-  // Create the briefing note
-  const noteTitle = `📋 Briefing - ${now.toLocaleDateString("en-US", { month: "short", day: "numeric" })}`;
-  const result = await upsertNote(noteTitle, content, "Briefings");
+  let result = await createBriefingFromTemplate(now, sections);
+
+  // Fall back to HTML approach if template fails (not found, can't copy, etc.)
+  if (!result.success) {
+    console.log(`  Template approach failed (${result.error}), using HTML format...`);
+    const content = generateBriefingView(
+      now,
+      urgentItems,
+      todayItems,
+      calendarEvents,
+      queuedItems.length,
+      {
+        newConnections,
+        nudges,
+        waitingOn,
+      }
+    );
+    const noteTitle = `📋 Briefing - ${now.toLocaleDateString("en-US", { month: "short", day: "numeric" })}`;
+    result = await upsertNote(noteTitle, content, "Briefings");
+  }
 
   if (result.success) {
+    const noteTitle = `📋 Briefing - ${now.toLocaleDateString("en-US", { month: "short", day: "numeric" })}`;
     console.log(`\n✓ Briefing ${result.action}: ${noteTitle}`);
   } else {
     console.error(`\n✗ Failed to create briefing: ${result.error}`);
