@@ -77,8 +77,8 @@ async function getEventsForDayOffset(dayOffset: number): Promise<CalendarEvent[]
         const [title, startTime, endTime, isAllDay, location, calendar] = parts;
         events.push({
           title: title || "Untitled",
-          startTime: startTime || "",
-          endTime: endTime || "",
+          startTime: normalizeDate(startTime || ""),
+          endTime: normalizeDate(endTime || ""),
           location: location && location.trim() !== "" ? location : undefined,
           calendar: calendar || undefined,
           isAllDay: isAllDay === "true",
@@ -98,6 +98,15 @@ async function getEventsForDayOffset(dayOffset: number): Promise<CalendarEvent[]
     // Silently return empty on errors - calendar may just be slow or inaccessible
     return [];
   }
+}
+
+/**
+ * Normalize AppleScript date format to parseable format.
+ * Converts "Friday, January 23, 2026 at 8:00:00 AM" to ISO-parseable string.
+ */
+function normalizeDate(dateStr: string): string {
+  // Remove "at" which JavaScript Date can't parse
+  return dateStr.replace(" at ", " ");
 }
 
 export function formatEventTime(event: CalendarEvent): string {
