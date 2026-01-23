@@ -11,6 +11,16 @@ export interface DigestItem {
   originalDate: string;
 }
 
+export interface MessageDigestItem {
+  id: number;
+  from: string;
+  text: string;
+  summary: string;
+  category: "urgent" | "needs_reply" | "fyi" | "personal";
+  action?: string;
+  date: string;
+}
+
 export interface DigestSection {
   title: string;
   items: DigestItem[];
@@ -56,6 +66,14 @@ export interface DailyDigest {
     calendar?: string;
     isAllDay: boolean;
   }>;
+
+  // Messages integration
+  messages?: {
+    unreadCount: number;
+    urgentMessages: MessageDigestItem[];
+    needsReply: MessageDigestItem[];
+    recentMessages: MessageDigestItem[];
+  };
 }
 
 export interface DigestOptions {
@@ -63,6 +81,7 @@ export interface DigestOptions {
   outputFormat: "console" | "markdown" | "html" | "email";
   outputPath?: string;
   includeCalendar?: boolean;
+  includeMessages?: boolean;
   roleKeywords?: {
     university: string[];
     startups: string[];

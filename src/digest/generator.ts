@@ -1,11 +1,12 @@
 import { spawn } from "child_process";
-import type { EmailMessage } from "../gmail/types.js";
-import type { DailyDigest, DigestItem, DigestOptions } from "./types.js";
+import type { EmailMessage } from "../mail/types.js";
+import type { DailyDigest, DigestItem, DigestOptions, MessageDigestItem } from "./types.js";
 import {
   getTodayEvents,
   getTomorrowEvents,
   formatEventTime,
 } from "../calendar/apple.js";
+import { messagesClient, type Message } from "../messages/index.js";
 
 const DEFAULT_ROLE_KEYWORDS = {
   university: [
@@ -110,6 +111,130 @@ interface ClaudeDigestResponse {
   }>;
 }
 
+function buildMessageDigestPrompt(messages: Message[]): string {
+  const messageList = messages
+    .map(
+      (m, i) =>
+        `${i + 1}. ID: ${m.id}
+   From: ${m.handleId}
+   Text: ${m.text.substring(0, 500)}
+   Date: ${m.date.toISOString()}
+   Is Reply Thread: ${m.threadOriginatorGuid ? "yes" : "no"}`
+    )
+    .join("\n\n");
+
+  return `You are an executive assistant analyzing text messages (iMessage/SMS) to identify important items.
+
+For each message, determine:
+1. **Category**: urgent (needs immediate response), needs_reply (should respond soon), fyi (informational), personal (casual/social)
+2. **Summary**: One brief sentence capturing what this message is about or needs
+3. **Action**: What response or action is needed (reply, call, none)
+
+Focus on identifying:
+- Messages that need a response (questions, requests)
+- Time-sensitive information
+- Important updates from key contacts
+
+Messages to analyze:
+
+${messageList}
+
+Respond with ONLY valid JSON (no markdown, no code blocks):
+{
+  "items": [
+    {
+      "id": message_id_number,
+      "category": "urgent|needs_reply|fyi|personal",
+      "summary": "Brief summary",
+      "action": "reply|call|none"
+    }
+  ]
+}`;
+}
+
+interface ClaudeMessageResponse {
+  items: Array<{
+    id: number;
+    category: "urgent" | "needs_reply" | "fyi" | "personal";
+    summary: string;
+    action: string;
+  }>;
+}
+
+async function invokeClaudeForMessages(
+  messages: Message[]
+): Promise<ClaudeMessageResponse> {
+  const prompt = buildMessageDigestPrompt(messages);
+
+  return new Promise((resolve, reject) => {
+    const args = [
+      "-p",
+      prompt,
+      "--output-format",
+      "json",
+      "--model",
+      "haiku",
+    ];
+
+    const claude = spawn("claude", args, {
+      stdio: ["ignore", "pipe", "pipe"],
+    });
+
+    let stdout = "";
+    let stderr = "";
+
+    claude.stdout.on("data", (data) => {
+      stdout += data.toString();
+    });
+
+    claude.stderr.on("data", (data) => {
+      stderr += data.toString();
+    });
+
+    claude.on("close", (code) => {
+      if (code !== 0) {
+        console.error("Claude CLI stderr:", stderr);
+        reject(new Error(`Claude CLI exited with code ${code}`));
+        return;
+      }
+
+      try {
+        const response = JSON.parse(stdout);
+        let content: string;
+        if (response.result) {
+          content = response.result;
+        } else if (response.content) {
+          content = response.content;
+        } else if (typeof response === "string") {
+          content = response;
+        } else {
+          content = stdout;
+        }
+
+        let jsonStr = content;
+        const jsonMatch = content.match(/```(?:json)?\s*([\s\S]*?)```/);
+        if (jsonMatch) {
+          jsonStr = jsonMatch[1].trim();
+        }
+
+        const objectMatch = jsonStr.match(/\{[\s\S]*\}/);
+        if (objectMatch) {
+          jsonStr = objectMatch[0];
+        }
+
+        resolve(JSON.parse(jsonStr));
+      } catch (err) {
+        console.error("Failed to parse Claude response for messages:", stdout);
+        resolve({ items: [] });
+      }
+    });
+
+    claude.on("error", (err) => {
+      reject(new Error(`Failed to spawn Claude CLI: ${err.message}`));
+    });
+  });
+}
+
 async function invokeClaudeForDigest(
   emails: EmailMessage[]
 ): Promise<ClaudeDigestResponse> {
@@ -198,8 +323,72 @@ export async function generateDigest(
     `Found ${todayEvents.length} events today, ${tomorrowEvents.length} tomorrow`
   );
 
+  // Fetch messages if enabled (default: true)
+  let messagesData: DailyDigest["messages"] | undefined;
+  if (options.includeMessages !== false) {
+    console.log("Fetching recent messages...");
+    try {
+      const [unreadMessages, todaysMessages] = await Promise.all([
+        messagesClient.getUnreadMessages(),
+        messagesClient.getTodaysMessages(),
+      ]);
+
+      // Filter to just incoming messages (not from me)
+      const incomingUnread = unreadMessages.filter((m) => !m.isFromMe);
+      const incomingToday = todaysMessages.filter((m) => !m.isFromMe);
+
+      console.log(`Found ${incomingUnread.length} unread, ${incomingToday.length} incoming today`);
+
+      // Analyze messages with Claude if we have any
+      const messagesToAnalyze = [...new Map(
+        [...incomingUnread, ...incomingToday.slice(0, 20)]
+          .map((m) => [m.id, m])
+      ).values()].slice(0, 30);
+
+      if (messagesToAnalyze.length > 0) {
+        console.log(`Analyzing ${messagesToAnalyze.length} messages...`);
+        const analysis = await invokeClaudeForMessages(messagesToAnalyze);
+
+        const messageDigestItems: MessageDigestItem[] = analysis.items.map((item) => {
+          const msg = messagesToAnalyze.find((m) => m.id === item.id);
+          return {
+            id: item.id,
+            from: msg?.handleId || "Unknown",
+            text: msg?.text.substring(0, 200) || "",
+            summary: item.summary,
+            category: item.category,
+            action: item.action !== "none" ? item.action : undefined,
+            date: msg?.date.toISOString() || new Date().toISOString(),
+          };
+        });
+
+        const urgentMessages = messageDigestItems.filter((m) => m.category === "urgent");
+        const needsReply = messageDigestItems.filter((m) => m.category === "needs_reply");
+        const recentMessages = messageDigestItems.filter(
+          (m) => m.category === "fyi" || m.category === "personal"
+        ).slice(0, 5);
+
+        messagesData = {
+          unreadCount: incomingUnread.length,
+          urgentMessages,
+          needsReply,
+          recentMessages,
+        };
+      } else {
+        messagesData = {
+          unreadCount: 0,
+          urgentMessages: [],
+          needsReply: [],
+          recentMessages: [],
+        };
+      }
+    } catch (err) {
+      console.error("Failed to fetch messages:", err instanceof Error ? err.message : err);
+    }
+  }
+
   if (emails.length === 0) {
-    return createEmptyDigest(todayEvents, tomorrowEvents);
+    return createEmptyDigest(todayEvents, tomorrowEvents, messagesData);
   }
 
   console.log(`Analyzing ${emails.length} emails for digest...`);
@@ -273,6 +462,7 @@ export async function generateDigest(
       calendar: e.calendar,
       isAllDay: e.isAllDay,
     })),
+    messages: messagesData,
   };
 
   return digest;
@@ -280,7 +470,8 @@ export async function generateDigest(
 
 function createEmptyDigest(
   todayEvents: Awaited<ReturnType<typeof getTodayEvents>> = [],
-  tomorrowEvents: Awaited<ReturnType<typeof getTomorrowEvents>> = []
+  tomorrowEvents: Awaited<ReturnType<typeof getTomorrowEvents>> = [],
+  messagesData?: DailyDigest["messages"]
 ): DailyDigest {
   return {
     date: new Date().toLocaleDateString("en-US", {
@@ -321,5 +512,6 @@ function createEmptyDigest(
       calendar: e.calendar,
       isAllDay: e.isAllDay,
     })),
+    messages: messagesData,
   };
 }

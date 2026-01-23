@@ -1,6 +1,6 @@
 import { spawn } from "child_process";
-import type { EmailMessage, EmailClassification } from "../gmail/types.js";
-import { CATEGORY_LABELS, ARCHIVE_CATEGORIES } from "../config.js";
+import type { EmailMessage, EmailClassification } from "../mail/types.js";
+import { ARCHIVE_CATEGORIES, CATEGORY_FLAGS } from "../mail/types.js";
 
 function buildPrompt(emails: EmailMessage[]): string {
   const emailList = emails
@@ -10,7 +10,7 @@ function buildPrompt(emails: EmailMessage[]): string {
    From: ${e.from}
    Subject: ${e.subject}
    Snippet: ${e.snippet.substring(0, 200)}...
-   Date: ${e.date}`
+   Date: ${e.date}${e.account ? `\n   Account: ${e.account}` : ""}`
     )
     .join("\n\n");
 
@@ -21,8 +21,11 @@ Categories:
 - receipt: Order confirmations, receipts, shipping notifications, invoices
 - social: Social media notifications (LinkedIn, Twitter, Facebook, etc.)
 - work: Work-related emails, important communications from colleagues/clients
+- teaching: Education-related, school notifications, course materials
 - important: Personal important emails, appointments, account security
+- urgent: Time-sensitive matters requiring immediate attention
 - spam: Unwanted emails, obvious spam, phishing attempts
+- promotional: Sales, discounts, marketing campaigns
 - uncategorized: Emails that don't fit other categories clearly
 
 For each email, provide:
@@ -116,9 +119,7 @@ export async function invokeClaudeForClassification(
               action: ARCHIVE_CATEGORIES.includes(c.category)
                 ? "archive"
                 : "keep",
-              label:
-                CATEGORY_LABELS[c.category] ||
-                CATEGORY_LABELS["uncategorized"],
+              flagColor: CATEGORY_FLAGS[c.category] ?? 0,
               reason: c.reason,
             })
           );

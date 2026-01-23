@@ -1,4 +1,4 @@
-import type { DailyDigest, DigestItem } from "./types.js";
+import type { DailyDigest, DigestItem, MessageDigestItem } from "./types.js";
 
 function formatItem(item: DigestItem, includeAction = true): string {
   let line = `• **${item.from}**: ${item.subject}`;
@@ -25,6 +25,24 @@ function formatItemConsole(item: DigestItem, includeAction = true): string {
     }
   }
 
+  return line;
+}
+
+function formatMessageItem(item: MessageDigestItem): string {
+  let line = `• **${item.from}**: "${item.text.substring(0, 80)}${item.text.length > 80 ? "..." : ""}"`;
+  line += `\n  _${item.summary}_`;
+  if (item.action) {
+    line += `\n  → Action: **${item.action.toUpperCase()}**`;
+  }
+  return line;
+}
+
+function formatMessageItemConsole(item: MessageDigestItem): string {
+  let line = `  • [${item.from}] "${item.text.substring(0, 60)}${item.text.length > 60 ? "..." : ""}"`;
+  line += `\n    ${item.summary}`;
+  if (item.action) {
+    line += `\n    → ${item.action.toUpperCase()}`;
+  }
   return line;
 }
 
@@ -140,6 +158,42 @@ export function formatDigestMarkdown(digest: DailyDigest): string {
       lines.push(`• **${item.from}**: ${item.subject}`);
     });
     lines.push(``);
+  }
+
+  // Messages Section
+  if (digest.messages) {
+    const totalMsgItems = digest.messages.urgentMessages.length +
+      digest.messages.needsReply.length +
+      digest.messages.recentMessages.length;
+
+    if (totalMsgItems > 0 || digest.messages.unreadCount > 0) {
+      lines.push(`## 💬 Messages`);
+      lines.push(`_${digest.messages.unreadCount} unread messages_\n`);
+
+      if (digest.messages.urgentMessages.length > 0) {
+        lines.push(`### 🔴 Urgent Messages (${digest.messages.urgentMessages.length})`);
+        digest.messages.urgentMessages.forEach((msg) => {
+          lines.push(formatMessageItem(msg));
+          lines.push(``);
+        });
+      }
+
+      if (digest.messages.needsReply.length > 0) {
+        lines.push(`### 💬 Needs Reply (${digest.messages.needsReply.length})`);
+        digest.messages.needsReply.forEach((msg) => {
+          lines.push(formatMessageItem(msg));
+          lines.push(``);
+        });
+      }
+
+      if (digest.messages.recentMessages.length > 0) {
+        lines.push(`### 📱 Recent (${digest.messages.recentMessages.length})`);
+        digest.messages.recentMessages.forEach((msg) => {
+          lines.push(`• **${msg.from}**: ${msg.summary}`);
+        });
+        lines.push(``);
+      }
+    }
   }
 
   // Footer
@@ -260,6 +314,39 @@ export function formatDigestConsole(digest: DailyDigest): string {
     digest.fyi.forEach((item) => {
       lines.push(`  • [${item.from}] ${item.subject}`);
     });
+  }
+
+  // Messages Section
+  if (digest.messages) {
+    const totalMsgItems = digest.messages.urgentMessages.length +
+      digest.messages.needsReply.length +
+      digest.messages.recentMessages.length;
+
+    if (totalMsgItems > 0 || digest.messages.unreadCount > 0) {
+      lines.push(`\n💬 MESSAGES (${digest.messages.unreadCount} unread)`);
+      lines.push(subDivider);
+
+      if (digest.messages.urgentMessages.length > 0) {
+        lines.push(`  🔴 URGENT (${digest.messages.urgentMessages.length})`);
+        digest.messages.urgentMessages.forEach((msg) => {
+          lines.push(formatMessageItemConsole(msg));
+        });
+      }
+
+      if (digest.messages.needsReply.length > 0) {
+        lines.push(`\n  💬 NEEDS REPLY (${digest.messages.needsReply.length})`);
+        digest.messages.needsReply.forEach((msg) => {
+          lines.push(formatMessageItemConsole(msg));
+        });
+      }
+
+      if (digest.messages.recentMessages.length > 0) {
+        lines.push(`\n  📱 RECENT`);
+        digest.messages.recentMessages.forEach((msg) => {
+          lines.push(`  • [${msg.from}] ${msg.summary}`);
+        });
+      }
+    }
   }
 
   // Footer
@@ -400,6 +487,49 @@ export function formatDigestHtml(digest: DailyDigest): string {
     digest.fyi.forEach((item) => {
       html += `<div class="fyi-item"><strong>${escapeHtml(item.from)}</strong>: ${escapeHtml(item.subject)}</div>`;
     });
+  }
+
+  // Messages Section
+  if (digest.messages) {
+    const totalMsgItems = digest.messages.urgentMessages.length +
+      digest.messages.needsReply.length +
+      digest.messages.recentMessages.length;
+
+    if (totalMsgItems > 0 || digest.messages.unreadCount > 0) {
+      html += `<h2>💬 Messages (${digest.messages.unreadCount} unread)</h2>`;
+
+      if (digest.messages.urgentMessages.length > 0) {
+        html += `<h3 style="color: #dc3545;">🔴 Urgent Messages (${digest.messages.urgentMessages.length})</h3>`;
+        digest.messages.urgentMessages.forEach((msg) => {
+          html += `<div style="margin-bottom: 12px; padding: 10px; background: #fff5f5; border-radius: 6px; border-left: 4px solid #dc3545;">`;
+          html += `<strong>${escapeHtml(msg.from)}</strong><br>`;
+          html += `<em>"${escapeHtml(msg.text.substring(0, 100))}${msg.text.length > 100 ? "..." : ""}"</em><br>`;
+          html += `<span style="color: #666;">${escapeHtml(msg.summary)}</span>`;
+          if (msg.action) {
+            html += `<br><span style="color: #d63384;">→ ${msg.action.toUpperCase()}</span>`;
+          }
+          html += `</div>`;
+        });
+      }
+
+      if (digest.messages.needsReply.length > 0) {
+        html += `<h3 style="color: #0d6efd;">💬 Needs Reply (${digest.messages.needsReply.length})</h3>`;
+        digest.messages.needsReply.forEach((msg) => {
+          html += `<div style="margin-bottom: 12px; padding: 10px; background: #f0f7ff; border-radius: 6px; border-left: 4px solid #0d6efd;">`;
+          html += `<strong>${escapeHtml(msg.from)}</strong><br>`;
+          html += `<em>"${escapeHtml(msg.text.substring(0, 100))}${msg.text.length > 100 ? "..." : ""}"</em><br>`;
+          html += `<span style="color: #666;">${escapeHtml(msg.summary)}</span>`;
+          html += `</div>`;
+        });
+      }
+
+      if (digest.messages.recentMessages.length > 0) {
+        html += `<h3>📱 Recent</h3>`;
+        digest.messages.recentMessages.forEach((msg) => {
+          html += `<div class="fyi-item"><strong>${escapeHtml(msg.from)}</strong>: ${escapeHtml(msg.summary)}</div>`;
+        });
+      }
+    }
   }
 
   html += `
