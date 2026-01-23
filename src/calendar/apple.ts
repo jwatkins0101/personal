@@ -27,9 +27,14 @@ async function getEventsForDayOffset(dayOffset: number): Promise<CalendarEvent[]
   try {
     const result = await new Promise<string>((resolve, reject) => {
       const proc = spawn("bash", [SCRIPT_PATH, String(dayOffset)], {
-        timeout: 45000,
         stdio: ["ignore", "pipe", "pipe"],
       });
+
+      // Manual timeout since spawn doesn't support timeout option
+      const timeoutId = setTimeout(() => {
+        proc.kill("SIGTERM");
+        reject(new Error("Calendar script timed out after 45 seconds"));
+      }, 45000);
 
       let stdout = "";
       let stderr = "";
@@ -43,6 +48,7 @@ async function getEventsForDayOffset(dayOffset: number): Promise<CalendarEvent[]
       });
 
       proc.on("close", (code, signal) => {
+        clearTimeout(timeoutId);
         if (code === 0) {
           resolve(stdout.trim());
         } else if (signal) {
@@ -53,6 +59,7 @@ async function getEventsForDayOffset(dayOffset: number): Promise<CalendarEvent[]
       });
 
       proc.on("error", (err) => {
+        clearTimeout(timeoutId);
         reject(err);
       });
     });
