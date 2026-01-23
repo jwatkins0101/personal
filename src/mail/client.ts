@@ -4,6 +4,7 @@ import { fileURLToPath } from "url";
 import type { EmailMessage } from "./types.js";
 import { CATEGORY_FLAGS, FLAG_COLORS } from "./types.js";
 import { logSuccess, logFailure } from "../storage/action-log.js";
+import { retry } from "../utils/retry.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -99,7 +100,17 @@ export async function getMailState(messageId: string): Promise<MailState | null>
 
 export async function fetchUnreadEmails(): Promise<EmailMessage[]> {
   try {
-    const result = await runScript("get-mail.sh", [String(MAX_EMAILS)]);
+    // Retry up to 3 times with exponential backoff
+    const result = await retry(
+      () => runScript("get-mail.sh", [String(MAX_EMAILS)]),
+      {
+        maxAttempts: 3,
+        delayMs: 2000,
+        onRetry: (attempt, error) => {
+          console.warn(`Mail fetch attempt ${attempt} failed: ${error.message}, retrying...`);
+        },
+      }
+    );
 
     if (!result || result === "") {
       return [];
@@ -128,7 +139,7 @@ export async function fetchUnreadEmails(): Promise<EmailMessage[]> {
 
     return emails;
   } catch (err) {
-    console.error("Failed to fetch emails:", err instanceof Error ? err.message : err);
+    console.error("Failed to fetch emails after retries:", err instanceof Error ? err.message : err);
     return [];
   }
 }

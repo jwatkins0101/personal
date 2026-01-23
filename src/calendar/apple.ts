@@ -1,6 +1,7 @@
 import { spawn } from "child_process";
 import { join, dirname } from "path";
 import { fileURLToPath } from "url";
+import { retry } from "../utils/retry.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -23,46 +24,63 @@ export async function getTomorrowEvents(): Promise<CalendarEvent[]> {
   return getEventsForDayOffset(1);
 }
 
+/**
+ * Execute the calendar script for a given day offset.
+ */
+async function runCalendarScript(dayOffset: number): Promise<string> {
+  return new Promise<string>((resolve, reject) => {
+    const proc = spawn("bash", [SCRIPT_PATH, String(dayOffset)], {
+      stdio: ["ignore", "pipe", "pipe"],
+    });
+
+    // Manual timeout since spawn doesn't support timeout option
+    const timeoutId = setTimeout(() => {
+      proc.kill("SIGTERM");
+      reject(new Error("Calendar script timed out after 45 seconds"));
+    }, 45000);
+
+    let stdout = "";
+    let stderr = "";
+
+    proc.stdout.on("data", (data) => {
+      stdout += data.toString();
+    });
+
+    proc.stderr.on("data", (data) => {
+      stderr += data.toString();
+    });
+
+    proc.on("close", (code, signal) => {
+      clearTimeout(timeoutId);
+      if (code === 0) {
+        resolve(stdout.trim());
+      } else if (signal) {
+        reject(new Error(`Process killed by signal: ${signal}`));
+      } else {
+        reject(new Error(`Script exited with code ${code}: ${stderr}`));
+      }
+    });
+
+    proc.on("error", (err) => {
+      clearTimeout(timeoutId);
+      reject(err);
+    });
+  });
+}
+
 async function getEventsForDayOffset(dayOffset: number): Promise<CalendarEvent[]> {
   try {
-    const result = await new Promise<string>((resolve, reject) => {
-      const proc = spawn("bash", [SCRIPT_PATH, String(dayOffset)], {
-        stdio: ["ignore", "pipe", "pipe"],
-      });
-
-      // Manual timeout since spawn doesn't support timeout option
-      const timeoutId = setTimeout(() => {
-        proc.kill("SIGTERM");
-        reject(new Error("Calendar script timed out after 45 seconds"));
-      }, 45000);
-
-      let stdout = "";
-      let stderr = "";
-
-      proc.stdout.on("data", (data) => {
-        stdout += data.toString();
-      });
-
-      proc.stderr.on("data", (data) => {
-        stderr += data.toString();
-      });
-
-      proc.on("close", (code, signal) => {
-        clearTimeout(timeoutId);
-        if (code === 0) {
-          resolve(stdout.trim());
-        } else if (signal) {
-          reject(new Error(`Process killed by signal: ${signal}`));
-        } else {
-          reject(new Error(`Script exited with code ${code}: ${stderr}`));
-        }
-      });
-
-      proc.on("error", (err) => {
-        clearTimeout(timeoutId);
-        reject(err);
-      });
-    });
+    // Retry up to 3 times with exponential backoff
+    const result = await retry(
+      () => runCalendarScript(dayOffset),
+      {
+        maxAttempts: 3,
+        delayMs: 1000,
+        onRetry: (attempt, error) => {
+          console.warn(`Calendar fetch attempt ${attempt} failed: ${error.message}, retrying...`);
+        },
+      }
+    );
 
     if (!result || result === "") {
       return [];
