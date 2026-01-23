@@ -22,6 +22,8 @@
     "review:people": "tsx src/commands/review-people.ts",
     "fix": "tsx src/commands/fix.ts",
     "fix:person": "tsx src/commands/fix-person.ts",
+    "backfill": "tsx src/commands/backfill.ts",
+    "undo": "tsx src/commands/undo.ts",
     "build": "tsc --noEmit",
     "dev": "tsx watch src/index.ts"
   },

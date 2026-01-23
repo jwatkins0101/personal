@@ -11,7 +11,11 @@ const SCRIPTS_DIR = join(__dirname, "../../scripts");
 
 const MAX_EMAILS = parseInt(process.env.MAX_EMAILS_PER_RUN || "20", 10);
 
-async function runScript(scriptName: string, args: string[] = []): Promise<string> {
+async function runScript(
+  scriptName: string,
+  args: string[] = [],
+  timeoutMs: number = 180000
+): Promise<string> {
   const scriptPath = join(SCRIPTS_DIR, scriptName);
 
   return new Promise((resolve, reject) => {
@@ -19,11 +23,11 @@ async function runScript(scriptName: string, args: string[] = []): Promise<strin
       stdio: ["ignore", "pipe", "pipe"],
     });
 
-    // Manual timeout - AppleScript has its own 120s timeout
+    // Manual timeout
     const timeoutId = setTimeout(() => {
       proc.kill("SIGTERM");
-      reject(new Error("Script timed out after 180 seconds"));
-    }, 180000);
+      reject(new Error(`Script timed out after ${timeoutMs / 1000} seconds`));
+    }, timeoutMs);
 
     let stdout = "";
     let stderr = "";
@@ -56,6 +60,41 @@ function parseEmailAddress(sender: string): string {
   // Extract email from formats like "Name <email@example.com>" or just "email@example.com"
   const match = sender.match(/<([^>]+)>/) || sender.match(/([^\s<>]+@[^\s<>]+)/);
   return match ? match[1] : sender;
+}
+
+/**
+ * Pre-state snapshot for undo operations.
+ */
+export interface MailState {
+  mailbox: string;
+  account: string;
+  flagIndex: number;
+  isUnread: boolean;
+}
+
+/**
+ * Get current state of a message for undo snapshots.
+ */
+export async function getMailState(messageId: string): Promise<MailState | null> {
+  try {
+    const result = await runScript("get-mail-state.sh", [messageId]);
+
+    if (!result || result.startsWith("ERROR:")) {
+      console.warn(`Could not get mail state for ${messageId}: ${result}`);
+      return null;
+    }
+
+    const [mailbox, account, flagIndexStr, isUnreadStr] = result.split("<|>");
+    return {
+      mailbox: mailbox || "INBOX",
+      account: account || "",
+      flagIndex: parseInt(flagIndexStr, 10) || 0,
+      isUnread: isUnreadStr === "true",
+    };
+  } catch (err) {
+    console.warn(`Failed to get mail state for ${messageId}:`, err);
+    return null;
+  }
 }
 
 export async function fetchUnreadEmails(): Promise<EmailMessage[]> {
@@ -96,9 +135,16 @@ export async function fetchUnreadEmails(): Promise<EmailMessage[]> {
 
 export async function markAsRead(messageId: string): Promise<void> {
   const itemId = `email:${messageId}`;
+
+  // Capture pre-state for undo
+  const preState = await getMailState(messageId);
+
   try {
     await runScript("mark-mail-read.sh", [messageId]);
-    logSuccess(itemId, "mark-read", { messageId });
+    logSuccess(itemId, "mark-read", {
+      messageId,
+      preState: preState ? { wasUnread: preState.isUnread } : null,
+    });
   } catch (err) {
     const errorMsg = err instanceof Error ? err.message : String(err);
     logFailure(itemId, "mark-read", errorMsg, { messageId });
@@ -108,9 +154,19 @@ export async function markAsRead(messageId: string): Promise<void> {
 
 export async function archiveMessage(messageId: string): Promise<void> {
   const itemId = `email:${messageId}`;
+
+  // Capture pre-state for undo
+  const preState = await getMailState(messageId);
+
   try {
     await runScript("archive-mail.sh", [messageId]);
-    logSuccess(itemId, "archive", { messageId });
+    logSuccess(itemId, "archive", {
+      messageId,
+      preState: preState ? {
+        originalMailbox: preState.mailbox,
+        originalAccount: preState.account,
+      } : null,
+    });
   } catch (err) {
     const errorMsg = err instanceof Error ? err.message : String(err);
     logFailure(itemId, "archive", errorMsg, { messageId });
@@ -120,13 +176,57 @@ export async function archiveMessage(messageId: string): Promise<void> {
 
 export async function flagMessage(messageId: string, colorIndex: number): Promise<void> {
   const itemId = `email:${messageId}`;
+
+  // Capture pre-state for undo
+  const preState = await getMailState(messageId);
+
   try {
     await runScript("flag-mail.sh", [messageId, String(colorIndex)]);
-    logSuccess(itemId, "flag", { messageId, colorIndex });
+    logSuccess(itemId, "flag", {
+      messageId,
+      colorIndex,
+      preState: preState ? { previousFlagIndex: preState.flagIndex } : null,
+    });
   } catch (err) {
     const errorMsg = err instanceof Error ? err.message : String(err);
     logFailure(itemId, "flag", errorMsg, { messageId, colorIndex });
     console.error(`Failed to flag message ${messageId}:`, errorMsg);
+  }
+}
+
+/**
+ * Move a message back from archive to inbox.
+ */
+export async function unarchiveMessage(messageId: string, accountName: string): Promise<void> {
+  const itemId = `email:${messageId}`;
+  try {
+    const result = await runScript("unarchive-mail.sh", [messageId, accountName]);
+    if (result.startsWith("ERROR:")) {
+      throw new Error(result);
+    }
+    logSuccess(itemId, "unarchive", { messageId, accountName });
+  } catch (err) {
+    const errorMsg = err instanceof Error ? err.message : String(err);
+    logFailure(itemId, "unarchive", errorMsg, { messageId, accountName });
+    throw new Error(`Failed to unarchive message ${messageId}: ${errorMsg}`);
+  }
+}
+
+/**
+ * Mark a message as unread.
+ */
+export async function markAsUnread(messageId: string): Promise<void> {
+  const itemId = `email:${messageId}`;
+  try {
+    const result = await runScript("mark-mail-unread.sh", [messageId]);
+    if (result.startsWith("ERROR:")) {
+      throw new Error(result);
+    }
+    logSuccess(itemId, "mark-unread", { messageId });
+  } catch (err) {
+    const errorMsg = err instanceof Error ? err.message : String(err);
+    logFailure(itemId, "mark-unread", errorMsg, { messageId });
+    throw new Error(`Failed to mark message ${messageId} as unread: ${errorMsg}`);
   }
 }
 
@@ -160,10 +260,12 @@ export async function fetchEmailsForBackfill(
   mailbox: "inbox" | "sent" | "all" = "all"
 ): Promise<EmailMessage[]> {
   try {
-    const result = await runScript("get-mail-backfill.sh", [
-      String(maxCount),
-      mailbox,
-    ]);
+    // Use a longer timeout for backfill (5 minutes)
+    const result = await runScript(
+      "get-mail-backfill.sh",
+      [String(maxCount), mailbox],
+      300000
+    );
 
     if (!result || result === "") {
       return [];
