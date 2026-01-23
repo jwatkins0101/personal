@@ -3,6 +3,7 @@ import { join, dirname } from "path";
 import { fileURLToPath } from "url";
 import type { EmailMessage } from "./types.js";
 import { CATEGORY_FLAGS, FLAG_COLORS } from "./types.js";
+import { logSuccess, logFailure } from "../storage/action-log.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -94,26 +95,38 @@ export async function fetchUnreadEmails(): Promise<EmailMessage[]> {
 }
 
 export async function markAsRead(messageId: string): Promise<void> {
+  const itemId = `email:${messageId}`;
   try {
     await runScript("mark-mail-read.sh", [messageId]);
+    logSuccess(itemId, "mark-read", { messageId });
   } catch (err) {
-    console.error(`Failed to mark message ${messageId} as read:`, err instanceof Error ? err.message : err);
+    const errorMsg = err instanceof Error ? err.message : String(err);
+    logFailure(itemId, "mark-read", errorMsg, { messageId });
+    console.error(`Failed to mark message ${messageId} as read:`, errorMsg);
   }
 }
 
 export async function archiveMessage(messageId: string): Promise<void> {
+  const itemId = `email:${messageId}`;
   try {
     await runScript("archive-mail.sh", [messageId]);
+    logSuccess(itemId, "archive", { messageId });
   } catch (err) {
-    console.error(`Failed to archive message ${messageId}:`, err instanceof Error ? err.message : err);
+    const errorMsg = err instanceof Error ? err.message : String(err);
+    logFailure(itemId, "archive", errorMsg, { messageId });
+    console.error(`Failed to archive message ${messageId}:`, errorMsg);
   }
 }
 
 export async function flagMessage(messageId: string, colorIndex: number): Promise<void> {
+  const itemId = `email:${messageId}`;
   try {
     await runScript("flag-mail.sh", [messageId, String(colorIndex)]);
+    logSuccess(itemId, "flag", { messageId, colorIndex });
   } catch (err) {
-    console.error(`Failed to flag message ${messageId}:`, err instanceof Error ? err.message : err);
+    const errorMsg = err instanceof Error ? err.message : String(err);
+    logFailure(itemId, "flag", errorMsg, { messageId, colorIndex });
+    console.error(`Failed to flag message ${messageId}:`, errorMsg);
   }
 }
 
