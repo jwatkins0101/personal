@@ -189,8 +189,25 @@ const results = await classifyItems(items);
 - `BOUNCER_QUEUE` - Confidence threshold for queuing (default: 0.60)
 - `PEOPLE_NUDGE_DAYS` - Days without interaction before suggesting reconnection (default: 30)
 
+### Apple Notes Integration
+
+The system uses a **template-based approach** for Daily Tasks notes to preserve interactive checklist formatting:
+
+1. **Template note**: User creates "Daily Tasks Template" in "Second Brain" folder with real checklists
+2. **Duplication**: System duplicates template for each day (preserves checklist structure)
+3. **Section markers**: Content is inserted between `<!-- SECTION_START -->` and `<!-- SECTION_END -->` markers
+4. **Checklist preservation**: Existing checkboxes above markers remain interactive
+
+**Setup required**: See `docs/daily-tasks-template.md` for template creation instructions.
+
+**Key functions:**
+- `duplicateNote(template, newTitle, folder)` - Duplicates preserving formatting
+- `updateNoteSection(title, section, content, folder)` - Updates marked section only
+- `createDailyTasksNote(date, sections)` - High-level daily tasks creator
+
 ## Notes
 
 - Scripts have a 180-second timeout; AppleScript itself times out at 120 seconds
 - The digest generator fetches calendar events and messages in parallel with email analysis
 - Claude CLI is called with `--output-format json` and responses are parsed for embedded JSON
+- Apple Notes checklists cannot be created via text - use the template approach for interactive checkboxes

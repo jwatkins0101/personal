@@ -130,3 +130,161 @@ export async function upsertNote(
 ): Promise<NoteCreateResult> {
   return updateNote(title, body, folder);
 }
+
+/**
+ * Duplicate a template note with a new title.
+ * Preserves all formatting including checklists.
+ */
+export async function duplicateNote(
+  templateTitle: string,
+  newTitle: string,
+  folder = "Notes"
+): Promise<NoteCreateResult> {
+  try {
+    const output = await runScript("duplicate-note.sh", [
+      templateTitle,
+      newTitle,
+      folder,
+    ]);
+    return parseResult(output);
+  } catch (err) {
+    return {
+      success: false,
+      action: "error",
+      error: (err as Error).message,
+    };
+  }
+}
+
+/**
+ * Update a marked section in a note.
+ * Finds <!-- SECTION_START --> and <!-- SECTION_END --> markers.
+ * Only replaces content between markers, preserving checklists elsewhere.
+ */
+export async function updateNoteSection(
+  noteTitle: string,
+  sectionName: string,
+  content: string,
+  folder = "Notes"
+): Promise<NoteCreateResult> {
+  try {
+    const output = await runScript("update-note-section.sh", [
+      noteTitle,
+      sectionName,
+      content,
+      folder,
+    ]);
+    return parseResult(output);
+  } catch (err) {
+    return {
+      success: false,
+      action: "error",
+      error: (err as Error).message,
+    };
+  }
+}
+
+/**
+ * Append text to the end of an existing note.
+ */
+export async function appendToNote(
+  noteTitle: string,
+  text: string,
+  folder = "Notes"
+): Promise<NoteCreateResult> {
+  try {
+    const output = await runScript("append-to-note.sh", [
+      noteTitle,
+      text,
+      folder,
+    ]);
+    return parseResult(output);
+  } catch (err) {
+    return {
+      success: false,
+      action: "error",
+      error: (err as Error).message,
+    };
+  }
+}
+
+/**
+ * Create a daily tasks note from a template.
+ * If already exists, updates the marked sections.
+ */
+export async function createDailyTasksNote(
+  date: Date,
+  sections: {
+    mustDo?: string;
+    followUps?: string;
+    waitingOn?: string;
+    niceToDo?: string;
+  },
+  templateTitle = "Daily Tasks Template",
+  folder = "Second Brain"
+): Promise<NoteCreateResult> {
+  const dateStr = date.toLocaleDateString("en-US", {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+  });
+  const noteTitle = `Daily Tasks - ${dateStr}`;
+
+  // First, try to duplicate from template (creates if not exists)
+  const dupResult = await duplicateNote(templateTitle, noteTitle, folder);
+
+  if (!dupResult.success && !dupResult.error?.includes("exists")) {
+    // If template doesn't exist, fall back to creating a plain note
+    if (dupResult.error?.includes("Template not found")) {
+      return {
+        success: false,
+        action: "error",
+        error: `Template "${templateTitle}" not found in folder "${folder}". Please create it manually with checklist sections.`,
+      };
+    }
+    return dupResult;
+  }
+
+  // Update each section that has content
+  const sectionUpdates: Promise<NoteCreateResult>[] = [];
+
+  if (sections.mustDo) {
+    sectionUpdates.push(
+      updateNoteSection(noteTitle, "MUST_DO", sections.mustDo, folder)
+    );
+  }
+  if (sections.followUps) {
+    sectionUpdates.push(
+      updateNoteSection(noteTitle, "FOLLOW_UPS", sections.followUps, folder)
+    );
+  }
+  if (sections.waitingOn) {
+    sectionUpdates.push(
+      updateNoteSection(noteTitle, "WAITING_ON", sections.waitingOn, folder)
+    );
+  }
+  if (sections.niceToDo) {
+    sectionUpdates.push(
+      updateNoteSection(noteTitle, "NICE_TO_DO", sections.niceToDo, folder)
+    );
+  }
+
+  // Wait for all section updates
+  const results = await Promise.all(sectionUpdates);
+  const failures = results.filter((r) => !r.success);
+
+  if (failures.length > 0) {
+    return {
+      success: true, // Note was created/exists
+      action: dupResult.action as "created" | "updated",
+      noteId: dupResult.noteId,
+      error: `Some sections failed to update: ${failures.map((f) => f.error).join(", ")}`,
+    };
+  }
+
+  return {
+    success: true,
+    action: dupResult.action === "exists" ? "updated" : "created",
+    noteId: dupResult.noteId,
+  };
+}

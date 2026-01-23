@@ -22,7 +22,7 @@ interface RouteResult {
   folder: string;
   itemCount: number;
   success: boolean;
-  action?: "created" | "updated";
+  action?: "created" | "updated" | "exists" | "appended";
   error?: string;
 }
 

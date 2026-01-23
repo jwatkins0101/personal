@@ -9,7 +9,7 @@ export interface Note {
 
 export interface NoteCreateResult {
   success: boolean;
-  action: "created" | "updated" | "error";
+  action: "created" | "updated" | "exists" | "appended" | "error";
   noteId?: string;
   error?: string;
 }

@@ -70,7 +70,7 @@ async function main() {
 
   // Parse arguments
   let count = 500;
-  let mailbox: "inbox" | "sent" | "all" = "all";
+  let mailbox: "inbox" | "sent" | "all" = "inbox"; // Default to inbox (fastest)
   let dryRun = false;
 
   for (let i = 0; i < args.length; i++) {

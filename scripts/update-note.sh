@@ -13,10 +13,15 @@ if [ -z "$TITLE" ]; then
     exit 1
 fi
 
+# Escape special characters for AppleScript
+# Replace backslashes first, then quotes
+ESCAPED_BODY=$(echo "$BODY" | sed 's/\\/\\\\/g' | sed 's/"/\\"/g')
+ESCAPED_TITLE=$(echo "$TITLE" | sed 's/\\/\\\\/g' | sed 's/"/\\"/g')
+
 osascript <<APPLESCRIPT
 on run
-    set noteTitle to "$TITLE"
-    set noteBody to "$BODY"
+    set noteTitle to "$ESCAPED_TITLE"
+    set noteBody to "$ESCAPED_BODY"
     set folderName to "$FOLDER"
 
     tell application "Notes"
