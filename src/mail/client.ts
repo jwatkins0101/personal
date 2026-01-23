@@ -138,3 +138,51 @@ export async function processEmailAction(
 export async function loadLabels(): Promise<void> {
   // Apple Mail uses flags instead of labels - no loading needed
 }
+
+/**
+ * Fetch recent emails for backfill (both read and unread).
+ */
+export async function fetchEmailsForBackfill(
+  maxCount: number = 500,
+  mailbox: "inbox" | "sent" | "all" = "all"
+): Promise<EmailMessage[]> {
+  try {
+    const result = await runScript("get-mail-backfill.sh", [
+      String(maxCount),
+      mailbox,
+    ]);
+
+    if (!result || result === "") {
+      return [];
+    }
+
+    const emails: EmailMessage[] = [];
+    const emailStrings = result.split("<||>").filter((s) => s.trim() !== "");
+
+    for (const emailStr of emailStrings) {
+      const parts = emailStr.split("<|>");
+      if (parts.length >= 6) {
+        const [id, subject, sender, date, snippet, account, mboxType] = parts;
+        emails.push({
+          id: id || "",
+          threadId: id || "",
+          from: parseEmailAddress(sender || ""),
+          to: "",
+          subject: subject || "(No subject)",
+          snippet: snippet || "",
+          date: date || "",
+          labels: mboxType === "sent" ? ["sent"] : [],
+          account: account || undefined,
+        });
+      }
+    }
+
+    return emails;
+  } catch (err) {
+    console.error(
+      "Failed to fetch emails for backfill:",
+      err instanceof Error ? err.message : err
+    );
+    return [];
+  }
+}

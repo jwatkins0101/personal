@@ -13,13 +13,24 @@
     "calendar:review": "tsx src/calendar/index.ts review",
     "calendar:gaps": "tsx src/calendar/index.ts gaps",
     "calendar:suggest": "tsx src/calendar/index.ts suggest",
+    "ingest": "tsx src/commands/ingest.ts",
+    "ingest:linkedin": "tsx src/commands/ingest-linkedin.ts",
+    "sort": "tsx src/commands/sort.ts",
+    "route": "tsx src/commands/route.ts",
+    "briefing": "tsx src/commands/briefing.ts",
+    "review": "tsx src/commands/review.ts",
+    "review:people": "tsx src/commands/review-people.ts",
+    "fix": "tsx src/commands/fix.ts",
+    "fix:person": "tsx src/commands/fix-person.ts",
     "build": "tsc --noEmit",
     "dev": "tsx watch src/index.ts"
   },
   "dependencies": {
+    "better-sqlite3": "^12.6.2",
     "dotenv": "^16.4.0"
   },
   "devDependencies": {
+    "@types/better-sqlite3": "^7.6.13",
     "@types/node": "^20.0.0",
     "tsx": "^4.7.0",
     "typescript": "^5.4.0"

@@ -19,6 +19,37 @@ npm run calendar:review     # Review today + tomorrow
 npm run calendar:gaps       # Find available time slots
 npm run calendar:suggest -- --task "Task name" --duration 60
 
+# Second Brain commands (SQLite storage layer)
+npm run ingest              # Fetch mail/messages/calendar → store in SQLite
+npm run sort                # Classify new items, apply bouncer rules
+npm run route               # Write sorted items to Apple Notes views
+npm run briefing            # Generate daily briefing note
+npm run review              # List items queued for human review
+npm run review -- <id>      # Show specific item details
+npm run fix -- <id> <field> <value>  # Apply user correction
+npm run fix -- --approve <id>        # Approve and route an item
+npm run fix -- --ignore <id>         # Mark item as ignored
+npm run fix -- --stats               # Show correction statistics
+
+# LinkedIn import commands
+npm run ingest:linkedin -- <path>    # Import LinkedIn export ZIP or directory
+npm run ingest:linkedin -- ~/Downloads/LinkedInExport.zip
+
+# People management commands
+npm run review:people                # Show overview + pending matches
+npm run review:people -- matches     # List pending match candidates
+npm run review:people -- recent      # Show recent LinkedIn connections
+npm run review:people -- nudge       # Show people to reconnect with
+npm run review:people -- stats       # Show people statistics
+
+npm run fix:person -- search "query"         # Search for people
+npm run fix:person -- show <personId>        # Show person details
+npm run fix:person -- merge <primaryId> <secondaryId>  # Merge two people
+npm run fix:person -- set <personId> email=x@y.com company="Acme"
+npm run fix:person -- add-identity <personId> email john@example.com
+npm run fix:person -- unlink-item <personId> <itemId>
+npm run fix:person -- delete <personId> --yes
+
 # Type checking
 npm run build               # tsc --noEmit
 ```
@@ -37,11 +68,84 @@ This is a macOS-only productivity assistant that uses **AppleScript** (via bash 
 ### Key Modules
 
 - `src/classifier/` - **Unified classifier** for all item types (emails, messages, notes, calendar)
+- `src/storage/` - **SQLite storage layer** for unified item storage, action logging, and feedback
+- `src/people/` - **People graph** for entity linking (LinkedIn ↔ email sender ↔ iMessage contact)
+- `src/linkedin/` - **LinkedIn import** parser for Connections.csv and messages.csv
+- `src/notes/` - **Apple Notes integration** via AppleScript for view generation
+- `src/commands/` - **CLI commands** (ingest, sort, route, briefing, review, fix, ingest-linkedin, review-people, fix-person)
 - `src/mail/client.ts` - Apple Mail interface via `scripts/get-mail.sh`, `archive-mail.sh`, `flag-mail.sh`
 - `src/calendar/apple.ts` - Apple Calendar interface via `scripts/get-calendar-events.sh`
 - `src/messages/client.ts` - iMessage/SMS via direct SQLite queries on `~/Library/Messages/chat.db`
 - `src/claude/invoke.ts` - Wraps classifier for backwards-compatible email classification
 - `src/digest/generator.ts` - Orchestrates fetching from all sources, uses unified classifier
+
+### Storage Layer (Second Brain)
+
+The `src/storage/` module provides a SQLite-based storage layer:
+
+```typescript
+import { insertItem, getItem, updateClassification } from "./storage/index.js";
+```
+
+**Database location:** `~/Library/Application Support/assistance/secondbrain.sqlite` (configurable via `DB_PATH` env var)
+
+**Tables:**
+- `memory_items` - Unified storage for all ingested items (emails, messages, calendar, notes)
+- `action_logs` - Audit trail of all actions taken on items
+- `feedback` - User corrections for learning/tuning
+- `people` - Contact entities with display name, company, title, etc.
+- `person_identities` - Email, phone, LinkedIn URL identities linked to people
+- `item_people_map` - Links memory items to people (sender/recipient)
+- `linkedin_connections` - LinkedIn connection metadata (connected_on date)
+- `linkedin_messages` - LinkedIn message archive
+- `import_batches` - Tracks imports with file hash for idempotency
+- `match_candidates` - Potential person merges awaiting review
+
+**Item Status Flow:** `new` → `processed` → `queued` | `acted` | `ignored`
+
+**Bouncer Rules (confidence gating):**
+| Confidence | Action | Status |
+|------------|--------|--------|
+| >= 0.85 | Auto-act | `acted` |
+| 0.60-0.84 | Queue for review | `queued` |
+| < 0.60 | Store only | `processed` |
+
+*Exception: P0 items always go to inbox regardless of confidence.*
+
+### People Graph
+
+The `src/people/` module manages contact entities and links them to items:
+
+```typescript
+import { matchOrCreatePerson, listPeopleToNudge } from "./people/index.js";
+
+// During ingest, link items to people
+const person = matchOrCreatePerson({ email: "john@example.com", name: "John Doe" });
+linkItemToPerson(item.id, person.id, "sender", 0.95);
+
+// Get people to reconnect with
+const nudges = listPeopleToNudge(30, 10); // no interaction in 30 days, limit 10
+```
+
+**Person ID format:** `li:{linkedin_member_id}` or `em:{sha256(email)}` or `ph:{normalized_phone}`
+
+**Match priority (highest to lowest):**
+1. Exact email match
+2. LinkedIn profile URL match
+3. Phone number match
+4. Fuzzy name + company match (creates match_candidate for review)
+
+**Match confidence thresholds:**
+| Confidence | Action |
+|------------|--------|
+| >= 0.85 | Auto-merge |
+| 0.60-0.84 | Queue for review (match_candidate) |
+| < 0.60 | Create new person |
+
+**Daily briefing includes:**
+- New LinkedIn connections
+- People to nudge (no interaction in N days)
+- Waiting on response items
 
 ### Unified Classifier
 
@@ -80,6 +184,10 @@ const results = await classifyItems(items);
 ### Environment Variables
 
 - `MAX_EMAILS_PER_RUN` - Limit emails processed per run (default: 20)
+- `DB_PATH` - SQLite database path (default: `~/Library/Application Support/assistance/secondbrain.sqlite`)
+- `BOUNCER_AUTO_ACT` - Confidence threshold for auto-acting (default: 0.85)
+- `BOUNCER_QUEUE` - Confidence threshold for queuing (default: 0.60)
+- `PEOPLE_NUDGE_DAYS` - Days without interaction before suggesting reconnection (default: 30)
 
 ## Notes
 

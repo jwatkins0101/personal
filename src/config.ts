@@ -1,12 +1,18 @@
 import { config } from "dotenv";
 import { fileURLToPath } from "url";
 import { dirname, join } from "path";
+import { homedir } from "os";
 
 config();
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 export const PROJECT_ROOT = join(__dirname, "..");
+
+// SQLite database path
+export const DB_PATH =
+  process.env.DB_PATH ||
+  join(homedir(), "Library", "Application Support", "assistance", "secondbrain.sqlite");
 
 export const CREDENTIALS_DIR = join(PROJECT_ROOT, "credentials");
 export const TOKEN_PATH = join(CREDENTIALS_DIR, "token.json");
@@ -62,3 +68,9 @@ export const ARCHIVE_CATEGORIES = [
   "social",
   "spam",
 ];
+
+// Bouncer confidence thresholds
+export const BOUNCER_THRESHOLDS = {
+  autoAct: parseFloat(process.env.BOUNCER_AUTO_ACT || "0.85"),
+  queue: parseFloat(process.env.BOUNCER_QUEUE || "0.60"),
+};
