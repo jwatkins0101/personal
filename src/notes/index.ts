@@ -10,6 +10,7 @@ export {
   updateNoteSection,
   appendToNote,
   createDailyTasksNote,
+  createBriefingFromTemplate,
 } from "./client.js";
 export {
   generateInboxView,

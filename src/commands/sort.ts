@@ -13,6 +13,7 @@ import {
   type MemoryItem,
 } from "../storage/index.js";
 import { classifyItems, type ClassifiableItem } from "../classifier/index.js";
+import type { StepResult } from "../pipeline/types.js";
 
 /**
  * Convert a MemoryItem to a ClassifiableItem for the classifier.
@@ -35,14 +36,25 @@ function memoryItemToClassifiable(item: MemoryItem): ClassifiableItem {
 /**
  * Process a batch of items through classification and bouncer.
  */
-async function processBatch(items: MemoryItem[]): Promise<{
+async function processBatch(
+  items: MemoryItem[],
+  log: (...args: unknown[]) => void,
+): Promise<{
   classified: number;
   autoActed: number;
   queued: number;
   stored: number;
   errors: number;
+  lastError?: Error;
 }> {
-  const stats = { classified: 0, autoActed: 0, queued: 0, stored: 0, errors: 0 };
+  const stats: {
+    classified: number;
+    autoActed: number;
+    queued: number;
+    stored: number;
+    errors: number;
+    lastError?: Error;
+  } = { classified: 0, autoActed: 0, queued: 0, stored: 0, errors: 0 };
 
   if (items.length === 0) {
     return stats;
@@ -52,16 +64,17 @@ async function processBatch(items: MemoryItem[]): Promise<{
   const classifiableItems = items.map(memoryItemToClassifiable);
 
   // Classify in batch
-  console.log(`  Classifying ${items.length} items...`);
+  log(`  Classifying ${items.length} items...`);
   let classifications;
   try {
     classifications = await classifyItems(classifiableItems);
   } catch (err) {
-    console.error("Classification failed:", err);
+    log("Classification failed:", err);
     for (const item of items) {
       logFailure(item.id, "classify", (err as Error).message);
       stats.errors++;
     }
+    stats.lastError = err as Error;
     return stats;
   }
 
@@ -124,29 +137,61 @@ async function processBatch(items: MemoryItem[]): Promise<{
 
       // Print per-item summary
       const badge = formatBouncerDecision(decision);
-      console.log(`    [${classification.priority}] ${item.title.slice(0, 50)} → ${badge}`);
+      log(`    [${classification.priority}] ${item.title.slice(0, 50)} → ${badge}`);
     } catch (err) {
-      console.error(`  Error processing ${item.id}:`, err);
+      log(`  Error processing ${item.id}:`, err);
       logFailure(item.id, "sort", (err as Error).message);
       stats.errors++;
+      stats.lastError = err as Error;
     }
   }
 
   return stats;
 }
 
-async function main() {
-  console.log("Starting sort...\n");
+/**
+ * Determine whether an error looks retryable (Claude CLI timeout, parse errors, etc.).
+ */
+function isRetryableError(err: Error): boolean {
+  const msg = err.message.toLowerCase();
+  return (
+    msg.includes("timeout") ||
+    msg.includes("timed out") ||
+    msg.includes("parse") ||
+    msg.includes("json") ||
+    msg.includes("econnreset") ||
+    msg.includes("econnrefused") ||
+    msg.includes("spawn")
+  );
+}
+
+/**
+ * Core sort logic: classify unclassified items and apply bouncer rules.
+ *
+ * Does NOT call closeDb() or process.exit() — those are handled by the CLI
+ * entry point (main).
+ */
+export async function runSort(options?: { verbose?: boolean }): Promise<StepResult> {
+  const verbose = options?.verbose ?? true;
+  const log: (...args: unknown[]) => void = verbose
+    ? console.log.bind(console)
+    : () => {};
+
+  const startedAt = new Date();
 
   try {
     // Get unclassified items
     const items = getUnclassifiedItems();
-    console.log(`Found ${items.length} unclassified items\n`);
+    log(`Found ${items.length} unclassified items\n`);
 
     if (items.length === 0) {
-      console.log("Nothing to sort.");
-      closeDb();
-      return;
+      log("Nothing to sort.");
+      return {
+        status: "skipped",
+        counts: { total: 0, classified: 0, autoActed: 0, queued: 0, stored: 0, errors: 0 },
+        startedAt,
+        finishedAt: new Date(),
+      };
     }
 
     // Group by source for better logging
@@ -157,52 +202,127 @@ async function main() {
       bySource.set(item.source, list);
     }
 
-    let totalStats = { classified: 0, autoActed: 0, queued: 0, stored: 0, errors: 0 };
+    const totalStats = { classified: 0, autoActed: 0, queued: 0, stored: 0, errors: 0 };
+    let lastError: Error | undefined;
 
     // Process each source
     for (const [source, sourceItems] of bySource) {
-      console.log(`\nProcessing ${source}s (${sourceItems.length}):`);
+      log(`\nProcessing ${source}s (${sourceItems.length}):`);
 
       // Process in batches of 10 to avoid overwhelming the classifier
       const batchSize = 10;
       for (let i = 0; i < sourceItems.length; i += batchSize) {
         const batch = sourceItems.slice(i, i + batchSize);
-        const stats = await processBatch(batch);
+        const stats = await processBatch(batch, log);
 
         totalStats.classified += stats.classified;
         totalStats.autoActed += stats.autoActed;
         totalStats.queued += stats.queued;
         totalStats.stored += stats.stored;
         totalStats.errors += stats.errors;
+        if (stats.lastError) {
+          lastError = stats.lastError;
+        }
       }
     }
 
     // Print summary
-    console.log("\n--- Sort Summary ---");
-    console.log(`  Classified: ${totalStats.classified}`);
-    console.log(`  Auto-acted: ${totalStats.autoActed}`);
-    console.log(`  Queued for review: ${totalStats.queued}`);
-    console.log(`  Stored (low confidence): ${totalStats.stored}`);
+    log("\n--- Sort Summary ---");
+    log(`  Classified: ${totalStats.classified}`);
+    log(`  Auto-acted: ${totalStats.autoActed}`);
+    log(`  Queued for review: ${totalStats.queued}`);
+    log(`  Stored (low confidence): ${totalStats.stored}`);
     if (totalStats.errors > 0) {
-      console.log(`  Errors: ${totalStats.errors}`);
+      log(`  Errors: ${totalStats.errors}`);
     }
 
     // Print database status
     const counts = getStatusCounts();
-    console.log("\n--- Database Status ---");
-    console.log(`  New: ${counts.new}`);
-    console.log(`  Processed: ${counts.processed}`);
-    console.log(`  Queued: ${counts.queued}`);
-    console.log(`  Acted: ${counts.acted}`);
-    console.log(`  Ignored: ${counts.ignored}`);
-    console.log(`  Error: ${counts.error}`);
+    log("\n--- Database Status ---");
+    log(`  New: ${counts.new}`);
+    log(`  Processed: ${counts.processed}`);
+    log(`  Queued: ${counts.queued}`);
+    log(`  Acted: ${counts.acted}`);
+    log(`  Ignored: ${counts.ignored}`);
+    log(`  Error: ${counts.error}`);
+
+    // Determine overall status
+    const total = items.length;
+    let status: StepResult["status"];
+    let error: StepResult["error"] | undefined;
+
+    if (totalStats.classified === 0 && totalStats.errors > 0) {
+      // Nothing classified at all — total failure
+      status = "failed";
+      error = {
+        code: "SORT_FAILED",
+        message: lastError?.message ?? "All items failed classification",
+        retryable: lastError ? isRetryableError(lastError) : true,
+      };
+    } else if (totalStats.errors > 0) {
+      // Some classified, some errors — partial success
+      status = "partial";
+      error = {
+        code: "SORT_PARTIAL",
+        message: lastError?.message ?? "Some items failed classification",
+        retryable: lastError ? isRetryableError(lastError) : true,
+      };
+    } else {
+      status = "success";
+    }
+
+    return {
+      status,
+      counts: {
+        total,
+        classified: totalStats.classified,
+        autoActed: totalStats.autoActed,
+        queued: totalStats.queued,
+        stored: totalStats.stored,
+        errors: totalStats.errors,
+      },
+      error,
+      startedAt,
+      finishedAt: new Date(),
+    };
+  } catch (err) {
+    // Unexpected top-level error — complete failure
+    return {
+      status: "failed",
+      counts: { total: 0, classified: 0, autoActed: 0, queued: 0, stored: 0, errors: 1 },
+      error: {
+        code: "SORT_UNEXPECTED",
+        message: (err as Error).message,
+        retryable: isRetryableError(err as Error),
+      },
+      startedAt,
+      finishedAt: new Date(),
+    };
+  }
+}
+
+async function main() {
+  console.log("Starting sort...\n");
+
+  try {
+    const result = await runSort({ verbose: true });
+
+    if (result.status === "failed") {
+      console.error(`\nSort failed: ${result.error?.message}`);
+      process.exit(1);
+    }
+  } catch (err) {
+    console.error("Sort failed:", err);
+    process.exit(1);
   } finally {
     closeDb();
   }
 }
 
-main().catch((err) => {
-  console.error("Sort failed:", err);
-  closeDb();
-  process.exit(1);
-});
+// Only run when executed directly (not when imported by the orchestrator).
+const isDirectRun =
+  process.argv[1] &&
+  import.meta.url.endsWith(process.argv[1].replace(/.*\//, ""));
+if (isDirectRun) {
+  main();
+}

@@ -209,6 +209,97 @@ export async function appendToNote(
 }
 
 /**
+ * Create a briefing note from a template.
+ * If already exists, updates the marked sections.
+ */
+export async function createBriefingFromTemplate(
+  date: Date,
+  sections: {
+    urgent?: string;
+    schedule?: string;
+    connections?: string;
+    reconnect?: string;
+    actionItems?: string;
+    reviewQueue?: string;
+  },
+  templateTitle = "Briefing Template",
+  folder = "Briefings"
+): Promise<NoteCreateResult> {
+  const dateStr = date.toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
+  });
+  const noteTitle = `📋 Briefing - ${dateStr}`;
+
+  // First, try to duplicate from template (creates if not exists)
+  const dupResult = await duplicateNote(templateTitle, noteTitle, folder);
+
+  if (!dupResult.success && !dupResult.error?.includes("exists")) {
+    if (dupResult.error?.includes("Template not found")) {
+      return {
+        success: false,
+        action: "error",
+        error: `Template "${templateTitle}" not found in folder "${folder}". Please create it manually with checklist sections.`,
+      };
+    }
+    return dupResult;
+  }
+
+  // Update each section that has content
+  const sectionUpdates: Promise<NoteCreateResult>[] = [];
+
+  if (sections.urgent) {
+    sectionUpdates.push(
+      updateNoteSection(noteTitle, "URGENT", sections.urgent, folder)
+    );
+  }
+  if (sections.schedule) {
+    sectionUpdates.push(
+      updateNoteSection(noteTitle, "SCHEDULE", sections.schedule, folder)
+    );
+  }
+  if (sections.connections) {
+    sectionUpdates.push(
+      updateNoteSection(noteTitle, "CONNECTIONS", sections.connections, folder)
+    );
+  }
+  if (sections.reconnect) {
+    sectionUpdates.push(
+      updateNoteSection(noteTitle, "RECONNECT", sections.reconnect, folder)
+    );
+  }
+  if (sections.actionItems) {
+    sectionUpdates.push(
+      updateNoteSection(noteTitle, "ACTION_ITEMS", sections.actionItems, folder)
+    );
+  }
+  if (sections.reviewQueue) {
+    sectionUpdates.push(
+      updateNoteSection(noteTitle, "REVIEW_QUEUE", sections.reviewQueue, folder)
+    );
+  }
+
+  // Wait for all section updates
+  const results = await Promise.all(sectionUpdates);
+  const failures = results.filter((r) => !r.success);
+
+  if (failures.length > 0) {
+    return {
+      success: true,
+      action: dupResult.action as "created" | "updated",
+      noteId: dupResult.noteId,
+      error: `Some sections failed to update: ${failures.map((f) => f.error).join(", ")}`,
+    };
+  }
+
+  return {
+    success: true,
+    action: dupResult.action === "exists" ? "updated" : "created",
+    noteId: dupResult.noteId,
+  };
+}
+
+/**
  * Create a daily tasks note from a template.
  * If already exists, updates the marked sections.
  */

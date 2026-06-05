@@ -16,6 +16,7 @@ import {
   generateReviewView,
   getFolderForRoute,
 } from "../notes/index.js";
+import type { StepResult } from "../pipeline/types.js";
 
 interface RouteResult {
   route: string;
@@ -26,11 +27,24 @@ interface RouteResult {
   error?: string;
 }
 
+interface RunRouteOptions {
+  dryRun?: boolean;
+  verbose?: boolean;
+}
+
 /**
  * Route processed items to their destination notes.
+ *
+ * Core logic extracted for programmatic use. Does NOT call closeDb() or
+ * process.exit() — the caller is responsible for lifecycle management.
  */
-async function routeToNotes(): Promise<RouteResult[]> {
+export async function runRoute(options?: RunRouteOptions): Promise<StepResult> {
+  const startedAt = new Date();
+  const dryRun = options?.dryRun ?? false;
+  const log = options?.verbose === false ? (..._args: unknown[]) => {} : console.log;
+
   const results: RouteResult[] = [];
+  let lastError: string | undefined;
 
   // Get items that have been processed but not yet acted upon
   const processedItems = getItemsByStatus("processed");
@@ -44,66 +58,15 @@ async function routeToNotes(): Promise<RouteResult[]> {
     byRoute.set(item.route, list);
   }
 
-  console.log(`Routing ${processedItems.length} processed items...`);
+  // Also count queued items for total
+  const queuedItems = getQueuedItems();
 
-  // Route inbox items
+  // Total items we will attempt to route
   const inboxItems = [
     ...(byRoute.get("inbox") || []),
     ...(byRoute.get("notes:inbox") || []),
   ];
 
-  if (inboxItems.length > 0) {
-    console.log(`  Routing ${inboxItems.length} items to Inbox...`);
-    const content = generateInboxView(inboxItems);
-    const result = await upsertNote("📥 Inbox", content, "Inbox");
-
-    results.push({
-      route: "inbox",
-      folder: "Inbox",
-      itemCount: inboxItems.length,
-      success: result.success,
-      action: result.action === "error" ? undefined : result.action,
-      error: result.error,
-    });
-
-    if (result.success) {
-      // Mark items as acted
-      for (const item of inboxItems) {
-        updateStatus(item.id, "acted");
-        logSuccess(item.id, "route", { route: "inbox" }, { noteId: result.noteId });
-      }
-    } else {
-      for (const item of inboxItems) {
-        logFailure(item.id, "route", result.error || "Unknown error");
-      }
-    }
-  }
-
-  // Route review queue items
-  const queuedItems = getQueuedItems();
-  if (queuedItems.length > 0) {
-    console.log(`  Routing ${queuedItems.length} items to Review...`);
-    const content = generateReviewView(queuedItems);
-    const result = await upsertNote("🔍 Review Queue", content, "Review");
-
-    results.push({
-      route: "review",
-      folder: "Review",
-      itemCount: queuedItems.length,
-      success: result.success,
-      action: result.action === "error" ? undefined : result.action,
-      error: result.error,
-    });
-
-    if (result.success) {
-      // Don't change status - they're still queued
-      for (const item of queuedItems) {
-        logSuccess(item.id, "route", { route: "review" }, { noteId: result.noteId });
-      }
-    }
-  }
-
-  // Route category-specific items
   const categoryRoutes = [
     "notes:work",
     "notes:personal",
@@ -114,40 +77,202 @@ async function routeToNotes(): Promise<RouteResult[]> {
     "notes:waiting",
   ];
 
+  let categoryItemCount = 0;
+  for (const route of categoryRoutes) {
+    const items = byRoute.get(route);
+    if (items) categoryItemCount += items.length;
+  }
+
+  const totalItems = inboxItems.length + queuedItems.length + categoryItemCount;
+
+  // If there is nothing to route, return skipped
+  if (totalItems === 0) {
+    const finishedAt = new Date();
+    log("No processed items to route.");
+    return {
+      status: "skipped",
+      counts: {
+        totalItems: 0,
+        totalRouted: 0,
+        totalFailed: 0,
+        routesAttempted: 0,
+        routesSucceeded: 0,
+      },
+      artifacts: { routes: [] },
+      startedAt,
+      finishedAt,
+    };
+  }
+
+  log(`Routing ${processedItems.length} processed items...`);
+
+  // Route inbox items
+  if (inboxItems.length > 0) {
+    log(`  Routing ${inboxItems.length} items to Inbox...`);
+
+    if (dryRun) {
+      results.push({
+        route: "inbox",
+        folder: "Inbox",
+        itemCount: inboxItems.length,
+        success: true,
+      });
+    } else {
+      const content = generateInboxView(inboxItems);
+      const result = await upsertNote("\u{1F4E5} Inbox", content, "Inbox");
+
+      results.push({
+        route: "inbox",
+        folder: "Inbox",
+        itemCount: inboxItems.length,
+        success: result.success,
+        action: result.action === "error" ? undefined : result.action,
+        error: result.error,
+      });
+
+      if (result.success) {
+        for (const item of inboxItems) {
+          updateStatus(item.id, "acted");
+          logSuccess(item.id, "route", { route: "inbox" }, { noteId: result.noteId });
+        }
+      } else {
+        lastError = result.error || "Unknown error";
+        for (const item of inboxItems) {
+          logFailure(item.id, "route", result.error || "Unknown error");
+        }
+      }
+    }
+  }
+
+  // Route review queue items
+  if (queuedItems.length > 0) {
+    log(`  Routing ${queuedItems.length} items to Review...`);
+
+    if (dryRun) {
+      results.push({
+        route: "review",
+        folder: "Review",
+        itemCount: queuedItems.length,
+        success: true,
+      });
+    } else {
+      const content = generateReviewView(queuedItems);
+      const result = await upsertNote("\u{1F50D} Review Queue", content, "Review");
+
+      results.push({
+        route: "review",
+        folder: "Review",
+        itemCount: queuedItems.length,
+        success: result.success,
+        action: result.action === "error" ? undefined : result.action,
+        error: result.error,
+      });
+
+      if (result.success) {
+        for (const item of queuedItems) {
+          logSuccess(item.id, "route", { route: "review" }, { noteId: result.noteId });
+        }
+      } else {
+        lastError = result.error || "Unknown error";
+      }
+    }
+  }
+
+  // Route category-specific items
   for (const route of categoryRoutes) {
     const items = byRoute.get(route);
     if (!items || items.length === 0) continue;
 
     const folder = getFolderForRoute(route);
-    console.log(`  Routing ${items.length} items to ${folder}...`);
+    log(`  Routing ${items.length} items to ${folder}...`);
 
-    // Generate a summary note for this category
-    const categoryName = route.replace("notes:", "").toUpperCase();
-    const content = generateCategoryView(categoryName, items);
-    const result = await upsertNote(`📁 ${categoryName}`, content, folder);
-
-    results.push({
-      route,
-      folder,
-      itemCount: items.length,
-      success: result.success,
-      action: result.action === "error" ? undefined : result.action,
-      error: result.error,
-    });
-
-    if (result.success) {
-      for (const item of items) {
-        updateStatus(item.id, "acted");
-        logSuccess(item.id, "route", { route }, { noteId: result.noteId });
-      }
+    if (dryRun) {
+      results.push({
+        route,
+        folder,
+        itemCount: items.length,
+        success: true,
+      });
     } else {
-      for (const item of items) {
-        logFailure(item.id, "route", result.error || "Unknown error");
+      const categoryName = route.replace("notes:", "").toUpperCase();
+      const content = generateCategoryView(categoryName, items);
+      const result = await upsertNote(`\u{1F4C1} ${categoryName}`, content, folder);
+
+      results.push({
+        route,
+        folder,
+        itemCount: items.length,
+        success: result.success,
+        action: result.action === "error" ? undefined : result.action,
+        error: result.error,
+      });
+
+      if (result.success) {
+        for (const item of items) {
+          updateStatus(item.id, "acted");
+          logSuccess(item.id, "route", { route }, { noteId: result.noteId });
+        }
+      } else {
+        lastError = result.error || "Unknown error";
+        for (const item of items) {
+          logFailure(item.id, "route", result.error || "Unknown error");
+        }
       }
     }
   }
 
-  return results;
+  // Compute counts
+  const totalRouted = results
+    .filter((r) => r.success)
+    .reduce((sum, r) => sum + r.itemCount, 0);
+  const totalFailed = results
+    .filter((r) => !r.success)
+    .reduce((sum, r) => sum + r.itemCount, 0);
+  const routesAttempted = results.length;
+  const routesSucceeded = results.filter((r) => r.success).length;
+
+  // Determine status
+  let status: StepResult["status"];
+  if (routesSucceeded === 0 && routesAttempted > 0) {
+    status = "failed";
+  } else if (routesSucceeded < routesAttempted) {
+    status = "partial";
+  } else {
+    status = "success";
+  }
+
+  const finishedAt = new Date();
+
+  const stepResult: StepResult = {
+    status,
+    counts: {
+      totalItems,
+      totalRouted,
+      totalFailed,
+      routesAttempted,
+      routesSucceeded,
+    },
+    artifacts: {
+      routes: results.map((r) => ({
+        route: r.route,
+        folder: r.folder,
+        itemCount: r.itemCount,
+        success: r.success,
+      })),
+    },
+    startedAt,
+    finishedAt,
+  };
+
+  if (lastError) {
+    stepResult.error = {
+      code: "ROUTE_APPLESCRIPT_ERROR",
+      message: lastError,
+      retryable: true,
+    };
+  }
+
+  return stepResult;
 }
 
 /**
@@ -167,10 +292,10 @@ function generateCategoryView(category: string, items: MemoryItem[]): string {
     hour12: true,
   });
 
-  let content = `📁 ${category}\n`;
+  let content = `\u{1F4C1} ${category}\n`;
   content += `${dateStr}\n`;
   content += `Last updated: ${timeStr}\n`;
-  content += `\n${"━".repeat(40)}\n\n`;
+  content += `\n${"\u2501".repeat(40)}\n\n`;
 
   if (items.length === 0) {
     content += "No items.\n";
@@ -198,7 +323,7 @@ function generateCategoryView(category: string, items: MemoryItem[]): string {
     if (item.suggested_actions_json) {
       const actions = JSON.parse(item.suggested_actions_json);
       if (actions[0]) {
-        content += `   → ${actions[0]}\n`;
+        content += `   \u2192 ${actions[0]}\n`;
       }
     }
     content += `\n`;
@@ -210,15 +335,15 @@ function generateCategoryView(category: string, items: MemoryItem[]): string {
 function getSourceEmoji(source: string): string {
   switch (source) {
     case "email":
-      return "📧";
+      return "\u{1F4E7}";
     case "message":
-      return "💬";
+      return "\u{1F4AC}";
     case "calendar":
-      return "📅";
+      return "\u{1F4C5}";
     case "note":
-      return "📝";
+      return "\u{1F4DD}";
     default:
-      return "📌";
+      return "\u{1F4CC}";
   }
 }
 
@@ -226,35 +351,39 @@ async function main() {
   console.log("Starting route...\n");
 
   try {
-    const results = await routeToNotes();
+    const result = await runRoute({ verbose: true });
 
     // Print summary
     console.log("\n--- Route Summary ---");
-    for (const r of results) {
-      const status = r.success
-        ? `✓ ${r.action || "ok"}`
-        : `✗ ${r.error || "failed"}`;
+    const routes = (result.artifacts?.routes as Array<{
+      route: string;
+      folder: string;
+      itemCount: number;
+      success: boolean;
+    }>) || [];
+
+    for (const r of routes) {
+      const status = r.success ? "\u2713 ok" : "\u2717 failed";
       console.log(`  ${r.folder}: ${r.itemCount} items ${status}`);
     }
 
-    const totalRouted = results
-      .filter((r) => r.success)
-      .reduce((sum, r) => sum + r.itemCount, 0);
-    const totalFailed = results
-      .filter((r) => !r.success)
-      .reduce((sum, r) => sum + r.itemCount, 0);
-
-    console.log(`\n  Total routed: ${totalRouted}`);
-    if (totalFailed > 0) {
-      console.log(`  Failed: ${totalFailed}`);
+    console.log(`\n  Total routed: ${result.counts.totalRouted}`);
+    if (result.counts.totalFailed > 0) {
+      console.log(`  Failed: ${result.counts.totalFailed}`);
     }
   } finally {
     closeDb();
   }
 }
 
-main().catch((err) => {
-  console.error("Route failed:", err);
-  closeDb();
-  process.exit(1);
-});
+// Only run when executed directly (not when imported by the orchestrator).
+const isDirectRun =
+  process.argv[1] &&
+  import.meta.url.endsWith(process.argv[1].replace(/.*\//, ""));
+if (isDirectRun) {
+  main().catch((err) => {
+    console.error("Route failed:", err);
+    closeDb();
+    process.exit(1);
+  });
+}

@@ -13,6 +13,7 @@ import {
   linkItemToPerson,
   getItemsForPerson,
   deletePerson,
+  upsertPerson,
 } from "../people/repository.js";
 import { getDb } from "../storage/db.js";
 import type { Person, IdentityType } from "../people/types.js";
@@ -22,6 +23,9 @@ function printUsage(): void {
 Usage: npm run fix:person -- <command> [options]
 
 Commands:
+  create "Name" [--email x@y.com] [--phone 1234567890] [--company X] [--title Y]
+    Create a new person with optional identities
+
   merge <primaryId> <secondaryId>
     Merge two people (secondary into primary)
 
@@ -44,6 +48,7 @@ Commands:
     Show person details including identities and linked items
 
 Examples:
+  npm run fix:person -- create "John Smith" --email john@example.com --phone 5551234567
   npm run fix:person -- merge li:abc123 em:def456
   npm run fix:person -- set li:abc123 email=john@example.com company="Acme Inc"
   npm run fix:person -- add-identity li:abc123 email john@example.com
@@ -51,6 +56,86 @@ Examples:
   npm run fix:person -- search "John Smith"
   npm run fix:person -- show li:abc123
 `);
+}
+
+/**
+ * Parse repeated --flag values from args.
+ * e.g. --email a@b.com --email c@d.com => ["a@b.com", "c@d.com"]
+ */
+function parseMultiFlag(args: string[], flag: string): string[] {
+  const values: string[] = [];
+  for (let i = 0; i < args.length; i++) {
+    if (args[i] === flag && i + 1 < args.length) {
+      values.push(args[i + 1]);
+      i++; // skip value
+    }
+  }
+  return values;
+}
+
+function parseSingleFlag(args: string[], flag: string): string | undefined {
+  const idx = args.indexOf(flag);
+  if (idx !== -1 && idx + 1 < args.length) {
+    return args[idx + 1];
+  }
+  return undefined;
+}
+
+async function handleCreate(args: string[]): Promise<void> {
+  // First non-flag arg after "create" is the name
+  const name = args.find((a) => !a.startsWith("--"));
+  if (!name) {
+    console.error("Usage: fix:person create \"Name\" [--email x@y.com] [--phone 1234567890] [--company X] [--title Y]");
+    process.exit(1);
+  }
+
+  const emails = parseMultiFlag(args, "--email");
+  const phones = parseMultiFlag(args, "--phone");
+  const company = parseSingleFlag(args, "--company");
+  const title = parseSingleFlag(args, "--title");
+
+  console.log(`\nCreating person: ${name}`);
+  if (emails.length > 0) console.log(`  Emails: ${emails.join(", ")}`);
+  if (phones.length > 0) console.log(`  Phones: ${phones.join(", ")}`);
+  if (company) console.log(`  Company: ${company}`);
+  if (title) console.log(`  Title: ${title}`);
+
+  const { id, created } = upsertPerson({
+    display_name: name,
+    primary_email: emails[0] || undefined,
+    primary_phone: phones[0] || undefined,
+    company: company || undefined,
+    title: title || undefined,
+  });
+
+  if (created) {
+    console.log(`\n✓ Created person: ${id}`);
+  } else {
+    console.log(`\n✓ Person already exists: ${id} (updated)`);
+  }
+
+  // Add all email identities
+  for (const email of emails) {
+    const result = addPersonIdentity(id, "email", email.toLowerCase(), 1.0, "manual_fix");
+    if (result.added) {
+      console.log(`  Added email identity: ${email}`);
+    } else {
+      console.log(`  Email identity already exists: ${email} (person: ${result.existingPersonId})`);
+    }
+  }
+
+  // Add all phone identities
+  for (const phone of phones) {
+    const normalized = phone.replace(/\D/g, "");
+    const result = addPersonIdentity(id, "phone", normalized, 1.0, "manual_fix");
+    if (result.added) {
+      console.log(`  Added phone identity: ${normalized}`);
+    } else {
+      console.log(`  Phone identity already exists: ${normalized} (person: ${result.existingPersonId})`);
+    }
+  }
+
+  logSuccess(id, "create_person", { name, emails, phones, company, title }, {});
 }
 
 async function handleMerge(primaryId: string, secondaryId: string): Promise<void> {
@@ -360,6 +445,14 @@ async function main() {
 
   try {
     switch (command) {
+      case "create":
+        if (args.length < 2) {
+          console.error("Usage: fix:person create \"Name\" [--email x@y.com] [--phone 1234567890]");
+          process.exit(1);
+        }
+        await handleCreate(args.slice(1));
+        break;
+
       case "merge":
         if (args.length < 3) {
           console.error("Usage: fix:person merge <primaryId> <secondaryId>");

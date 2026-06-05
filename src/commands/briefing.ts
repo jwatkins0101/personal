@@ -17,6 +17,7 @@ import {
   getPeopleCount,
 } from "../people/index.js";
 import type { CalendarEvent } from "../calendar/apple.js";
+import type { StepResult } from "../pipeline/types.js";
 
 /**
  * Get urgent (P0) items.
@@ -44,9 +45,28 @@ function getWaitingOnItems(): MemoryItem[] {
 }
 
 /**
- * Generate and save the daily briefing note.
+ * Options for runBriefing.
  */
-async function generateBriefing(): Promise<void> {
+export interface BriefingOptions {
+  /** If true, compute briefing content but skip actual note creation. */
+  dryRun?: boolean;
+  /** If false, suppress console.log output. Defaults to true. */
+  verbose?: boolean;
+}
+
+/**
+ * Core briefing logic. Generates and saves the daily briefing note.
+ *
+ * Returns a StepResult describing the outcome. Does NOT call closeDb()
+ * or process.exit() — those are the caller's responsibility.
+ */
+export async function runBriefing(options?: BriefingOptions): Promise<StepResult> {
+  const startedAt = new Date();
+  const verbose = options?.verbose !== false;
+  const dryRun = options?.dryRun === true;
+  const log = verbose ? console.log.bind(console) : () => {};
+  const warn = verbose ? console.warn.bind(console) : () => {};
+
   const now = new Date();
   const dateStr = now.toLocaleDateString("en-US", {
     weekday: "long",
@@ -55,21 +75,25 @@ async function generateBriefing(): Promise<void> {
     year: "numeric",
   });
 
-  console.log(`Generating briefing for ${dateStr}...\n`);
+  log(`Generating briefing for ${dateStr}...${dryRun ? " (dry run)" : ""}\n`);
+
+  // Track whether any data fetch failed (for partial status)
+  let calendarFailed = false;
 
   // Fetch data in parallel
   const [highPriorityItems, calendarEvents, queuedItems] = await Promise.all([
     Promise.resolve(getHighPriorityItems()),
     getTodayEvents().catch((err) => {
-      console.warn("Could not fetch calendar events:", err.message);
+      warn("Could not fetch calendar events:", err.message);
+      calendarFailed = true;
       return [] as CalendarEvent[];
     }),
     Promise.resolve(getQueuedItems()),
   ]);
 
-  console.log(`  High priority items: ${highPriorityItems.length}`);
-  console.log(`  Calendar events: ${calendarEvents.length}`);
-  console.log(`  Items in review queue: ${queuedItems.length}`);
+  log(`  High priority items: ${highPriorityItems.length}`);
+  log(`  Calendar events: ${calendarEvents.length}`);
+  log(`  Items in review queue: ${queuedItems.length}`);
 
   // Fetch people data
   const nudgeDays = parseInt(process.env.PEOPLE_NUDGE_DAYS || "30", 10);
@@ -77,15 +101,26 @@ async function generateBriefing(): Promise<void> {
   const nudges = listPeopleToNudge(nudgeDays, 5);
   const waitingOn = getWaitingOnItems();
 
-  console.log(`  New connections: ${newConnections.length}`);
-  console.log(`  People to nudge: ${nudges.length}`);
-  console.log(`  Waiting on: ${waitingOn.length}`);
+  log(`  New connections: ${newConnections.length}`);
+  log(`  People to nudge: ${nudges.length}`);
+  log(`  Waiting on: ${waitingOn.length}`);
 
   // Generate briefing content
   const urgentItems = getUrgentItems(highPriorityItems);
   const todayItems = getTodayActionItems(highPriorityItems);
 
-  // Try template-based approach first
+  // Build counts for the StepResult
+  const counts: Record<string, number> = {
+    urgentItems: urgentItems.length,
+    todayItems: todayItems.length,
+    calendarEvents: calendarEvents.length,
+    queuedItems: queuedItems.length,
+    nudges: nudges.length,
+    newConnections: newConnections.length,
+    waitingOn: waitingOn.length,
+  };
+
+  // Build sections used by both template and HTML approaches
   const sections = {
     urgent: urgentItems.length > 0
       ? urgentItems.map(item => `${item.title}`).join("\n")
@@ -110,11 +145,27 @@ async function generateBriefing(): Promise<void> {
       : "",
   };
 
+  const noteTitle = `📋 Briefing - ${now.toLocaleDateString("en-US", { month: "short", day: "numeric" })}`;
+
+  // Dry run: compute content but skip note creation
+  if (dryRun) {
+    log(`\n[dry run] Would create briefing note: ${noteTitle}`);
+    return {
+      status: calendarFailed ? "partial" : "success",
+      counts,
+      artifacts: { noteTitle, method: "dry-run", sections },
+      startedAt,
+      finishedAt: new Date(),
+    };
+  }
+
+  // Try template-based approach first
   let result = await createBriefingFromTemplate(now, sections);
+  let method: string = "template";
 
   // Fall back to HTML approach if template fails (not found, can't copy, etc.)
   if (!result.success) {
-    console.log(`  Template approach failed (${result.error}), using HTML format...`);
+    log(`  Template approach failed (${result.error}), using HTML format...`);
     const content = generateBriefingView(
       now,
       urgentItems,
@@ -127,46 +178,71 @@ async function generateBriefing(): Promise<void> {
         waitingOn,
       }
     );
-    const noteTitle = `📋 Briefing - ${now.toLocaleDateString("en-US", { month: "short", day: "numeric" })}`;
     result = await upsertNote(noteTitle, content, "Briefings");
+    method = "html";
   }
 
   if (result.success) {
-    const noteTitle = `📋 Briefing - ${now.toLocaleDateString("en-US", { month: "short", day: "numeric" })}`;
-    console.log(`\n✓ Briefing ${result.action}: ${noteTitle}`);
+    log(`\n✓ Briefing ${result.action}: ${noteTitle}`);
   } else {
-    console.error(`\n✗ Failed to create briefing: ${result.error}`);
+    log(`\n✗ Failed to create briefing: ${result.error}`);
+    return {
+      status: "failed",
+      counts,
+      artifacts: { noteTitle, method },
+      error: {
+        code: "BRIEFING_NOTE_CREATION_FAILED",
+        message: result.error || "Unknown error creating briefing note",
+        retryable: true,
+      },
+      startedAt,
+      finishedAt: new Date(),
+    };
   }
 
   // Print summary
-  const counts = getStatusCounts();
-  console.log("\n--- Status Summary ---");
-  console.log(`  Urgent (P0): ${urgentItems.length}`);
-  console.log(`  Today (P0+P1): ${todayItems.length}`);
-  console.log(`  Calendar events: ${calendarEvents.length}`);
-  console.log(`  Review queue: ${queuedItems.length}`);
-  console.log(`\n--- People ---`);
-  console.log(`  Total: ${getPeopleCount()}`);
-  console.log(`  LinkedIn connections: ${getLinkedInConnectionCount()}`);
-  console.log(`\n--- Database ---`);
-  console.log(`  New: ${counts.new}`);
-  console.log(`  Processed: ${counts.processed}`);
-  console.log(`  Queued: ${counts.queued}`);
-  console.log(`  Acted: ${counts.acted}`);
+  const statusCounts = getStatusCounts();
+  log("\n--- Status Summary ---");
+  log(`  Urgent (P0): ${urgentItems.length}`);
+  log(`  Today (P0+P1): ${todayItems.length}`);
+  log(`  Calendar events: ${calendarEvents.length}`);
+  log(`  Review queue: ${queuedItems.length}`);
+  log(`\n--- People ---`);
+  log(`  Total: ${getPeopleCount()}`);
+  log(`  LinkedIn connections: ${getLinkedInConnectionCount()}`);
+  log(`\n--- Database ---`);
+  log(`  New: ${statusCounts.new}`);
+  log(`  Processed: ${statusCounts.processed}`);
+  log(`  Queued: ${statusCounts.queued}`);
+  log(`  Acted: ${statusCounts.acted}`);
+
+  return {
+    status: calendarFailed ? "partial" : "success",
+    counts,
+    artifacts: { noteTitle, method },
+    startedAt,
+    finishedAt: new Date(),
+  };
 }
 
 async function main() {
   console.log("Starting briefing generation...\n");
 
   try {
-    await generateBriefing();
+    await runBriefing();
   } finally {
     closeDb();
   }
 }
 
-main().catch((err) => {
-  console.error("Briefing failed:", err);
-  closeDb();
-  process.exit(1);
-});
+// Only run when executed directly (not when imported by the orchestrator).
+const isDirectRun =
+  process.argv[1] &&
+  import.meta.url.endsWith(process.argv[1].replace(/.*\//, ""));
+if (isDirectRun) {
+  main().catch((err) => {
+    console.error("Briefing failed:", err);
+    closeDb();
+    process.exit(1);
+  });
+}

@@ -49,14 +49,22 @@ on run
                 return "error:Could not find template - " & errMsg
             end try
 
-            -- Duplicate the template
+            -- Try duplicate first (works on local/On My Mac accounts)
             try
                 set duplicatedNote to duplicate templateNote to targetFolder
                 set name of duplicatedNote to newTitle
                 set noteId to id of duplicatedNote
                 return "created:" & noteId
+            end try
+
+            -- Fallback: copy body content into a new note (works on iCloud)
+            try
+                set templateBody to body of templateNote
+                set newNote to make new note at targetFolder with properties {name:newTitle, body:templateBody}
+                set noteId to id of newNote
+                return "created:" & noteId
             on error errMsg
-                return "error:Could not duplicate - " & errMsg
+                return "error:Could not create from template - " & errMsg
             end try
         end tell
     end tell

@@ -167,7 +167,7 @@ export function generateReviewView(items: MemoryItem[]): string {
 }
 
 /**
- * Generate daily briefing note content.
+ * Generate daily briefing note content (HTML for Apple Notes).
  */
 export function generateBriefingView(
   date: Date,
@@ -188,116 +188,135 @@ export function generateBriefingView(
     hour12: true,
   });
 
-  let content = `📋 DAILY BRIEFING\n`;
-  content += `${dateStr}\n`;
-  content += `Generated: ${timeStr}\n`;
-  content += `\n${"━".repeat(40)}\n`;
+  const lines: string[] = [];
+
+  // Header
+  lines.push(`<h1>📋 Daily Briefing</h1>`);
+  lines.push(`<p><b>${dateStr}</b><br>Generated: ${timeStr}</p>`);
+  lines.push(`<hr>`);
 
   // Urgent section
-  content += `\n🔴 URGENT (${urgentItems.length})\n`;
-  content += `${"─".repeat(30)}\n`;
-
+  lines.push(`<h2>🔴 Urgent (${urgentItems.length})</h2>`);
   if (urgentItems.length === 0) {
-    content += "No urgent items.\n";
+    lines.push(`<p>No urgent items.</p>`);
   } else {
+    lines.push(`<ul>`);
     for (const item of urgentItems) {
-      content += `• ${sourceEmoji(item.source)} ${item.title}\n`;
+      let li = `<li>${sourceEmoji(item.source)} <b>${escapeHtml(item.title)}</b>`;
       if (item.suggested_actions_json) {
-        const actions = JSON.parse(item.suggested_actions_json);
-        if (actions[0]) {
-          content += `  → ${actions[0]}\n`;
-        }
+        try {
+          const actions = JSON.parse(item.suggested_actions_json);
+          if (actions[0]) {
+            li += `<br><i>→ ${escapeHtml(actions[0])}</i>`;
+          }
+        } catch {}
       }
+      li += `</li>`;
+      lines.push(li);
     }
+    lines.push(`</ul>`);
   }
 
   // Calendar section
-  content += `\n📅 TODAY'S SCHEDULE (${calendarEvents.length})\n`;
-  content += `${"─".repeat(30)}\n`;
-
+  lines.push(`<h2>📅 Today's Schedule (${calendarEvents.length})</h2>`);
   if (calendarEvents.length === 0) {
-    content += "No events scheduled.\n";
+    lines.push(`<p>No events scheduled.</p>`);
   } else {
+    lines.push(`<ul>`);
     for (const event of calendarEvents) {
-      const time = event.isAllDay
-        ? "All day"
-        : formatTime(event.startTime);
-      content += `• ${time} - ${event.title}\n`;
+      const time = event.isAllDay ? "All day" : formatTime(event.startTime);
+      let li = `<li><b>${time}</b> - ${escapeHtml(event.title)}`;
       if (event.location) {
-        content += `  📍 ${event.location}\n`;
+        li += `<br>📍 ${escapeHtml(event.location)}`;
       }
+      li += `</li>`;
+      lines.push(li);
     }
+    lines.push(`</ul>`);
   }
 
-  // People section (if data provided)
+  // People section
   if (peopleData) {
-    content += `\n${"━".repeat(40)}\n`;
-    content += `\n👥 PEOPLE\n`;
+    lines.push(`<hr>`);
+    lines.push(`<h2>👥 People</h2>`);
 
     // New connections
     if (peopleData.newConnections.length > 0) {
-      content += `\n🆕 New Connections (${peopleData.newConnections.length})\n`;
-      content += `${"─".repeat(30)}\n`;
+      lines.push(`<h3>🆕 New Connections (${peopleData.newConnections.length})</h3>`);
+      lines.push(`<ul>`);
       for (const person of peopleData.newConnections.slice(0, 5)) {
-        content += `• ${person.display_name}`;
-        if (person.company) content += ` @ ${person.company}`;
+        let li = `<li><b>${escapeHtml(person.display_name)}</b>`;
+        if (person.company) li += ` @ ${escapeHtml(person.company)}`;
         if (person.connected_on) {
-          content += ` (${formatShortDate(person.connected_on)})`;
+          li += ` <i>(${formatShortDate(person.connected_on)})</i>`;
         }
-        content += `\n`;
+        li += `</li>`;
+        lines.push(li);
       }
       if (peopleData.newConnections.length > 5) {
-        content += `  ... and ${peopleData.newConnections.length - 5} more\n`;
+        lines.push(`<li><i>... and ${peopleData.newConnections.length - 5} more</i></li>`);
       }
+      lines.push(`</ul>`);
     }
 
     // People to nudge
     if (peopleData.nudges.length > 0) {
-      content += `\n💭 People to Reconnect With\n`;
-      content += `${"─".repeat(30)}\n`;
-      for (const nudge of peopleData.nudges.slice(0, 3)) {
-        content += `• ${nudge.person.display_name}`;
-        if (nudge.person.company) content += ` @ ${nudge.person.company}`;
-        content += `\n`;
-        content += `  ${nudge.reason}\n`;
+      lines.push(`<h3>💭 People to Reconnect With</h3>`);
+      lines.push(`<ul>`);
+      for (const nudge of peopleData.nudges.slice(0, 5)) {
+        let li = `<li><b>${escapeHtml(nudge.person.display_name)}</b>`;
+        if (nudge.person.company) li += ` @ ${escapeHtml(nudge.person.company)}`;
+        li += `<br><i>${escapeHtml(nudge.reason)}</i></li>`;
+        lines.push(li);
       }
+      lines.push(`</ul>`);
     }
 
     // Waiting on
     if (peopleData.waitingOn.length > 0) {
-      content += `\n⏳ Waiting On Response\n`;
-      content += `${"─".repeat(30)}\n`;
+      lines.push(`<h3>⏳ Waiting On Response</h3>`);
+      lines.push(`<ul>`);
       for (const item of peopleData.waitingOn.slice(0, 5)) {
-        content += `• ${item.title}\n`;
+        lines.push(`<li>${escapeHtml(item.title)}</li>`);
       }
+      lines.push(`</ul>`);
     }
   }
 
-  // Today's items section
-  content += `\n📌 ACTION ITEMS (${todayItems.length})\n`;
-  content += `${"─".repeat(30)}\n`;
-
+  // Action items section - show ALL items as a checklist
+  lines.push(`<hr>`);
+  lines.push(`<h2>📌 Action Items (${todayItems.length})</h2>`);
   if (todayItems.length === 0) {
-    content += "No action items for today.\n";
+    lines.push(`<p>No action items for today.</p>`);
   } else {
-    for (const item of todayItems.slice(0, 10)) {
-      content += `☐ ${sourceEmoji(item.source)} ${item.title}\n`;
+    lines.push(`<ul>`);
+    for (const item of todayItems) {
+      lines.push(`<li>${sourceEmoji(item.source)} ${escapeHtml(item.title)}</li>`);
     }
-    if (todayItems.length > 10) {
-      content += `... and ${todayItems.length - 10} more\n`;
-    }
+    lines.push(`</ul>`);
   }
 
   // Review queue reminder
   if (queuedCount > 0) {
-    content += `\n${"━".repeat(40)}\n`;
-    content += `\n⚠️ ${queuedCount} items in review queue\n`;
+    lines.push(`<hr>`);
+    lines.push(`<p>⚠️ <b>${queuedCount} items in review queue</b></p>`);
   }
 
-  content += `\n${"━".repeat(40)}\n`;
-  content += `\nHave a productive day! ✨\n`;
+  lines.push(`<hr>`);
+  lines.push(`<p>Have a productive day! ✨</p>`);
 
-  return content;
+  return lines.join("\n");
+}
+
+/**
+ * Escape HTML special characters.
+ */
+function escapeHtml(text: string): string {
+  return text
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
 }
 
 /**

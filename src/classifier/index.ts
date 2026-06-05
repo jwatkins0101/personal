@@ -13,7 +13,7 @@ function buildClassificationPrompt(items: ClassifiableItem[]): string {
       if (item.from) desc += `\n   From: ${item.from}`;
       if (item.to) desc += `\n   To: ${item.to}`;
       if (item.subject) desc += `\n   Subject: ${item.subject}`;
-      desc += `\n   Content: ${item.content.substring(0, 400)}`;
+      desc += `\n   Content: ${item.content.replace(/[\x00-\x08\x0E-\x1F]/g, "").substring(0, 400)}`;
       desc += `\n   Date: ${item.date}`;
       return desc;
     })
@@ -63,10 +63,17 @@ async function invokeClaudeClassifier(
   prompt: string
 ): Promise<ClassificationResponse> {
   return new Promise((resolve, reject) => {
-    const args = ["-p", prompt, "--output-format", "json", "--model", "sonnet"];
+    // Strip null bytes — iMessage attributedBody can contain binary data
+    const sanitizedPrompt = prompt.replace(/\0/g, "");
+    const args = ["-p", sanitizedPrompt, "--output-format", "json", "--model", "sonnet"];
+
+    // Strip CLAUDECODE env var to allow spawning from within a Claude Code session
+    const env = { ...process.env };
+    delete env.CLAUDECODE;
 
     const claude = spawn("claude", args, {
       stdio: ["ignore", "pipe", "pipe"],
+      env,
     });
 
     let stdout = "";

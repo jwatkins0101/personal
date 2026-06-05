@@ -33,11 +33,11 @@ async function runCalendarScript(dayOffset: number): Promise<string> {
       stdio: ["ignore", "pipe", "pipe"],
     });
 
-    // Manual timeout since spawn doesn't support timeout option
+    // Timeout slightly beyond the AppleScript-level 120s timeout
     const timeoutId = setTimeout(() => {
       proc.kill("SIGTERM");
-      reject(new Error("Calendar script timed out after 45 seconds"));
-    }, 45000);
+      reject(new Error("Calendar script timed out after 135 seconds"));
+    }, 135000);
 
     let stdout = "";
     let stderr = "";
