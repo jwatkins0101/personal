@@ -3,9 +3,34 @@
  *   npm run tasks                 # capture action items from inbox into GTD lists
  *   npm run tasks -- list         # print the GTD board (open tasks by list)
  *   npm run tasks -- capture 30   # capture, scanning the last 30 days
+ *   npm run tasks -- claude       # print the "🤖 Claude Code" backlog lane
  */
 import { captureFromInbox } from "../tasks/index.js";
-import { listOpenGtdTasks, ensureGtdLists, GTD_LISTS, type GtdKey } from "../tasks/google-tasks.js";
+import {
+  listOpenGtdTasks,
+  ensureGtdLists,
+  listTaskLists,
+  listTasks,
+  GTD_LISTS,
+  type GtdKey,
+} from "../tasks/google-tasks.js";
+
+async function printClaudeLane(): Promise<void> {
+  const lists = await listTaskLists();
+  const lane = lists.find((l) => /claude code/i.test(l.title));
+  if (!lane) {
+    console.log('No "🤖 Claude Code" list found. Create one in Google Tasks to use it as a backlog.');
+    return;
+  }
+  const tasks = await listTasks(lane.id);
+  console.log(`\n=== ${lane.title} (${tasks.length} open) ===`);
+  if (tasks.length === 0) console.log("  (empty — add tasks in Google Tasks for Claude Code to pick up)");
+  tasks.forEach((t) => {
+    console.log(`\n• ${t.title}`);
+    if (t.notes) console.log(`    ${t.notes.replace(/\[cc:[^\]]+\]/g, "").trim().replace(/\n/g, "\n    ")}`);
+  });
+  console.log("");
+}
 
 function fmtDue(due?: string): string {
   if (!due) return "";
@@ -42,6 +67,11 @@ async function main(): Promise<void> {
 
   if (cmd === "list" || cmd === "board") {
     await printBoard();
+    return;
+  }
+
+  if (cmd === "claude") {
+    await printClaudeLane();
     return;
   }
 

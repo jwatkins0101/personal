@@ -20,6 +20,7 @@
     "briefing": "tsx src/commands/briefing.ts",
     "tasks": "tsx src/commands/tasks.ts",
     "tasks:list": "tsx src/commands/tasks.ts list",
+    "tasks:claude": "tsx src/commands/tasks.ts claude",
     "sms-triage": "tsx src/commands/sms-triage.ts",
     "review": "tsx src/commands/review.ts",
     "review:people": "tsx src/commands/review-people.ts",
