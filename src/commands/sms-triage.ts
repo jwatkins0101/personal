@@ -12,10 +12,45 @@ import { classifyItems } from "../classifier/index.js";
 import { messagesToClassifiable } from "../classifier/adapters.js";
 import { captureTaskSpecs, type TaskSpec } from "../tasks/index.js";
 import { GTD_LISTS, type GtdKey } from "../tasks/google-tasks.js";
+import { loadContactIndex, nameOrHandle } from "../contacts/resolver.js";
 
 // Categories worth turning into a task; everything else (newsletter/reference/idea) is ignored.
 const ACTIONABLE = new Set(["urgent", "work", "personal", "admin", "health", "finance", "waiting-on"]);
 const ACTIONABLE_PRIORITY = new Set(["P0", "P1", "P2"]);
+
+// Strict mode: require an explicit ask/request/deadline in the message itself, and reject
+// classifications whose "action" is just an acknowledgment. Filters out casual/family chatter
+// ("Mommy is dropping me off") while keeping real asks ("will you join the meeting?", "box it up & ship UPS").
+const ASK_SIGNAL =
+  /\?|\b(can you|could you|would you|will you|are you|do you|did you|have you|please|need (you|to|your)|let me know|send (me|over)|when (can|will|are|is|do)|where (is|are)|pay|owe|due|deadline|rsvp|sign|return|ship|schedule|drop (off|it)|pick (up|it)|bring|approve|review|fill out|complete|submit|call me|text me|reply)\b/i;
+const NOISE_ACTION =
+  /^(acknowledge|no action|react|reply with a (thumbs|quick|simple)|confirm (you|that you|your) (know|saw|received|are aware)|let them know you|note that|be aware)/i;
+
+// Automated business/transactional SMS (utility alerts, delivery/tracking, warranty, OTP, marketing).
+// These often contain "please"/"reply" so they slip past the ask filter — drop them explicitly.
+const AUTOMATED_SMS =
+  /(reply stop|text stop|msg ?& ?data|message and data rates|do not reply|no-?reply|verification code|your code is|one-time|your (water use|delivery|order|warranty|account|appointment|payment|statement|balance|subscription)|tracking (number|#|link)|out for delivery|has shipped|is complete|unsubscribe|to opt ?out|view your bill|\bwarranty\b|\bcoverage\b|upgrade now|expires in \d+ days|don'?t wait|secure your|\$[\d,]+\+?\/?\s*(mo\b|month)|[\d.]+\/mo\b|pre-?approved|apply now|limited time)/i;
+
+/** Cheap candidate gate before the LLM: drop attachments, short-code/automated senders, no-ask texts. */
+function isCandidate(m: { text: string; handleId: string }): boolean {
+  const t = (m.text || "").trim();
+  if (t.length < 3) return false;
+  if (/^[￼\s]+$/.test(t)) return false; // attachment placeholder (￼)
+  const h = m.handleId || "";
+  if (!h.includes("@")) {
+    const digits = h.replace(/\D/g, "");
+    if (digits.length > 0 && digits.length < 7) return false; // short code (Sky Zone, banks, OTP)
+  }
+  if (AUTOMATED_SMS.test(t)) return false; // automated business/transactional SMS
+  return ASK_SIGNAL.test(t);
+}
+
+function isStrictAction(category: string, priority: string, confidence: number, text: string, action: string): boolean {
+  if (!ACTIONABLE.has(category) || !ACTIONABLE_PRIORITY.has(priority) || confidence < 0.6) return false;
+  if (NOISE_ACTION.test(action.trim())) return false; // action is just "acknowledge / confirm you saw it"
+  if (!ASK_SIGNAL.test(text)) return false; // message contains no real ask/request/deadline
+  return true;
+}
 
 function short(s: string, n: number): string {
   const one = s.replace(/\s+/g, " ").trim();
@@ -30,9 +65,15 @@ async function main(): Promise<void> {
   console.log(`Reading iMessage/SMS from the last ${days} days...`);
   const client = new MessagesClient();
 
-  let recent;
+  const cutoffDate = new Date(Date.now() - days * 86400 * 1000);
+  let textMsgs, attrMsgs;
   try {
-    recent = await client.getRecentMessages(400);
+    // Read BOTH sources: the plain `text` column AND attributedBody-only messages (most modern
+    // iMessages live there). Merge + dedupe by ROWID — without this the read sees almost nothing.
+    [textMsgs, attrMsgs] = await Promise.all([
+      client.searchMessages({ fromMe: false, startDate: cutoffDate, limit: 2000 }),
+      client.extractRecentAttributedBodyMessages(days, 5000),
+    ]);
   } catch (err) {
     console.error(
       "Could not read Messages (chat.db). Ensure your terminal has Full Disk Access in System Settings → Privacy.\n",
@@ -41,12 +82,22 @@ async function main(): Promise<void> {
     process.exit(1);
   }
 
-  const cutoff = Date.now() - days * 86400 * 1000;
-  // Incoming messages only (things others sent you), within the window, with real text.
-  const incoming = recent.filter(
-    (m) => !m.isFromMe && m.date.getTime() >= cutoff && m.text && m.text.trim().length > 1
-  );
-  console.log(`${incoming.length} incoming messages in window. Classifying...`);
+  const byRow = new Map<number, (typeof textMsgs)[number]>();
+  for (const m of [...textMsgs, ...attrMsgs]) if (!byRow.has(m.id)) byRow.set(m.id, m);
+  const merged = [...byRow.values()];
+
+  // Cheap pre-filter BEFORE the LLM: incoming, real text (not an attachment placeholder), a real
+  // contact (not a short-code sender), and contains an explicit ask — so we classify a handful,
+  // not hundreds. (Strict mode requires the ask anyway.)
+  const candidates = merged.filter((m) => !m.isFromMe && isCandidate(m));
+  // Collapse near-identical repeats from the same sender (e.g. 4× identical utility alerts).
+  const dedupe = new Map<string, (typeof candidates)[number]>();
+  for (const m of candidates) {
+    const key = `${m.handleId}:${(m.text || "").trim().slice(0, 40).toLowerCase()}`;
+    if (!dedupe.has(key)) dedupe.set(key, m);
+  }
+  const incoming = [...dedupe.values()];
+  console.log(`${merged.length} messages read · ${incoming.length} candidate(s) with an ask. Classifying...`);
 
   if (incoming.length === 0) {
     console.log("Nothing to triage.");
@@ -56,23 +107,32 @@ async function main(): Promise<void> {
   const results = await classifyItems(messagesToClassifiable(incoming));
   const byId = new Map(incoming.map((m) => [String(m.id), m]));
 
-  const actionItems = results.filter(
-    (r) => ACTIONABLE.has(r.category) && ACTIONABLE_PRIORITY.has(r.priority) && r.confidence >= 0.5
-  );
+  const actionItems = results.filter((r) => {
+    const msg = byId.get(r.id);
+    return isStrictAction(r.category, r.priority, r.confidence, msg?.text || "", r.suggested_next_action || "");
+  });
 
   if (actionItems.length === 0) {
     console.log("No action items found in recent messages.");
     return;
   }
 
+  // Resolve sender handles -> contact names (from macOS Contacts).
+  await loadContactIndex();
+  const nameFor = new Map<string, string>();
+  for (const r of actionItems) {
+    const h = byId.get(r.id)?.handleId || "";
+    if (h && !nameFor.has(h)) nameFor.set(h, await nameOrHandle(h));
+  }
+
   const specs: TaskSpec[] = actionItems.map((r) => {
     const msg = byId.get(r.id);
-    const contact = msg?.handleId || "unknown";
+    const who = nameFor.get(msg?.handleId || "") || msg?.handleId || "unknown";
     const action = r.suggested_next_action?.trim() || short(msg?.text || "", 60);
     return {
       marker: `[smsid:${r.id}]`,
-      title: short(action, 90),
-      notes: `SMS from ${contact} (${r.priority}/${r.category}): "${short(msg?.text || "", 160)}"`,
+      title: `${short(action, 78)} (${who})`,
+      notes: `SMS from ${who} (${r.priority}/${r.category}): "${short(msg?.text || "", 160)}"`,
       // messages rarely carry explicit dates; leave undue → lands in 📥 Inbox
     };
   });
@@ -80,8 +140,9 @@ async function main(): Promise<void> {
   console.log(`\nFound ${actionItems.length} action item(s) in your texts:\n`);
   actionItems.forEach((r) => {
     const msg = byId.get(r.id);
+    const who = nameFor.get(msg?.handleId || "") || msg?.handleId;
     console.log(`  • [${r.priority}] ${short(r.suggested_next_action || msg?.text || "", 70)}`);
-    console.log(`      from ${msg?.handleId}  — "${short(msg?.text || "", 60)}"`);
+    console.log(`      from ${who}  — "${short(msg?.text || "", 60)}"`);
   });
 
   if (dryRun) {

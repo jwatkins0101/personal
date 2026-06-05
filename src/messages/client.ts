@@ -478,6 +478,41 @@ export class MessagesClient {
   }
 
   /**
+   * Extract recent incoming attributedBody-only messages across ALL handles (last `days`).
+   * Most modern iMessages keep their text in attributedBody, not the text column, so this is
+   * essential for a complete read in triage.
+   */
+  async extractRecentAttributedBodyMessages(
+    days: number = 7,
+    limit: number = 5000
+  ): Promise<Message[]> {
+    const scriptPath = join(SCRIPTS_DIR, "extract-attributed-body.py");
+    return new Promise((resolve, reject) => {
+      const proc = spawn("python3", [scriptPath, "--recent", String(days), String(limit)], {
+        stdio: ["ignore", "pipe", "pipe"],
+        env: { ...process.env, MESSAGES_DB: this.config.dbPath },
+      });
+      let stdout = "";
+      let stderr = "";
+      proc.stdout.on("data", (d) => (stdout += d.toString()));
+      proc.stderr.on("data", (d) => (stderr += d.toString()));
+      proc.on("close", (code) => {
+        if (code !== 0) {
+          reject(new Error(`Python extractor failed (code ${code}): ${stderr}`));
+          return;
+        }
+        try {
+          const rows = JSON.parse(stdout || "[]") as Record<string, unknown>[];
+          resolve(rows.map((row) => this.parseMessageRow(row)));
+        } catch (err) {
+          reject(new Error(`Failed to parse extractor output: ${(err as Error).message}`));
+        }
+      });
+      proc.on("error", reject);
+    });
+  }
+
+  /**
    * Get all messages for a handle, including those with text only in attributedBody.
    * Merges and deduplicates by ROWID.
    */

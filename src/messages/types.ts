@@ -71,7 +71,9 @@ export interface MessagesConfig {
 }
 
 export const DEFAULT_MESSAGES_CONFIG: MessagesConfig = {
-  dbPath: `${process.env.HOME}/Library/Messages/chat.db`,
+  // MESSAGES_DB override lets a scheduled job read a temp copy (made via a direct bash→sqlite3
+  // call) instead of the TCC-protected original, which the npm→node→sqlite3 chain can't open.
+  dbPath: process.env.MESSAGES_DB || `${process.env.HOME}/Library/Messages/chat.db`,
   maxResults: 100,
 };
 

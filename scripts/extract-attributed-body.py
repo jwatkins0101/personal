@@ -21,7 +21,11 @@ import sys
 import os
 
 
-DB_PATH = os.path.expanduser("~/Library/Messages/chat.db")
+# MESSAGES_DB override lets a scheduled job read a temp copy (made via a direct bash->sqlite3
+# call) instead of the TCC-protected original, which the npm->node->python chain can't open.
+DB_PATH = os.environ.get("MESSAGES_DB") or os.path.expanduser("~/Library/Messages/chat.db")
+
+APPLE_EPOCH_OFFSET = 978307200  # seconds between 1970 and 2001 epochs
 
 
 def extract_from_typedstream(blob: bytes) -> str | None:
@@ -133,12 +137,12 @@ def extract_text_from_attributed_body(blob: bytes) -> str | None:
 
 
 def main():
+    import time
+
     if len(sys.argv) < 2:
         print("Usage: extract-attributed-body.py <handle_id> [limit]", file=sys.stderr)
+        print("   or: extract-attributed-body.py --recent <days> [limit]", file=sys.stderr)
         sys.exit(1)
-
-    handle_id = sys.argv[1]
-    limit = int(sys.argv[2]) if len(sys.argv) > 2 else 10000
 
     if not os.path.exists(DB_PATH):
         print(json.dumps([]))
@@ -147,8 +151,7 @@ def main():
     conn = sqlite3.connect(DB_PATH)
     conn.row_factory = sqlite3.Row
 
-    cursor = conn.execute(
-        """
+    base_select = """
         SELECT
             m.ROWID,
             m.guid,
@@ -162,14 +165,28 @@ def main():
             h.id as handle_id
         FROM message m
         LEFT JOIN handle h ON m.handle_id = h.ROWID
-        WHERE h.id = ?
-          AND (m.text IS NULL OR m.text = '')
+        WHERE (m.text IS NULL OR m.text = '')
           AND m.attributedBody IS NOT NULL
-        ORDER BY m.date DESC
-        LIMIT ?
-        """,
-        (handle_id, limit),
-    )
+    """
+
+    if sys.argv[1] == "--recent":
+        # Recent incoming messages across ALL handles within a date window.
+        days = int(sys.argv[2]) if len(sys.argv) > 2 else 7
+        limit = int(sys.argv[3]) if len(sys.argv) > 3 else 5000
+        cutoff_ns = int((time.time() - APPLE_EPOCH_OFFSET - days * 86400) * 1_000_000_000)
+        cursor = conn.execute(
+            base_select
+            + " AND m.is_from_me = 0 AND m.date >= ? ORDER BY m.date DESC LIMIT ?",
+            (cutoff_ns, limit),
+        )
+    else:
+        # Per-handle mode (used by deep-dive / getAllMessagesForHandle).
+        handle_id = sys.argv[1]
+        limit = int(sys.argv[2]) if len(sys.argv) > 2 else 10000
+        cursor = conn.execute(
+            base_select + " AND h.id = ? ORDER BY m.date DESC LIMIT ?",
+            (handle_id, limit),
+        )
 
     results = []
     extracted = 0
