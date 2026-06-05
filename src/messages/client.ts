@@ -1,4 +1,6 @@
 import { spawn } from "child_process";
+import { join, dirname } from "path";
+import { fileURLToPath } from "url";
 import type {
   Message,
   Attachment,
@@ -10,6 +12,10 @@ import type {
 } from "./types.js";
 import { DEFAULT_MESSAGES_CONFIG, APPLE_EPOCH_OFFSET } from "./types.js";
 
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+const SCRIPTS_DIR = join(__dirname, "../../scripts");
+
 export class MessagesClient {
   private config: MessagesConfig;
 
@@ -19,7 +25,8 @@ export class MessagesClient {
 
   private async query(sql: string): Promise<string> {
     return new Promise((resolve, reject) => {
-      const proc = spawn("sqlite3", [this.config.dbPath], {
+      // -readonly: read even while Messages.app holds a write lock (avoids partial/empty reads).
+      const proc = spawn("sqlite3", ["-readonly", this.config.dbPath], {
         stdio: ["pipe", "pipe", "pipe"],
       });
 
@@ -419,6 +426,104 @@ export class MessagesClient {
       messagesFromMe: (row.from_me as number) || 0,
       messagesFromOthers: (row.from_others as number) || 0,
     };
+  }
+  /**
+   * Extract messages that only have text in the attributedBody column.
+   * Uses a Python script to parse NSKeyedArchiver binary blobs.
+   */
+  async extractAttributedBodyMessages(
+    handleId: string,
+    limit: number = 10000
+  ): Promise<Message[]> {
+    const scriptPath = join(SCRIPTS_DIR, "extract-attributed-body.py");
+
+    return new Promise((resolve, reject) => {
+      const proc = spawn("python3", [scriptPath, handleId, String(limit)], {
+        stdio: ["ignore", "pipe", "pipe"],
+      });
+
+      let stdout = "";
+      let stderr = "";
+
+      proc.stdout.on("data", (data) => {
+        stdout += data.toString();
+      });
+
+      proc.stderr.on("data", (data) => {
+        stderr += data.toString();
+      });
+
+      proc.on("close", (code) => {
+        if (stderr) {
+          // Python script writes stats to stderr, not errors
+          console.log(`  attributedBody extraction: ${stderr.trim()}`);
+        }
+
+        if (code !== 0) {
+          reject(new Error(`Python extractor failed (code ${code}): ${stderr}`));
+          return;
+        }
+
+        try {
+          const rows = JSON.parse(stdout || "[]") as Record<string, unknown>[];
+          const messages = rows.map((row) => this.parseMessageRow(row));
+          resolve(messages);
+        } catch (err) {
+          reject(new Error(`Failed to parse extractor output: ${(err as Error).message}`));
+        }
+      });
+
+      proc.on("error", reject);
+    });
+  }
+
+  /**
+   * Get all messages for a handle, including those with text only in attributedBody.
+   * Merges and deduplicates by ROWID.
+   */
+  async getAllMessagesForHandle(
+    handleId: string,
+    limit: number = 10000
+  ): Promise<Message[]> {
+    // Fetch both text-column and attributedBody messages in parallel
+    const [textMessages, attributedMessages] = await Promise.all([
+      this.searchMessages({ handleId, limit }),
+      this.extractAttributedBodyMessages(handleId, limit),
+    ]);
+
+    // Merge and deduplicate by ROWID
+    const messageMap = new Map<number, Message>();
+    for (const msg of textMessages) {
+      messageMap.set(msg.id, msg);
+    }
+    for (const msg of attributedMessages) {
+      if (!messageMap.has(msg.id)) {
+        messageMap.set(msg.id, msg);
+      }
+    }
+
+    // Sort by date descending
+    const all = Array.from(messageMap.values());
+    all.sort((a, b) => b.date.getTime() - a.date.getTime());
+
+    return all.slice(0, limit);
+  }
+
+  /**
+   * Get total message count for a handle, including attributedBody-only messages.
+   */
+  async getTotalMessageCount(handleId: string): Promise<number> {
+    const escapedHandle = handleId.replace(/'/g, "''");
+    const sql = `
+      SELECT COUNT(*) as total
+      FROM message m
+      JOIN handle h ON m.handle_id = h.ROWID
+      WHERE h.id = '${escapedHandle}'
+        AND (m.text IS NOT NULL OR m.attributedBody IS NOT NULL);
+    `;
+
+    const rows = await this.queryJson<{ total: number }>(sql);
+    return rows.length > 0 ? rows[0].total : 0;
   }
 }
 
