@@ -179,7 +179,8 @@ export function generateBriefingView(
     newConnections: Array<Person & { connected_on: string }>;
     nudges: PersonNudge[];
     waitingOn: MemoryItem[];
-  }
+  },
+  gtdTasksText?: string
 ): string {
   const dateStr = formatDate(date);
   const timeStr = date.toLocaleTimeString("en-US", {
@@ -232,6 +233,15 @@ export function generateBriefingView(
       li += `</li>`;
       lines.push(li);
     }
+    lines.push(`</ul>`);
+  }
+
+  // Today's Tasks (Google Tasks: overdue / due today / 🔥 Today list)
+  if (gtdTasksText && gtdTasksText.trim()) {
+    const taskLines = gtdTasksText.split("\n").filter((l) => l.trim());
+    lines.push(`<h2>✅ Today's Tasks (${taskLines.length})</h2>`);
+    lines.push(`<ul>`);
+    for (const t of taskLines) lines.push(`<li>${escapeHtml(t)}</li>`);
     lines.push(`</ul>`);
   }
 

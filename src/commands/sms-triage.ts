@@ -125,17 +125,39 @@ async function main(): Promise<void> {
     if (h && !nameFor.has(h)) nameFor.set(h, await nameOrHandle(h));
   }
 
-  const specs: TaskSpec[] = actionItems.map((r) => {
-    const msg = byId.get(r.id);
-    const who = nameFor.get(msg?.handleId || "") || msg?.handleId || "unknown";
-    const action = r.suggested_next_action?.trim() || short(msg?.text || "", 60);
-    return {
-      marker: `[smsid:${r.id}]`,
-      title: `${short(action, 78)} (${who})`,
-      notes: `SMS from ${who} (${r.priority}/${r.category}): "${short(msg?.text || "", 160)}"`,
+  // Collapse by sender: one contact's cluster of asks becomes a single task (Uncle Chris's 6
+  // messages → 1), so the board isn't fragmented by one conversation.
+  const prioRank = (p: string) => ({ P0: 0, P1: 1, P2: 2, P3: 3 }[p] ?? 4);
+  const groups = new Map<string, typeof actionItems>();
+  for (const r of actionItems) {
+    const h = byId.get(r.id)?.handleId || "unknown";
+    if (!groups.has(h)) groups.set(h, []);
+    groups.get(h)!.push(r);
+  }
+
+  const specs: TaskSpec[] = [];
+  for (const [handle, items] of groups) {
+    const who = nameFor.get(handle) || handle;
+    items.sort(
+      (a, b) =>
+        prioRank(a.priority) - prioRank(b.priority) ||
+        (byId.get(b.id)?.date.getTime() || 0) - (byId.get(a.id)?.date.getTime() || 0)
+    );
+    const primary = items[0];
+    const action = primary.suggested_next_action?.trim() || short(byId.get(primary.id)?.text || "", 60);
+    const minId = Math.min(...items.map((i) => Number(i.id)));
+    const markers = items.map((i) => `[smsid:${i.id}]`).join(" ");
+    const bullets = items.map((i) => `• "${short(byId.get(i.id)?.text || "", 110)}"`).join("\n");
+    specs.push({
+      marker: `[smsid:${minId}]`,
+      title:
+        items.length > 1
+          ? `${short(action, 64)} (${who}, +${items.length - 1} more)`
+          : `${short(action, 78)} (${who})`,
+      notes: `SMS from ${who} (${primary.priority}):\n${bullets}\n${markers}`,
       // messages rarely carry explicit dates; leave undue → lands in 📥 Inbox
-    };
-  });
+    });
+  }
 
   console.log(`\nFound ${actionItems.length} action item(s) in your texts:\n`);
   actionItems.forEach((r) => {

@@ -18,6 +18,27 @@ import {
 } from "../people/index.js";
 import type { CalendarEvent } from "../calendar/apple.js";
 import type { StepResult } from "../pipeline/types.js";
+import { listOpenGtdTasks, GTD_LISTS, type GoogleTask } from "../tasks/google-tasks.js";
+
+/**
+ * Format the Google Tasks worth surfacing in the morning briefing:
+ * anything overdue or due today (any list), plus everything in the 🔥 Today list.
+ */
+function formatGtdTasksForBriefing(tasks: GoogleTask[]): string {
+  const today = new Date().toISOString().slice(0, 10);
+  const relevant = tasks.filter(
+    (t) => (t.due && t.due.slice(0, 10) <= today) || t.list === GTD_LISTS.today
+  );
+  if (relevant.length === 0) return "";
+  return relevant
+    .sort((a, b) => (a.due || "9999").localeCompare(b.due || "9999"))
+    .map((t) => {
+      const d = t.due?.slice(0, 10);
+      const tag = d ? (d < today ? " ⚠️ overdue" : " 📅 today") : "";
+      return `${t.title}${tag}`;
+    })
+    .join("\n");
+}
 
 /**
  * Get urgent (P0) items.
@@ -120,6 +141,14 @@ export async function runBriefing(options?: BriefingOptions): Promise<StepResult
     waitingOn: waitingOn.length,
   };
 
+  // Pull today's/overdue Google Tasks (non-fatal if Tasks/auth unavailable).
+  let gtdTasksText = "";
+  try {
+    gtdTasksText = formatGtdTasksForBriefing(await listOpenGtdTasks());
+  } catch (err) {
+    log(`  (Google Tasks unavailable: ${err instanceof Error ? err.message : err})`);
+  }
+
   // Build sections used by both template and HTML approaches
   const sections = {
     urgent: urgentItems.length > 0
@@ -140,6 +169,7 @@ export async function runBriefing(options?: BriefingOptions): Promise<StepResult
     actionItems: todayItems.length > 0
       ? todayItems.map(item => `${item.title}`).join("\n")
       : "No action items",
+    tasks: gtdTasksText || "No tasks due today",
     reviewQueue: queuedItems.length > 0
       ? `${queuedItems.length} items need review`
       : "",
@@ -176,7 +206,8 @@ export async function runBriefing(options?: BriefingOptions): Promise<StepResult
         newConnections,
         nudges,
         waitingOn,
-      }
+      },
+      gtdTasksText
     );
     result = await upsertNote(noteTitle, content, "Briefings");
     method = "html";

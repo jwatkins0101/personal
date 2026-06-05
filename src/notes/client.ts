@@ -220,6 +220,7 @@ export async function createBriefingFromTemplate(
     connections?: string;
     reconnect?: string;
     actionItems?: string;
+    tasks?: string;
     reviewQueue?: string;
   },
   templateTitle = "Briefing Template",
@@ -271,6 +272,11 @@ export async function createBriefingFromTemplate(
   if (sections.actionItems) {
     sectionUpdates.push(
       updateNoteSection(noteTitle, "ACTION_ITEMS", sections.actionItems, folder)
+    );
+  }
+  if (sections.tasks) {
+    sectionUpdates.push(
+      updateNoteSection(noteTitle, "TASKS", sections.tasks, folder)
     );
   }
   if (sections.reviewQueue) {

@@ -65,6 +65,19 @@ gws gmail users drafts create --json '{"message":{"raw":"<BASE64URL>"}}'
 - Newsletters, marketing, promotions → `Label_94` (📰 Newsletters)
 - LinkedIn, GitHub, app notifications → `Label_95` (🔔 Notifications)
 
+## Known recurring senders (always route out of inbox — do NOT leave as ACTION)
+
+These were surfaced repeatedly as rule candidates. If `From` matches, apply the label + remove `INBOX` (FYI lane) without further deliberation:
+
+- `*@blackboard.com` (incl. "Daily Notifications") → `Label_95` (🔔 Notifications)
+- `*@acumenmd.com`, `epic.notifications@*`, `*nortonhealthcare*` (MyChart / MyNortonChart portal alerts) → `Label_95`
+- `*getrave.com`, "Rave Alert" (UofL emergency/test alerts) → `Label_95`
+- `*@rs.ring.com`, `*@ecobee.com` (home-device notifications) → `Label_95`
+- `clubnews@bluesombrero.com` / "St. Matthews Baseball" → `Label_94` (📰 Newsletters)
+- LinkedIn / Nextdoor / Flipboard digests → `Label_94`
+
+Exception (still ACTION): a portal/health message naming a specific appointment time, result needing acknowledgement, or a direct human reply — leave in inbox.
+
 ## Safety
 
 - Never delete (no `delete`/`trash` calls).
