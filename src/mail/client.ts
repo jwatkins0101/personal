@@ -1,66 +1,44 @@
-import { spawn } from "child_process";
-import { join, dirname } from "path";
-import { fileURLToPath } from "url";
+/**
+ * Mail client — Gmail API backend (via the `gws` CLI for auth).
+ *
+ * Replaces the previous Apple Mail / AppleScript implementation, which timed out on large
+ * mailboxes (`AppleEvent timed out -1712`). All exported signatures are unchanged so callers
+ * (index.ts, ingest.ts, digest, undo, backfill, deep-dive) keep working.
+ *
+ * Concepts map as: archive = remove INBOX label; mark read = remove UNREAD; flag/category =
+ * add a Gmail label (or STARRED). See src/mail/gmail-api.ts for the low-level helper.
+ */
 import type { EmailMessage } from "./types.js";
-import { CATEGORY_FLAGS, FLAG_COLORS } from "./types.js";
+import { CATEGORY_GMAIL_LABELS, FLAG_TO_GMAIL_LABEL } from "./types.js";
 import { logSuccess, logFailure } from "../storage/action-log.js";
-import { retry } from "../utils/retry.js";
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
-const SCRIPTS_DIR = join(__dirname, "../../scripts");
+import {
+  listMessageIds,
+  getMessageMeta,
+  getMessagesMeta,
+  modifyMessage,
+  type GmailMeta,
+} from "./gmail-api.js";
 
 const MAX_EMAILS = parseInt(process.env.MAX_EMAILS_PER_RUN || "20", 10);
-
-async function runScript(
-  scriptName: string,
-  args: string[] = [],
-  timeoutMs: number = 180000
-): Promise<string> {
-  const scriptPath = join(SCRIPTS_DIR, scriptName);
-
-  return new Promise((resolve, reject) => {
-    const proc = spawn("bash", [scriptPath, ...args], {
-      stdio: ["ignore", "pipe", "pipe"],
-    });
-
-    // Manual timeout
-    const timeoutId = setTimeout(() => {
-      proc.kill("SIGTERM");
-      reject(new Error(`Script timed out after ${timeoutMs / 1000} seconds`));
-    }, timeoutMs);
-
-    let stdout = "";
-    let stderr = "";
-
-    proc.stdout.on("data", (data) => {
-      stdout += data.toString();
-    });
-
-    proc.stderr.on("data", (data) => {
-      stderr += data.toString();
-    });
-
-    proc.on("close", (code, signal) => {
-      if (code === 0) {
-        resolve(stdout.trim());
-      } else if (signal) {
-        reject(new Error(`Script killed by signal: ${signal}`));
-      } else {
-        reject(new Error(`Script exited with code ${code}: ${stderr}`));
-      }
-    });
-
-    proc.on("error", (err) => {
-      reject(err);
-    });
-  });
-}
+const ACCOUNT = "jermainewatkins@gmail.com";
 
 function parseEmailAddress(sender: string): string {
-  // Extract email from formats like "Name <email@example.com>" or just "email@example.com"
   const match = sender.match(/<([^>]+)>/) || sender.match(/([^\s<>]+@[^\s<>]+)/);
   return match ? match[1] : sender;
+}
+
+function toEmailMessage(m: GmailMeta): EmailMessage {
+  return {
+    id: m.id,
+    threadId: m.threadId,
+    from: parseEmailAddress(m.from),
+    to: m.to,
+    subject: m.subject || "(No subject)",
+    snippet: m.snippet || "",
+    date: m.date || "",
+    labels: m.labelIds.includes("SENT") ? ["sent"] : [],
+    account: ACCOUNT,
+  };
 }
 
 /**
@@ -78,19 +56,12 @@ export interface MailState {
  */
 export async function getMailState(messageId: string): Promise<MailState | null> {
   try {
-    const result = await runScript("get-mail-state.sh", [messageId]);
-
-    if (!result || result.startsWith("ERROR:")) {
-      console.warn(`Could not get mail state for ${messageId}: ${result}`);
-      return null;
-    }
-
-    const [mailbox, account, flagIndexStr, isUnreadStr] = result.split("<|>");
+    const m = await getMessageMeta(messageId);
     return {
-      mailbox: mailbox || "INBOX",
-      account: account || "",
-      flagIndex: parseInt(flagIndexStr, 10) || 0,
-      isUnread: isUnreadStr === "true",
+      mailbox: m.labelIds.includes("INBOX") ? "INBOX" : "Archive",
+      account: ACCOUNT,
+      flagIndex: m.labelIds.includes("STARRED") ? 2 : 0,
+      isUnread: m.labelIds.includes("UNREAD"),
     };
   } catch (err) {
     console.warn(`Failed to get mail state for ${messageId}:`, err);
@@ -100,62 +71,24 @@ export async function getMailState(messageId: string): Promise<MailState | null>
 
 export async function fetchUnreadEmails(): Promise<EmailMessage[]> {
   try {
-    // Retry up to 3 times with exponential backoff
-    const result = await retry(
-      () => runScript("get-mail.sh", [String(MAX_EMAILS)]),
-      {
-        maxAttempts: 3,
-        delayMs: 2000,
-        onRetry: (attempt, error) => {
-          console.warn(`Mail fetch attempt ${attempt} failed: ${error.message}, retrying...`);
-        },
-      }
-    );
-
-    if (!result || result === "") {
-      return [];
-    }
-
-    const emails: EmailMessage[] = [];
-    const emailStrings = result.split("<||>").filter(s => s.trim() !== "");
-
-    for (const emailStr of emailStrings) {
-      const parts = emailStr.split("<|>");
-      if (parts.length >= 5) {
-        const [id, subject, sender, date, snippet, account] = parts;
-        emails.push({
-          id: id || "",
-          threadId: id || "", // Apple Mail doesn't have thread IDs in the same way
-          from: parseEmailAddress(sender || ""),
-          to: "", // Would need additional script to get recipients
-          subject: subject || "(No subject)",
-          snippet: snippet || "",
-          date: date || "",
-          labels: [],
-          account: account || undefined,
-        });
-      }
-    }
-
-    return emails;
+    const ids = await listMessageIds("in:inbox is:unread", MAX_EMAILS);
+    if (ids.length === 0) return [];
+    const metas = await getMessagesMeta(ids);
+    return metas.map(toEmailMessage);
   } catch (err) {
-    console.error("Failed to fetch emails after retries:", err instanceof Error ? err.message : err);
+    console.error(
+      "Failed to fetch emails:",
+      err instanceof Error ? err.message : err
+    );
     return [];
   }
 }
 
 export async function markAsRead(messageId: string): Promise<void> {
   const itemId = `email:${messageId}`;
-
-  // Capture pre-state for undo
-  const preState = await getMailState(messageId);
-
   try {
-    await runScript("mark-mail-read.sh", [messageId]);
-    logSuccess(itemId, "mark-read", {
-      messageId,
-      preState: preState ? { wasUnread: preState.isUnread } : null,
-    });
+    await modifyMessage(messageId, [], ["UNREAD"]);
+    logSuccess(itemId, "mark-read", { messageId, preState: { wasUnread: true } });
   } catch (err) {
     const errorMsg = err instanceof Error ? err.message : String(err);
     logFailure(itemId, "mark-read", errorMsg, { messageId });
@@ -165,19 +98,9 @@ export async function markAsRead(messageId: string): Promise<void> {
 
 export async function archiveMessage(messageId: string): Promise<void> {
   const itemId = `email:${messageId}`;
-
-  // Capture pre-state for undo
-  const preState = await getMailState(messageId);
-
   try {
-    await runScript("archive-mail.sh", [messageId]);
-    logSuccess(itemId, "archive", {
-      messageId,
-      preState: preState ? {
-        originalMailbox: preState.mailbox,
-        originalAccount: preState.account,
-      } : null,
-    });
+    await modifyMessage(messageId, [], ["INBOX"]);
+    logSuccess(itemId, "archive", { messageId, preState: { originalMailbox: "INBOX", originalAccount: ACCOUNT } });
   } catch (err) {
     const errorMsg = err instanceof Error ? err.message : String(err);
     logFailure(itemId, "archive", errorMsg, { messageId });
@@ -185,19 +108,17 @@ export async function archiveMessage(messageId: string): Promise<void> {
   }
 }
 
+/**
+ * Apply a "flag" — on Gmail this maps the old Apple flag-color index to a label (or STARRED).
+ * Kept for undo compatibility; unknown colors are a no-op.
+ */
 export async function flagMessage(messageId: string, colorIndex: number): Promise<void> {
   const itemId = `email:${messageId}`;
-
-  // Capture pre-state for undo
-  const preState = await getMailState(messageId);
-
+  const label = FLAG_TO_GMAIL_LABEL[colorIndex];
+  if (!label) return;
   try {
-    await runScript("flag-mail.sh", [messageId, String(colorIndex)]);
-    logSuccess(itemId, "flag", {
-      messageId,
-      colorIndex,
-      preState: preState ? { previousFlagIndex: preState.flagIndex } : null,
-    });
+    await modifyMessage(messageId, [label], []);
+    logSuccess(itemId, "flag", { messageId, colorIndex, label });
   } catch (err) {
     const errorMsg = err instanceof Error ? err.message : String(err);
     logFailure(itemId, "flag", errorMsg, { messageId, colorIndex });
@@ -211,10 +132,7 @@ export async function flagMessage(messageId: string, colorIndex: number): Promis
 export async function unarchiveMessage(messageId: string, accountName: string): Promise<void> {
   const itemId = `email:${messageId}`;
   try {
-    const result = await runScript("unarchive-mail.sh", [messageId, accountName]);
-    if (result.startsWith("ERROR:")) {
-      throw new Error(result);
-    }
+    await modifyMessage(messageId, ["INBOX"], []);
     logSuccess(itemId, "unarchive", { messageId, accountName });
   } catch (err) {
     const errorMsg = err instanceof Error ? err.message : String(err);
@@ -229,10 +147,7 @@ export async function unarchiveMessage(messageId: string, accountName: string): 
 export async function markAsUnread(messageId: string): Promise<void> {
   const itemId = `email:${messageId}`;
   try {
-    const result = await runScript("mark-mail-unread.sh", [messageId]);
-    if (result.startsWith("ERROR:")) {
-      throw new Error(result);
-    }
+    await modifyMessage(messageId, ["UNREAD"], []);
     logSuccess(itemId, "mark-unread", { messageId });
   } catch (err) {
     const errorMsg = err instanceof Error ? err.message : String(err);
@@ -246,21 +161,42 @@ export async function processEmailAction(
   category: string,
   shouldArchive: boolean
 ): Promise<void> {
-  // Apply flag color based on category
-  const flagColor = CATEGORY_FLAGS[category] ?? FLAG_COLORS.none;
-  if (flagColor !== FLAG_COLORS.none) {
-    await flagMessage(messageId, flagColor);
-  }
-
-  // Archive if needed
-  if (shouldArchive) {
-    await archiveMessage(messageId);
+  // Apply a Gmail label (or STARRED) based on category, if one is mapped.
+  const label = CATEGORY_GMAIL_LABELS[category];
+  const add = label ? [label] : [];
+  const remove = shouldArchive ? ["INBOX"] : [];
+  if (add.length || remove.length) {
+    await modifyMessage(messageId, add, remove);
   }
 }
 
-// For compatibility with existing code
+/**
+ * Fetch emails to/from a specific person across all mail (inbox + sent + archive).
+ */
+export async function fetchEmailsBySender(
+  senderEmail: string,
+  maxCount: number = 100
+): Promise<EmailMessage[]> {
+  try {
+    const ids = await listMessageIds(
+      `from:${senderEmail} OR to:${senderEmail}`,
+      maxCount
+    );
+    if (ids.length === 0) return [];
+    const metas = await getMessagesMeta(ids);
+    return metas.map(toEmailMessage);
+  } catch (err) {
+    console.error(
+      `Failed to fetch emails for sender ${senderEmail}:`,
+      err instanceof Error ? err.message : err
+    );
+    return [];
+  }
+}
+
+// For compatibility with existing code (Gmail labels need no preloading).
 export async function loadLabels(): Promise<void> {
-  // Apple Mail uses flags instead of labels - no loading needed
+  // no-op
 }
 
 /**
@@ -271,39 +207,12 @@ export async function fetchEmailsForBackfill(
   mailbox: "inbox" | "sent" | "all" = "all"
 ): Promise<EmailMessage[]> {
   try {
-    // Use a longer timeout for backfill (5 minutes)
-    const result = await runScript(
-      "get-mail-backfill.sh",
-      [String(maxCount), mailbox],
-      300000
-    );
-
-    if (!result || result === "") {
-      return [];
-    }
-
-    const emails: EmailMessage[] = [];
-    const emailStrings = result.split("<||>").filter((s) => s.trim() !== "");
-
-    for (const emailStr of emailStrings) {
-      const parts = emailStr.split("<|>");
-      if (parts.length >= 6) {
-        const [id, subject, sender, date, snippet, account, mboxType] = parts;
-        emails.push({
-          id: id || "",
-          threadId: id || "",
-          from: parseEmailAddress(sender || ""),
-          to: "",
-          subject: subject || "(No subject)",
-          snippet: snippet || "",
-          date: date || "",
-          labels: mboxType === "sent" ? ["sent"] : [],
-          account: account || undefined,
-        });
-      }
-    }
-
-    return emails;
+    const query =
+      mailbox === "inbox" ? "in:inbox" : mailbox === "sent" ? "in:sent" : "in:anywhere";
+    const ids = await listMessageIds(query, maxCount);
+    if (ids.length === 0) return [];
+    const metas = await getMessagesMeta(ids);
+    return metas.map(toEmailMessage);
   } catch (err) {
     console.error(
       "Failed to fetch emails for backfill:",

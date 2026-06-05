@@ -10,7 +10,7 @@ import { ARCHIVE_CATEGORIES } from "./mail/types.js";
 
 async function main(): Promise<void> {
   console.log(`[${new Date().toISOString()}] Starting email processing...`);
-  console.log("Provider: Apple Mail");
+  console.log("Provider: Gmail (gws)");
   console.log("=".repeat(50));
 
   try {

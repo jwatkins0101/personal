@@ -19,7 +19,16 @@ npm run calendar:review     # Review today + tomorrow
 npm run calendar:gaps       # Find available time slots
 npm run calendar:suggest -- --task "Task name" --duration 60
 
-# Second Brain commands (SQLite storage layer)
+# Pipeline (orchestrated daily workflow — replaces running ingest/sort/route/briefing individually)
+npm run pipeline                             # Full pipeline: ingest → sort → route → briefing
+npm run pipeline -- -p refresh               # Midday refresh: ingest → sort only
+npm run pipeline -- -p briefing-only         # Briefing from existing data
+npm run pipeline -- --dry-run                # Preview without side effects
+npm run pipeline -- --from route -v          # Resume from route step, verbose
+npm run pipeline -- --steps ingest,sort      # Run specific steps only
+npm run pipeline -- --retries 3              # Override retry count per step
+
+# Second Brain commands (individual steps — also usable standalone)
 npm run ingest              # Fetch mail/messages/calendar → store in SQLite
 npm run sort                # Classify new items, apply bouncer rules
 npm run route               # Write sorted items to Apple Notes views
@@ -49,6 +58,11 @@ npm run fix:person -- set <personId> email=x@y.com company="Acme"
 npm run fix:person -- add-identity <personId> email john@example.com
 npm run fix:person -- unlink-item <personId> <itemId>
 npm run fix:person -- delete <personId> --yes
+npm run fix:person -- create "Name" --email x@y.com --phone 1234567890 --company "Acme"
+
+# Deep dive (ingest all messages/emails for a person)
+npm run deep-dive -- <personId_or_name>        # Ingest all messages + emails
+npm run deep-dive -- <personId_or_name> --dry-run  # Preview without writing
 
 # Type checking
 npm run build               # tsc --noEmit
@@ -56,7 +70,7 @@ npm run build               # tsc --noEmit
 
 ## Architecture
 
-This is a macOS-only productivity assistant that uses **AppleScript** (via bash scripts) to interact with Apple Mail, Apple Calendar, and Messages. It uses the **Claude CLI** (`claude` command) for AI-powered classification and analysis.
+This is a macOS-only productivity assistant. **Email runs on the Gmail API** (via the `gws` CLI for auth); **Calendar, Messages, and Notes use AppleScript** (via bash scripts). It uses the **Claude CLI** (`claude` command) for AI-powered classification and analysis.
 
 ### Data Flow
 
@@ -67,13 +81,14 @@ This is a macOS-only productivity assistant that uses **AppleScript** (via bash 
 
 ### Key Modules
 
+- `src/pipeline/` - **Orchestrator** for chaining steps (ingest → sort → route → briefing) with retries, preflight checks, profiles, and DB-persisted run history
 - `src/classifier/` - **Unified classifier** for all item types (emails, messages, notes, calendar)
-- `src/storage/` - **SQLite storage layer** for unified item storage, action logging, and feedback
+- `src/storage/` - **SQLite storage layer** for unified item storage, action logging, feedback, and pipeline run tracking
 - `src/people/` - **People graph** for entity linking (LinkedIn ↔ email sender ↔ iMessage contact)
 - `src/linkedin/` - **LinkedIn import** parser for Connections.csv and messages.csv
 - `src/notes/` - **Apple Notes integration** via AppleScript for view generation
-- `src/commands/` - **CLI commands** (ingest, sort, route, briefing, review, fix, ingest-linkedin, review-people, fix-person)
-- `src/mail/client.ts` - Apple Mail interface via `scripts/get-mail.sh`, `archive-mail.sh`, `flag-mail.sh`
+- `src/commands/` - **CLI commands** (orchestrate, ingest, sort, route, briefing, review, fix, ingest-linkedin, review-people, fix-person, deep-dive)
+- `src/mail/client.ts` - Email interface (Gmail API). Backed by `src/mail/gmail-api.ts` (low-level Gmail REST + `gws`-based auth). Archive = remove `INBOX`; mark read = remove `UNREAD`; category/flag = add a Gmail label or `STARRED`.
 - `src/calendar/apple.ts` - Apple Calendar interface via `scripts/get-calendar-events.sh`
 - `src/messages/client.ts` - iMessage/SMS via direct SQLite queries on `~/Library/Messages/chat.db`
 - `src/claude/invoke.ts` - Wraps classifier for backwards-compatible email classification
@@ -204,6 +219,13 @@ The system uses a **template-based approach** for Daily Tasks notes to preserve 
 - `duplicateNote(template, newTitle, folder)` - Duplicates preserving formatting
 - `updateNoteSection(title, section, content, folder)` - Updates marked section only
 - `createDailyTasksNote(date, sections)` - High-level daily tasks creator
+
+## Automation Conventions
+
+- **Email uses the Gmail API, NOT Apple Mail / AppleScript.** `src/mail/client.ts` → `src/mail/gmail-api.ts`, authenticated through the `gws` CLI (`gws auth export --unmasked` for creds; `gws auth login` to re-auth when the token dies with `invalid_grant`). Do NOT reintroduce `scripts/get-mail.sh` or any AppleScript Mail path — it times out (`AppleEvent timed out -1712`) because `whose`-filters scan the whole mailbox. Quota is 15,000 units/min/user: prefer `listMessageIds` + `batchModify` (≤1000 ids/call) over per-message `get` for bulk work.
+- **AppleScript is intentional for Calendar / Messages / Notes.** Do NOT migrate these to DOM/browser automation — shell scripts under `scripts/` are the canonical interface for them.
+- **Native OS dialogs cannot be automated**: file pickers, permission modals, download prompts. Stop and prompt the user to drag-and-drop or click manually — don't retry.
+- **AppleScript timeouts**: 120s for AppleScript, 180s for the wrapping shell script. If a script hits the timeout, investigate rather than blindly retrying — usually signals a hung app or a permission dialog.
 
 ## Notes
 

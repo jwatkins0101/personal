@@ -60,3 +60,36 @@ export const ARCHIVE_CATEGORIES = [
   "spam",
   "promotional",
 ];
+
+// ---- Gmail backend (gws / Gmail API) ----
+
+// Real Gmail label IDs (created in the user's account; see prompts/gmail-triage.md)
+export const GMAIL_LABEL_IDS = {
+  receipts: "Label_96", // 📥 Receipts
+  shipping: "Label_97", // 📦 Shipping
+  finance: "Label_93", // 💰 Finance
+  newsletters: "Label_94", // 📰 Newsletters
+  notifications: "Label_95", // 🔔 Notifications
+} as const;
+
+// Classifier category -> Gmail label to apply. Categories not listed get no label
+// (they stay in the inbox untouched). `urgent` is starred rather than labeled.
+export const CATEGORY_GMAIL_LABELS: Record<string, string> = {
+  newsletter: GMAIL_LABEL_IDS.newsletters,
+  receipt: GMAIL_LABEL_IDS.receipts,
+  shipping: GMAIL_LABEL_IDS.shipping,
+  finance: GMAIL_LABEL_IDS.finance,
+  social: GMAIL_LABEL_IDS.notifications,
+  notification: GMAIL_LABEL_IDS.notifications,
+  admin: GMAIL_LABEL_IDS.notifications,
+  urgent: "STARRED",
+};
+
+// Back-compat: map the old Apple flag-color index to a Gmail label, so undo (which stored
+// a numeric flag) can re-apply something sensible.
+export const FLAG_TO_GMAIL_LABEL: Record<number, string> = {
+  [FLAG_COLORS.red]: "STARRED",
+  [FLAG_COLORS.orange]: "IMPORTANT",
+  [FLAG_COLORS.yellow]: GMAIL_LABEL_IDS.finance,
+  [FLAG_COLORS.gray]: GMAIL_LABEL_IDS.newsletters,
+};
