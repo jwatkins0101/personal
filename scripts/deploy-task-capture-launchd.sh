@@ -39,7 +39,23 @@ echo "--- email -> tasks ---" >> "\$LOG"
 npm run tasks >> "\$LOG" 2>&1 || echo "(tasks step failed)" >> "\$LOG"
 
 echo "--- sms -> tasks (last 2 days) ---" >> "\$LOG"
-npm run sms-triage -- 2 >> "\$LOG" 2>&1 || echo "(sms-triage step failed)" >> "\$LOG"
+# chat.db + Contacts are TCC-protected, and the npm->node->sqlite3 chain can't open them even
+# with FDA. But /bin/bash (FDA-granted) CAN, via a direct sqlite3 child. So snapshot both DBs to
+# temp with VACUUM INTO (clean single-file copy), then point the triage at the copies via env.
+TMPD="\$(mktemp -d /tmp/assistance-sms.XXXXXX)"
+MSGDB="\$TMPD/chat.db"
+if /usr/bin/sqlite3 -readonly "\$HOME/Library/Messages/chat.db" "VACUUM INTO '\$MSGDB'" 2>>"\$LOG"; then
+  CONTACTS=""
+  for ab in "\$HOME/Library/Application Support/AddressBook/Sources/"*/AddressBook-v22.abcddb; do
+    [ -f "\$ab" ] || continue
+    dst="\$TMPD/\$(basename "\$(dirname "\$ab")").abcddb"
+    /usr/bin/sqlite3 -readonly "\$ab" "VACUUM INTO '\$dst'" 2>>"\$LOG" && CONTACTS="\${CONTACTS:+\$CONTACTS:}\$dst"
+  done
+  MESSAGES_DB="\$MSGDB" CONTACTS_DBS="\$CONTACTS" npm run sms-triage -- 2 >> "\$LOG" 2>&1 || echo "(sms-triage step failed)" >> "\$LOG"
+else
+  echo "(could not snapshot chat.db — is /bin/bash in Full Disk Access? see docs/USAGE.md)" >> "\$LOG"
+fi
+rm -rf "\$TMPD"
 
 echo "=== done: \$(date) ===" >> "\$LOG"
 RUNNER_EOF

@@ -63,23 +63,22 @@ gws auth login
 
 Sign in as jermainewatkins@gmail.com — that single login powers email, tasks, calendar, and SMS capture.
 
-## 🔐 One-time setup: Full Disk Access (only for scheduled **SMS** capture)
+## 🔐 One-time setup: Full Disk Access (already done)
 
-What works on the 8am/6pm schedule **right now, with no setup:**
+Everything on the 8am/6pm schedule works:
 - ✅ Email triage (hourly)
 - ✅ Email → Tasks capture
+- ✅ **SMS → Tasks** capture (full read, names, spam-filtered)
 
-What needs one extra step:
-- ⚠️ **SMS → Tasks** capture. macOS protects the Messages database (`chat.db`), so a *background* job can't read it until you grant Full Disk Access. (Running `npm run sms-triage` yourself in Terminal always works — this is only for the automatic schedule.)
+macOS protects the Messages database (`chat.db`) and Contacts, and the `npm→node→sqlite3`
+chain can't open them even with permission. The scheduled runner works around this: `/bin/bash`
+(which has Full Disk Access) snapshots both DBs to a temp copy with a **direct** `sqlite3 VACUUM
+INTO`, then the triage reads the copies — no TCC barrier.
 
-To enable scheduled SMS capture, grant access **once**:
+**This requires `/bin/bash` in Full Disk Access** (already granted). If you ever reinstall or it
+breaks: System Settings → Privacy & Security → Full Disk Access → **＋** → ⌘⇧G → `/bin/bash` → Add → toggle on.
 
-1. **System Settings → Privacy & Security → Full Disk Access**
-2. Click **＋**, press **⌘⇧G**, type `/bin/bash`, press Enter, **Add** it
-3. Toggle **/bin/bash** on (enter your password if prompted)
-4. If scheduled SMS still fails after that, also add `/usr/bin/sqlite3` the same way.
-
-You can verify with: `tail ~/Library/Logs/assistance/task-capture.log` — the SMS step should stop saying `authorization denied`.
+Verify any run with: `tail -40 ~/Library/Logs/assistance/task-capture.log`
 
 ## 🛠 Maintenance / redeploy
 
