@@ -12,7 +12,7 @@ import { gatherInputs, type BriefInputs } from "./gather.js";
 import { synthesize, fallbackSynthesis, type Synthesis } from "./synth.js";
 import { verifyProposals, type Fetcher, type Proposal } from "./verify.js";
 import { writeBrief, type Brief } from "./render.js";
-import { pingSelf } from "./notify.js";
+import { pingSelf, stageForMessages, sendIMessageFileToSelf } from "./notify.js";
 import { writeLaneSummary } from "./summary.js";
 import { getMessageMeta, getMessageIdHeader, createReplyDraft } from "../mail/gmail-api.js";
 import { previousWorkday, readEod } from "./eod.js";
@@ -148,7 +148,15 @@ export async function runMorning(now = new Date(), deps: { gather?: (now: Date) 
   const files = writeBrief(brief, BRIEF_DIR);
 
   const pingText = `Brief ${brief.date}: ${brief.status} · ${decide.length} to decide${escalations.length ? ` · ${escalations.length} escalation(s)` : ""}. First move: ${brief.one_first_move}`.slice(0, 300);
-  const ping = await pingSelf(`${pingText}\n${files.html}`, `Morning brief ${brief.date}: ${brief.status}`);
+  const ping = await pingSelf(`${pingText}${files.mp3 ? "\n🎧 audio below" : ""}`, `Morning brief ${brief.date}: ${brief.status}`);
+  // Attach the audio so the brief can be played from the phone (D26).
+  if (files.mp3 && ping.channel === "imessage" && process.env.COS_NO_PING !== "1") {
+    try {
+      const staged = stageForMessages(files.mp3, `Morning brief ${brief.date}.mp3`);
+      const sent = sendIMessageFileToSelf(staged);
+      if (!sent.ok) ping.error = `${ping.error ? ping.error + "; " : ""}audio attachment failed: ${sent.error}`;
+    } catch (e) { ping.error = `${ping.error ? ping.error + "; " : ""}audio attachment failed: ${(e as Error).message.slice(0, 120)}`; }
+  }
 
   writeLaneSummary({
     items_in: synthesis.decide.length,

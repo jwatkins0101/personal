@@ -497,7 +497,7 @@
       "script_sha256": "1d44c64def143f74f8a25eada7777e6618b3519236a7b91cf59caf3a6e17ecb0",
       "assertion_sha256": {
         "src/cos/budget.ts": "a7984b495c5da7359dc2b94999919beebd7ae89e9d722417bfabdf7252c6386a",
-        "src/cos/morning.ts": "0aebb34ab44ced2018df24097cf945397c494e00f425f418fb91428ee5d3c085",
+        "src/cos/morning.ts": "0f38d94706e28e15e97857f5c253e1284905e456c3b2ede8527d84838a40aa0e",
         "tests/fixtures/cos/inputs.json": "5b674a883c0222c72c675d10efc7edc123ff52843923e089d8448b1eda60f84f",
         "tests/fixtures/cos/synthesis.json": "1e5b96673754f9a84665a86e79be75bd0ad31b5026a8c51799bae23d39458ed5"
       }
@@ -629,7 +629,7 @@
       "script_sha256": "884ccc75cf4d226035048e8c3f05aa3f9269cb5831d8f0495c308176a2cb0ab0",
       "assertion_sha256": {
         "src/cos/eod.ts": "4de2cb3397fb47eca2b67de73c121c3385e64e7fa22f55e3e8cb7843b5041b33",
-        "src/cos/morning.ts": "0aebb34ab44ced2018df24097cf945397c494e00f425f418fb91428ee5d3c085",
+        "src/cos/morning.ts": "0f38d94706e28e15e97857f5c253e1284905e456c3b2ede8527d84838a40aa0e",
         "tests/fixtures/cos/eod-broken.ts": "a40b33838218379ca557dd3b121ab6fa484cc6049f05ea124f79083cce43859b",
         "tests/fixtures/cos/inputs.json": "5b674a883c0222c72c675d10efc7edc123ff52843923e089d8448b1eda60f84f"
       }
@@ -859,7 +859,7 @@
       "script_sha256": "596f1a1db53f9cf36d22c4b11c030ee218e438e684651de8e7e77784999190ad",
       "assertion_sha256": {
         "src/cos/mailboxes.ts": "9e1d74e72431c5bdf0ca7cc270e6be7c0d654a6797f70ff2a7bfeb840c25ae96",
-        "src/cos/morning.ts": "0aebb34ab44ced2018df24097cf945397c494e00f425f418fb91428ee5d3c085",
+        "src/cos/morning.ts": "0f38d94706e28e15e97857f5c253e1284905e456c3b2ede8527d84838a40aa0e",
         "src/cos/agent.ts": "34afc640c7b4b98904ea0ce38cc2013ef208c80da86b1d0bd92d0f1c090923d0",
         "cos/accounts.json": "6455bbbd41555764ebd1ebc4c883c5c2a1c5f085a2ff6b3f77665ceba8c6091d",
         "tests/fixtures/cos/synthesis-uofl.json": "4377a6db05ccd0450ab308f22f5f2ef8f8630743f6d621cbe0f61848a29362be",
@@ -903,7 +903,7 @@
         "src/google/auth.ts": "30319d5148ff912960604ed483f63298a2883bb8910bd92dc40cc36cc5aaa6eb",
         "src/cos/refs.ts": "834bd5f54277ea3469fae2f37566b33827f86f564322f5645583dc2cac559d1d",
         "src/cos/gather.ts": "b6b7dc00898cd2be95a8c7984f462e5bae4cc6388b2c604b92a2f2d9bab8d9f4",
-        "src/cos/morning.ts": "0aebb34ab44ced2018df24097cf945397c494e00f425f418fb91428ee5d3c085",
+        "src/cos/morning.ts": "0f38d94706e28e15e97857f5c253e1284905e456c3b2ede8527d84838a40aa0e",
         "src/cos/approvals.ts": "3db73aa35c2a8737107d28f2d7fc8bc4ef870729b1debc3634e56ffa72057b4b",
         "src/cos/executors.ts": "9dafdf611825911eef62a9047dc67e8fbc762788479efcc7d62e249ef1b8ba68",
         "src/cos/agent.ts": "34afc640c7b4b98904ea0ce38cc2013ef208c80da86b1d0bd92d0f1c090923d0",
@@ -1008,7 +1008,7 @@
       "assertion_sha256": {
         "src/cos/ci-status.ts": "6d4aa5c5a3115f1b442047a648f3022b0dd181f5556aa9af2c836db86a4e21eb",
         "src/cos/gather.ts": "b6b7dc00898cd2be95a8c7984f462e5bae4cc6388b2c604b92a2f2d9bab8d9f4",
-        "src/cos/morning.ts": "0aebb34ab44ced2018df24097cf945397c494e00f425f418fb91428ee5d3c085",
+        "src/cos/morning.ts": "0f38d94706e28e15e97857f5c253e1284905e456c3b2ede8527d84838a40aa0e",
         "cos/triage-rules.json": "80558f426d3184fe83f7673ff61958c325a3d301c7b4f462c23a0ee245644fd7",
         "tests/fixtures/cos/triage-rules-broken.json": "865fbafc83167e03f37929b28f7c088fad03036dee454ce65fc4fab168d7f796"
       }
@@ -1049,6 +1049,35 @@
         "tests/fixtures/cos/attachments/definitions.pdf": "b7de53ec5f2c3e9342517ce9c8add4fe2c5a5b7c7805ed2dea092bf7f5c84eef",
         "tests/fixtures/cos/attachments/photo.png": "6b7fa434f92a8b80aab02d9bf1a12e49ffcae424e4013a1c4f68b67e3d2bbcd0",
         "tests/fixtures/cos/attachments-broken.ts": "9f74096fa2bd4d7486997f96a19faedf20414677d97482bb2ee76d6eecd22cd5"
+      }
+    },
+    {
+      "id": "brief-audio",
+      "story": "S2-6",
+      "tier": "unit",
+      "acceptance": [
+        "AC-35"
+      ],
+      "command": [
+        "npx",
+        "tsx",
+        "tests/gates/cos-audio.ts"
+      ],
+      "script": "tests/gates/cos-audio.ts",
+      "assertion_files": [
+        "src/cos/notify.ts",
+        "src/cos/morning.ts"
+      ],
+      "negative": {
+        "env": {
+          "COS_AUDIO_STAGE_DIR": "/Users/jermainewatkins/Library/Application Support/assistance/audio-stage"
+        },
+        "reason": "staging in Application Support (Messages transfer error 25) must fail"
+      },
+      "script_sha256": "49686679ba5b19ec62d16f6b0403bb80c69b002ba1fac1f661438562067ee080",
+      "assertion_sha256": {
+        "src/cos/notify.ts": "951f5c0265494b7cfcacd64c354fdd66ea76f2e9c3d229feda1f8d5e4546e94a",
+        "src/cos/morning.ts": "0f38d94706e28e15e97857f5c253e1284905e456c3b2ede8527d84838a40aa0e"
       }
     }
   ]

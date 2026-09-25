@@ -1,6 +1,6 @@
 # Feature: AI Chief of Staff (v1)
 
-Revision: 11. Status: in progress. Feature ID: ai-chief-of-staff.
+Revision: 12. Status: in progress. Feature ID: ai-chief-of-staff.
 Source plan: `PLAN.md` (approved 2026-09-24, decisions D1–D8 = recommended). Harness: Ralph 2.0 @ `6d9f21ea27bb41662e1e69dd19ca1c483ad41c44`.
 
 ## Current specification
@@ -151,6 +151,7 @@ Existing prompt-driven lanes emit this record with a wrapper step (the lane writ
 | AC-15 | After `morning`, a one-line iMessage (status + count of Decide items + brief path) reaches the principal's own handle | Live evidence (screenshot/log). Fallback per A2 | not_run |
 | AC-16 | Daily cost is tallied; when it passes $5 the remaining CoS calls are skipped and escalated | `gate:budget` with a fixture over budget | not_run |
 | AC-17 | launchd `com.assistance.cos-morning` 07:30 weekdays; wake schedule set | `gate:launchd-lint`; **live:** 5 consecutive weekday briefs with reconciled counts and 0 unverifiable Decide items | not_run |
+| AC-35 | The morning iMessage is followed by the brief's MP3 as an attachment, staged in ~/Pictures/Chief of Staff (Messages cannot send from Application Support: error 25), newest 14 kept; a failed attachment shows in the run gaps | `gate:brief-audio`; live: 2026-09-25 audio delivered (chat.db transfer_state 5, error 0) | not_run |
 | **Phase 3: commitments, EOD, weekly** |||
 | AC-18 | Commitments are captured with `source_ref` and `due_quote`; vague due phrases leave `due_at` null and add an open question | `gate:commitments-dates` (fixtures incl. "by Friday", "next next week", "soon") | not_run |
 | AC-19 | A commitment closes only with evidence (sent ID, event UID or task ID) | `gate:commitment-close` negative test | not_run |
