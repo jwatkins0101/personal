@@ -138,6 +138,9 @@ export async function runMorning(now = new Date(), deps: { gather?: (now: Date) 
   addUnique(synthesis.waiting_on, openCommitments.filter((c) => c.owner === "them").map((c) => ({ text: `${c.counterparty}: ${c.what}${c.due_at ? ` (due ${c.due_at})` : " (no date given)"}`, source_ref: `commitment:${c.id}` })));
   addUnique(synthesis.deadlines, openCommitments.filter((c) => c.owner === "me" && c.due_at && c.due_at >= inputs.date && c.due_at <= in14).map((c) => ({ text: `You to ${c.counterparty}: ${c.what} (due ${c.due_at})`, source_ref: `commitment:${c.id}` })));
 
+  // Items you put on hold stay visible, with your note, until you resume them (AC-36).
+  for (const h of (await import("./approvals.js")).heldItems(db)) synthesis.fyi.push({ text: `On hold: ${h.title} (${h.hold_note ?? ""})`, source_ref: h.source_ref });
+
   const brief: Brief = {
     date: inputs.date, status: synthesis.status, status_line: synthesis.status_line, decide,
     critical_path: synthesis.critical_path, meetings_prep: synthesis.meetings_prep, replies_owed: synthesis.replies_owed,

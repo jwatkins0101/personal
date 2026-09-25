@@ -85,7 +85,10 @@ export function toHtml(b: Brief, audioFile: string | null): string {
     ? `<ol class="decide">${b.decide.map((a) => { const l = refLink(a.source_ref); const verb = a.kind === "reply" ? "send" : "approve";
         return `<li value="${a.day_index}"><strong>${esc(a.title)}</strong>${a.detail ? `<br><span class="muted">${esc(a.detail)}</span>` : ""}${
           a.kind === "reply" && a.payload.draft_body ? `<details><summary>Draft reply</summary><pre>${esc(String(a.payload.draft_body))}</pre></details>` : ""}
-          <div class="cmd"><code>npm run cos -- ${verb} ${a.day_index}</code> <code>npm run cos -- skip ${a.day_index}</code>${l ? ` <a href="${l}">source</a>` : ""}</div></li>`; }).join("")}</ol>
+          <div class="cmd"><code>npm run cos -- ${verb} ${a.day_index}</code> <code>npm run cos -- skip ${a.day_index}</code>${l ? ` <a href="${l}">source</a>` : ""}</div>
+          <div class="answer" data-date="${esc(a.brief_date)}" data-n="${a.day_index}" data-email="${/^gmail:/.test(a.source_ref) ? "1" : ""}" data-kind="${a.kind}">
+            <button data-v="done">Done</button>${a.kind === "reply" ? "" : `<button data-v="accept">Accept</button>`}<button data-v="dismiss">Dismiss</button>${/^gmail:/.test(a.source_ref) ? `<button data-v="spam">Spam</button>` : ""}<button data-v="hold">Hold</button>
+            <input class="note" placeholder="note (needed for Hold), e.g. until we get money in"><span class="said"></span></div></li>`; }).join("")}</ol>
        <p class="muted">Unanswered items expire at 23:59 with nothing sent.</p>`
     : `<p class="muted">Nothing needs your decision.</p>`;
   const sec: Record<(typeof SECTION_ORDER)[number], string> = {
@@ -121,12 +124,22 @@ pre{white-space:pre-wrap;background:var(--bg);border:1px solid var(--line);borde
 audio{width:100%}.speed{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
 .speed button{border:1px solid var(--line);background:none;color:var(--ink);border-radius:8px;padding:4px 8px;font:600 12px system-ui;cursor:pointer}
 .speed button[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.answer{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-top:8px}.answer button{border:1px solid var(--line);background:none;color:var(--ink);border-radius:8px;padding:4px 10px;font:600 13px system-ui;cursor:pointer}
+.answer button:hover{border-color:var(--accent)}.answer .note{flex:1;min-width:160px;border:1px solid var(--line);background:var(--bg);color:var(--ink);border-radius:8px;padding:4px 8px;font:13px system-ui}
+.answer .said{font-size:13px;color:var(--accent);font-weight:600}.answer.off button,.answer.off .note{display:none}.answer-hint{font-size:13px;color:var(--muted)}
 </style></head><body><main><h1>Morning brief · ${esc(b.date)}</h1>${player}
 ${SECTION_ORDER.map((h) => `<section data-section="${esc(h)}"><h2>${esc(h)}</h2>${sec[h]}</section>`).join("\n")}
 </main><script>
 (function(){var a=document.getElementById('a');if(!a)return;var r=1;try{r=parseFloat(localStorage.getItem('cos-brief-speed'))||1}catch(e){}
 function set(s){r=s;a.playbackRate=s;a.preservesPitch=true;document.querySelectorAll('.speed button').forEach(function(b){b.setAttribute('aria-pressed',String(parseFloat(b.dataset.s)===s))});try{localStorage.setItem('cos-brief-speed',s)}catch(e){}}
 document.querySelectorAll('.speed button').forEach(function(b){b.onclick=function(){set(parseFloat(b.dataset.s))}});a.addEventListener('loadedmetadata',function(){a.playbackRate=r});set(r);})();
+(function(){var T=new URLSearchParams(location.search).get('t');var bars=document.querySelectorAll('.answer');if(!bars.length)return;
+if(!T||location.protocol.indexOf('http')!==0){bars.forEach(function(b){b.classList.add('off')});var h=document.querySelector('.decide');if(h){var p=document.createElement('p');p.className='answer-hint';p.textContent='To answer items here, open this brief from your board (npm run cos -- brief-url).';h.parentNode.insertBefore(p,h)}return}
+function api(path,body){return fetch(path,{method:body?'POST':'GET',headers:Object.assign({'x-cos-token':T},body?{'content-type':'application/json'}:{}),body:body?JSON.stringify(body):undefined}).then(function(r){return r.json()})}
+api('/api/state').then(function(s){var open={};(s.decide||[]).forEach(function(d){open[d.date+'/'+d.n]=1});bars.forEach(function(b){if(!open[b.dataset.date+'/'+b.dataset.n]){b.classList.add('off');b.querySelector('.said').textContent='Answered'}})}).catch(function(){});
+bars.forEach(function(b){b.addEventListener('click',function(e){var btn=e.target.closest('button');if(!btn)return;var v=btn.dataset.v,note=b.querySelector('.note').value;
+if(v==='hold'&&!note.trim()){b.querySelector('.note').focus();b.querySelector('.said').textContent='Add a note for Hold';return}
+b.querySelector('.said').textContent='Saving…';api('/api/approvals/'+b.dataset.date+'/'+b.dataset.n+'/respond',{verdict:v,note:note}).then(function(r){b.querySelector('.said').textContent=r.ok?r.message:r.error;if(r.ok)b.classList.add('off')})})})})();
 </script></body></html>`;
 }
 

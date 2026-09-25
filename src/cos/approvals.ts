@@ -7,7 +7,7 @@ import type Database from "better-sqlite3";
 import { gmailRef } from "./refs.js";
 
 export type ApprovalKind = "reply" | "decide" | "task";
-export type ApprovalStatus = "pending" | "approved" | "sent" | "skipped" | "expired" | "failed";
+export type ApprovalStatus = "pending" | "approved" | "sent" | "skipped" | "expired" | "failed" | "held";
 
 export interface Approval {
   id: number;
@@ -23,6 +23,7 @@ export interface Approval {
   expires_at: string;
   decided_at: string | null;
   result: string | null;
+  hold_note?: string | null;
 }
 
 export interface NewApproval {
@@ -41,6 +42,8 @@ export interface Executors {
   readDraft(draftId: string, account?: string): Promise<{ to: string; subject: string; body: string }>;
   /** Creates a task; returns its id. */
   createTask(title: string, notes: string): Promise<string>;
+  /** Moves a source email to the account's Spam folder (optional). */
+  reportSpam?(sourceRef: string): Promise<void>;
 }
 
 /** Local end of day for a YYYY-MM-DD date, as ISO. */
@@ -139,6 +142,51 @@ export function markDone(db: Database.Database, briefDate: string, n: number, ev
   const a = getPending(db, briefDate, n, now);
   finish(db, a.id, "approved", `done:${evidence}`, now);
   return `Done: ${a.title}`;
+}
+
+export type Verdict = "done" | "accept" | "dismiss" | "spam" | "hold";
+
+/**
+ * One answer to a brief item (AC-36). done: you handled it. accept: approve it (a reply still has to go
+ * through send, so accept never sends). dismiss: close it. spam: close it and move the email to Spam.
+ * hold: park it with a note; it doesn't expire and comes back in the Friday review.
+ */
+export async function respond(db: Database.Database, ex: Executors, briefDate: string, n: number, verdict: Verdict, note = "", now = new Date()): Promise<string> {
+  const clean = note.trim().slice(0, 300);
+  if (verdict === "done") return markDone(db, briefDate, n, clean ? `by you: ${clean}` : "by you", now);
+  if (verdict === "accept") {
+    const a = getPending(db, briefDate, n, now);
+    if (a.kind === "reply") throw new Error(`Item ${n} is a reply: review and send it (Accept never sends an email).`);
+    return approve(db, ex, briefDate, n, now);
+  }
+  if (verdict === "dismiss") { const a = getPending(db, briefDate, n, now); finish(db, a.id, "skipped", `dismissed${clean ? `: ${clean}` : ""}`, now); return `Dismissed: ${a.title}`; }
+  if (verdict === "spam") {
+    const a = getPending(db, briefDate, n, now);
+    if (!/^gmail:/.test(a.source_ref)) throw new Error(`Item ${n} isn't an email, so it can't go to Spam.`);
+    if (!ex.reportSpam) throw new Error("Spam reporting isn't available here.");
+    await ex.reportSpam(a.source_ref);
+    finish(db, a.id, "skipped", `spam: moved to Spam${clean ? ` (${clean})` : ""}`, now);
+    return `Moved to Spam: ${a.title}`;
+  }
+  if (verdict === "hold") {
+    const a = getPending(db, briefDate, n, now);
+    if (!clean) throw new Error("Hold needs a note, e.g. 'until we get money in'.");
+    db.prepare("UPDATE cos_approvals SET status='held', decided_at=?, result=?, hold_note=? WHERE id=?").run(now.toISOString(), `held: ${clean}`, clean, a.id);
+    return `On hold (${clean}): ${a.title}`;
+  }
+  throw new Error(`Unknown answer "${verdict}".`);
+}
+
+/** Puts a held item back in play for today. */
+export function resume(db: Database.Database, id: number, now = new Date()): string {
+  const r = db.prepare("SELECT title FROM cos_approvals WHERE id=? AND status='held'").get(id) as { title: string } | undefined;
+  if (!r) throw new Error("That item isn't on hold.");
+  db.prepare("UPDATE cos_approvals SET status='pending', expires_at=?, result=NULL, hold_note=NULL WHERE id=?").run(endOfDay(localDate(now)), id);
+  return `Back on today's list: ${r.title}`;
+}
+
+export function heldItems(db: Database.Database): Approval[] {
+  return (db.prepare("SELECT * FROM cos_approvals WHERE status='held' ORDER BY decided_at").all() as Record<string, unknown>[]).map(row);
 }
 
 export function skip(db: Database.Database, briefDate: string, n: number, now = new Date()): string {

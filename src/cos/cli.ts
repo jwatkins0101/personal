@@ -110,6 +110,16 @@ async function main(): Promise<number> {
       console.log(`board: http://127.0.0.1:${BOARD_PORT}/?t=${token}`);
       return new Promise<number>(() => {}); // run until launchd stops it
     }
+    case "brief-url": {
+      const { loadOrCreateToken, BOARD_PORT } = await import("./board.js");
+      console.log(`http://127.0.0.1:${BOARD_PORT}/brief/${arg && /^\d{4}-/.test(arg) ? arg : localDate()}.html?t=${loadOrCreateToken()}`);
+      return 0;
+    }
+    case "respond": {
+      const { respond } = await import("./approvals.js");
+      const v = argv[2] as "done" | "accept" | "dismiss" | "spam" | "hold"; const note = argv.slice(3).filter((x, i, all) => x !== "--date" && all[i - 1] !== "--date").join(" ");
+      try { console.log(await respond(getDb(), realExecutors, date, n, v, note)); return 0; } catch (e) { console.error((e as Error).message); return 1; }
+    }
     case "board-url": {
       const { loadOrCreateToken, BOARD_PORT } = await import("./board.js");
       console.log(`http://127.0.0.1:${BOARD_PORT}/?t=${loadOrCreateToken()}`);

@@ -3,9 +3,12 @@ import type { Executors } from "./approvals.js";
 import { readDraft, sendDraft } from "../mail/gmail-api.js";
 import { ensureGtdLists, insertTask } from "../tasks/google-tasks.js";
 import { withAccount } from "../google/auth.js";
+import { modifyMessage } from "../mail/gmail-api.js";
+import { parseGmailRef } from "./refs.js";
 
 export const realExecutors: Executors = {
   readDraft: (id, account) => withAccount(account, () => readDraft(id)),
   sendDraft: (id, account) => withAccount(account, () => sendDraft(id)),
   async createTask(title, notes) { const ids = await ensureGtdLists(); return (await insertTask(ids.inbox, { title, notes })).id; },
+  async reportSpam(ref) { const g = parseGmailRef(ref); if (!g) throw new Error(`not an email: ${ref}`); await withAccount(g.account, () => modifyMessage(g.id, ["SPAM"], ["INBOX"])); },
 };

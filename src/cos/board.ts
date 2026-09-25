@@ -14,7 +14,7 @@ import { homedir } from "node:os";
 import { dirname, join } from "node:path";
 import type Database from "better-sqlite3";
 import { laneHealth, type LaneConfig } from "../../cos/lib/ledger.mjs";
-import { approve, send, skip, markDone, expireApprovals, localDate, PLACEHOLDER, type Executors } from "./approvals.js";
+import { approve, send, skip, markDone, respond, resume, heldItems, expireApprovals, localDate, PLACEHOLDER, type Executors, type Verdict } from "./approvals.js";
 import type { RepliedFn } from "./replied.js";
 import { gmailWebLink, parseGmailRef } from "./refs.js";
 import { emailForAccount } from "./accounts.js";
@@ -43,6 +43,7 @@ export interface BoardState {
     elsewhere: { app: string; link: string; mailbox: string; suggested: string | null } | null;
     agent: { id: number; status: string; started_at: string | null; finished_at: string | null; summary: string | null; needs_from_you: string[]; findings: { claim: string; source_ref: string }[]; gaps: string[]; drafted: boolean; cost_usd: number | null; error: string | null } | null }[];
   completed: { today: CompletedItem[]; week: CompletedItem[] };
+  held: { id: number; date: string; n: number; title: string; note: string; since: string; source_ref: string; link?: string }[];
   commitments: { id: number; owner: string; counterparty: string; what: string; due_at: string | null; overdue: boolean; open_question: string | null; sources: string[] }[];
   lanes: { lane: string; state: string; last_started_at: string | null; gaps: string[] }[];
   brief: { date: string; exists: boolean; has_audio: boolean };
@@ -142,11 +143,12 @@ export async function buildState(deps: BoardDeps): Promise<BoardState> {
   commitments.sort((a, b) => Number(b.overdue) - Number(a.overdue) || (a.due_at ?? "9999").localeCompare(b.due_at ?? "9999"));
 
   const lanes = laneHealth({ lanes: deps.lanes }, now).map((l) => ({ lane: l.lane, state: l.state, last_started_at: l.last_started_at, gaps: l.gaps }));
+  const held = heldItems(db).map((h) => ({ id: h.id, date: h.brief_date, n: h.day_index, title: h.title, note: h.hold_note ?? "", since: h.decided_at ?? "", source_ref: h.source_ref, link: gmailLink(h.source_ref) }));
   const briefDir = deps.briefDir ?? BRIEF_DIR;
   return {
     generated_at: now.toISOString(), date, decide,
     completed: { today: completed.filter((c) => new Date(c.at) >= todayStart), week: completed.filter((c) => new Date(c.at) < todayStart) },
-    commitments, lanes,
+    held, commitments, lanes,
     brief: { date, exists: existsSync(join(briefDir, `${date}.html`)), has_audio: existsSync(join(briefDir, `${date}.mp3`)) },
     cost_today: Math.round(spentToday(now) * 100) / 100, budget: DAILY_BUDGET_USD, warnings,
   };
@@ -226,6 +228,18 @@ export function createBoardServer(deps: BoardDeps, token: string, port = BOARD_P
           return json(res, 200, { ok: true, message: `Agent started on item ${m[2]}. It prepares; you review.`, job: job.id });
         } catch (e) { return json(res, 400, { ok: false, error: (e as Error).message }); }
       }
+      m = url.pathname.match(/^\/api\/approvals\/(\d{4}-\d{2}-\d{2})\/(\d+)\/respond$/);
+      if (m) {
+        const verdict = String(body.verdict ?? "") as Verdict;
+        if (!["done", "accept", "dismiss", "spam", "hold"].includes(verdict)) return json(res, 400, { ok: false, error: "verdict must be done, accept, dismiss, spam or hold" });
+        try { return json(res, 200, { ok: true, message: await respond(deps.db, deps.executors, m[1], Number(m[2]), verdict, String(body.note ?? ""), now) }); }
+        catch (e) { return json(res, 400, { ok: false, error: (e as Error).message }); }
+      }
+      m = url.pathname.match(/^\/api\/held\/(\d+)\/resume$/);
+      if (m) {
+        try { return json(res, 200, { ok: true, message: resume(deps.db, Number(m[1]), now) }); }
+        catch (e) { return json(res, 400, { ok: false, error: (e as Error).message }); }
+      }
       m = url.pathname.match(/^\/api\/agent\/(\d+)\/cancel$/);
       if (m) {
         try { cancelJob(deps.db, Number(m[1]), now); return json(res, 200, { ok: true, message: "Agent stopped." }); }
@@ -267,7 +281,7 @@ input{border:1px solid var(--line);background:var(--bg);color:var(--ink);border-
 <div class="grid">
 <section><h2>Decide <span id="nd"></span></h2><div id="decide"></div></section>
 <section><h2>Completed</h2><h3>Today</h3><div id="done-today"></div><h3>Earlier this week</h3><div id="done-week"></div></section>
-<section><h2>Commitments <span id="nc"></span></h2><div id="commit"></div></section>
+<section><h2>Commitments <span id="nc"></span></h2><div id="commit"></div><h3>On hold</h3><div id="held"></div></section>
 <section><h2>Lanes</h2><div class="lanes" id="lanes"></div></section>
 </div></main><div class="msg" id="msg"></div>
 <script>
@@ -294,6 +308,7 @@ function render(s){window.__s=s;
  if(!busy) $('commit').innerHTML=s.commitments.length?s.commitments.map(c=>'<div class="item">'+(c.overdue?'<span class="pill overdue">overdue</span>':'')+'<span class="t">'+(c.owner==='me'?'You → '+esc(c.counterparty):esc(c.counterparty)+' → you')+'</span>: '+esc(c.what)+
   '<div class="m">due '+esc(c.due_at||'no date given')+(c.open_question?' · '+esc(c.open_question):'')+' · '+esc(c.sources.join(', '))+'</div>'+
   '<div class="btns"><input id="ev-'+c.id+'" placeholder="gmail:<sent id> / task:<id>"><button onclick="closeC('+c.id+')">Mark kept</button></div></div>').join(''):'<div class="empty">No open commitments.</div>';
+ $('held').innerHTML=s.held.length?s.held.map(h=>'<div class="item"><span class="pill">hold</span>'+esc(h.title)+'<div class="m">'+esc(h.note)+(h.link?' · <a href="'+esc(h.link)+'" target="_blank" rel="noreferrer">source</a>':'')+'</div><div class="btns"><button data-resume="'+h.id+'">Resume</button></div></div>').join(''):'<div class="empty">Nothing on hold.</div>';
  $('lanes').innerHTML=s.lanes.map(l=>'<span class="pill '+l.state+'" title="'+esc((l.last_started_at||'never')+' '+l.gaps.join('; '))+'">'+esc(l.lane)+' '+(l.state==='ok'?'✓':l.state)+'</span>').join('');
 }
 async function refresh(){try{const s=await api('/api/state');if(s.ok===false)throw new Error(s.error);render(s);lastOk=Date.now()}catch(e){$('upd').textContent='offline: '+e.message}$('dot').className='dot'+(Date.now()-lastOk>15000?' stale':'')}
@@ -325,6 +340,7 @@ document.addEventListener('click',async e=>{const b=e.target.closest('button');i
   const r=await api('/api/approvals/'+d+'/'+n+'/agent',{note});openAgent=null;toast(r.ok?r.message:r.error);refresh()}
  else if(b.dataset.close){openAgent=null;refresh()}
  else if(b.dataset.copy){const it=(window.__s&&window.__s.decide||[]).find(x=>x.date+'/'+x.n===b.dataset.copy);if(it&&it.elsewhere&&it.elsewhere.suggested){try{await navigator.clipboard.writeText(it.elsewhere.suggested);toast('Copied. Paste it into your reply in '+it.elsewhere.app+'.')}catch(e){toast('Could not copy: select the text instead.')}}}
+ else if(b.dataset.resume){const r=await api('/api/held/'+b.dataset.resume+'/resume',{});toast(r.ok?r.message:r.error);refresh()}
  else if(b.dataset.stop){const r=await api('/api/agent/'+b.dataset.stop+'/cancel',{});toast(r.ok?r.message:r.error);refresh()}});
 refresh();setInterval(()=>{if(!document.hidden)refresh()},5000);document.addEventListener('visibilitychange',()=>{if(!document.hidden)refresh()});
 </script></body></html>`;
