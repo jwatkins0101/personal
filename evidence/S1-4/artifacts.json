@@ -7,9 +7,9 @@
   ],
   "passed": true,
   "problems": [],
-  "tested_commit": "c1fc07f4ccb6017fddd2f8948110a0c522254915",
+  "tested_commit": "e2fa332b3c4bd88aba477687cfc561cfe9b2af95",
   "worktree_dirty": false,
-  "prd_revision": 3,
+  "prd_revision": 4,
   "gate_sha256": "2ab62c645ac7ce3b4a7d0600705e89a7e094f65a13156e33df475494edb0274a",
   "assertion_sha256": {
     "cos/lib/ledger.mjs": "68fd202a0ffc62fa677055db0c98b8603940af45f688374286df6a9737c6baa7",
@@ -26,5 +26,5 @@
     "exit_code": 1,
     "output": "PASS existing non-empty artifact passes\nFAIL missing artifact fails the run\nFAIL empty artifact fails the run"
   },
-  "timestamp": "2026-09-25T04:28:35.274Z"
+  "timestamp": "2026-09-25T05:01:35.525Z"
 }

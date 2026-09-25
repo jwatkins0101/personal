@@ -1,0 +1,38 @@
+{
+  "gate": "live-eod",
+  "story": "S3-4",
+  "acceptance": [
+    "AC-18",
+    "AC-21"
+  ],
+  "tested_commit": "e2fa332b3c4bd88aba477687cfc561cfe9b2af95",
+  "command": "launchctl kickstart gui/$UID/com.assistance.cos-eod (with-sms-snapshot.sh, deployed from ~/Code/assistance @ e2fa332)",
+  "run_record": {
+    "lane": "cos-eod",
+    "run_id": "cos-eod-20260925T010154-18446",
+    "status": "ok",
+    "started_at": "2026-09-25T05:01:54Z",
+    "finished_at": "2026-09-25T05:02:11.288Z",
+    "items_in": 0,
+    "items_out": {
+      "created": 0,
+      "merged": 0,
+      "closed": 0,
+      "close_refused": 0,
+      "dropped": 0
+    },
+    "artifacts": [
+      "/Users/jermainewatkins/Library/Application Support/assistance/eod/2026-09-25.json",
+      "/Users/jermainewatkins/Library/Application Support/assistance/eod/2026-09-25.md",
+      "/Users/jermainewatkins/Library/Application Support/assistance/eod/2026-09-25.json"
+    ],
+    "findings": [],
+    "proposed_actions": [],
+    "open_questions": [],
+    "gaps": [],
+    "cost_usd": 0.0902618
+  },
+  "note": "Run at 01:02 local: SMS snapshot + migration 6 + extraction worked with 0 gaps; the 17:30 run overwrites this day's file. 2-day chain (EOD -> next morning) completes Monday 07:30 reading Friday 17:30.",
+  "passed": true,
+  "timestamp": "2026-09-25T05:02:41.612870+00:00"
+}

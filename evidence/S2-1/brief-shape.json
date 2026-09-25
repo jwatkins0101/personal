@@ -7,13 +7,13 @@
   ],
   "passed": true,
   "problems": [],
-  "tested_commit": "c1fc07f4ccb6017fddd2f8948110a0c522254915",
+  "tested_commit": "e2fa332b3c4bd88aba477687cfc561cfe9b2af95",
   "worktree_dirty": false,
-  "prd_revision": 3,
-  "gate_sha256": "64243a7969f74aa6cfdf625f54c777f5aa1e084169f1fab7882117bdbde72597",
+  "prd_revision": 4,
+  "gate_sha256": "1d44c64def143f74f8a25eada7777e6618b3519236a7b91cf59caf3a6e17ecb0",
   "assertion_sha256": {
     "src/cos/render.ts": "54a38affce981b0e4de8bbac3b077d627ff277723a15024511c1590b9dddd595",
-    "src/cos/synth.ts": "8fd310f89134c0f35585b7fa1c14438e9d55af42df38a25c9ee3e22da5586f20",
+    "src/cos/synth.ts": "336e72d8a5ade3e460fce972586062f880e4851d46215565c9105faac2be3b02",
     "tests/fixtures/cos/synthesis.json": "1e5b96673754f9a84665a86e79be75bd0ad31b5026a8c51799bae23d39458ed5",
     "tests/fixtures/cos/inputs.json": "5b674a883c0222c72c675d10efc7edc123ff52843923e089d8448b1eda60f84f",
     "tests/fixtures/cos/render-broken.ts": "686244c5bbe89d21200cfd4773c7e42256dd249e997d210081ed071bc7cc564e"
@@ -29,5 +29,5 @@
     "exit_code": 1,
     "output": "PASS items citing sources not in the inputs are dropped\nPASS markdown sections in charter order\nPASS html sections in charter order\nFAIL escalations rendered\nPASS every Decide item carries its source_ref\nFAIL mp3 generated and embedded\nFAIL speed control 0.75x-2x with pitch preserved"
   },
-  "timestamp": "2026-09-25T04:28:38.059Z"
+  "timestamp": "2026-09-25T05:01:38.589Z"
 }

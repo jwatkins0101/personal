@@ -1,0 +1,30 @@
+{
+  "gate": "weekly-shape",
+  "story": "S3-5",
+  "tier": "unit",
+  "acceptance": [
+    "AC-22"
+  ],
+  "passed": true,
+  "problems": [],
+  "tested_commit": "e2fa332b3c4bd88aba477687cfc561cfe9b2af95",
+  "worktree_dirty": false,
+  "prd_revision": 4,
+  "gate_sha256": "884ccc75cf4d226035048e8c3f05aa3f9269cb5831d8f0495c308176a2cb0ab0",
+  "assertion_sha256": {
+    "src/cos/weekly.ts": "b8b4ac1eaf0954a8900fc47084536a7340290588de4d3ad3feff59c212420a0f",
+    "tests/fixtures/cos/weekly-broken.ts": "7e85f495cc8fbaba0d2115f36f35b0d4ff0206f0cb93c4763c09f5254d5895f6"
+  },
+  "command": "npx tsx tests/gates/cos-phase3.ts weekly-shape",
+  "exit_code": 0,
+  "output": "Running migration 1...\nMigration 1 complete.\nRunning migration 2...\nMigration 2 complete.\nRunning migration 3...\nMigration 3 complete.\nRunning migration 4...\nMigration 4 complete.\nRunning migration 5...\nMigration 5 complete.\nRunning migration 6...\nMigration 6 complete.\nPASS ISO week label\nPASS dropped ball counted (open, past due)\nPASS failed approval and refused send counted as caught errors\nPASS approvals this week and unchanged rate (7/8; the edited send doesn't count)\nPASS median decision latency in hours\nPASS cost from lane ledgers\nPASS task kind listed as promotion candidate (25 clean, 0 corrections); reply is not\nPASS scorecard has all metrics\nPASS autonomy not changed by the review",
+  "negative_validation": {
+    "env": {
+      "WEEKLY_MODULE": "tests/fixtures/cos/weekly-broken.ts"
+    },
+    "reason": "hiding dropped balls or inventing promotions must fail",
+    "exit_code": 1,
+    "output": "Running migration 1...\nMigration 1 complete.\nRunning migration 2...\nMigration 2 complete.\nRunning migration 3...\nMigration 3 complete.\nRunning migration 4...\nMigration 4 complete.\nRunning migration 5...\nMigration 5 complete.\nRunning migration 6...\nMigration 6 complete.\nPASS ISO week label\nFAIL dropped ball counted (open, past due)\nPASS failed approval and refused send counted as caught errors\nPASS approvals this week and unchanged rate (7/8; the edited send doesn't count)\nPASS median decision latency in hours\nPASS cost from lane ledgers\nFAIL task kind listed as promotion candidate (25 clean, 0 corrections); reply is not\nPASS scorecard has all metrics\nPASS autonomy not changed by the review"
+  },
+  "timestamp": "2026-09-25T05:01:45.520Z"
+}

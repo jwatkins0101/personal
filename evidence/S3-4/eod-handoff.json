@@ -1,0 +1,32 @@
+{
+  "gate": "eod-handoff",
+  "story": "S3-4",
+  "tier": "unit",
+  "acceptance": [
+    "AC-21"
+  ],
+  "passed": true,
+  "problems": [],
+  "tested_commit": "e2fa332b3c4bd88aba477687cfc561cfe9b2af95",
+  "worktree_dirty": false,
+  "prd_revision": 4,
+  "gate_sha256": "884ccc75cf4d226035048e8c3f05aa3f9269cb5831d8f0495c308176a2cb0ab0",
+  "assertion_sha256": {
+    "src/cos/eod.ts": "d2ad1cab8f0ded1adf3afe3d4688ef3fb802d17f50fd06c69e5806ac8d8b319c",
+    "src/cos/morning.ts": "a96305e4ae7b75c246f0c5f60db7a335d80d63131f0e24f850aa520c8c40ca52",
+    "tests/fixtures/cos/eod-broken.ts": "a40b33838218379ca557dd3b121ab6fa484cc6049f05ea124f79083cce43859b",
+    "tests/fixtures/cos/inputs.json": "5b674a883c0222c72c675d10efc7edc123ff52843923e089d8448b1eda60f84f"
+  },
+  "command": "npx tsx tests/gates/cos-phase3.ts eod-handoff",
+  "exit_code": 0,
+  "output": "Running migration 1...\nMigration 1 complete.\nRunning migration 2...\nMigration 2 complete.\nRunning migration 3...\nMigration 3 complete.\nRunning migration 4...\nMigration 4 complete.\nRunning migration 5...\nMigration 5 complete.\nRunning migration 6...\nMigration 6 complete.\nPASS EOD writes eod/2026-09-24.json\nPASS carry-forward kept; invented item dropped with a gap\nPASS Friday's brief found Thursday's EOD\nPASS your open commitment shows under Deadlines\nPASS their undated promise shows under Waiting on\nPASS no Monday EOD: Tuesday's brief escalates missing_eod\nPASS past-due commitment escalates as a dropped ball",
+  "negative_validation": {
+    "env": {
+      "EOD_MODULE": "tests/fixtures/cos/eod-broken.ts"
+    },
+    "reason": "an EOD that writes no hand-off must fail",
+    "exit_code": 1,
+    "output": "Running migration 1...\nMigration 1 complete.\nRunning migration 2...\nMigration 2 complete.\nRunning migration 3...\nMigration 3 complete.\nRunning migration 4...\nMigration 4 complete.\nRunning migration 5...\nMigration 5 complete.\nRunning migration 6...\nMigration 6 complete.\nFAIL EOD writes eod/2026-09-24.json\nFAIL carry-forward kept; invented item dropped with a gap\nFAIL Friday's brief found Thursday's EOD\nFAIL your open commitment shows under Deadlines\nFAIL their undated promise shows under Waiting on\nPASS no Monday EOD: Tuesday's brief escalates missing_eod\nFAIL past-due commitment escalates as a dropped ball"
+  },
+  "timestamp": "2026-09-25T05:01:44.875Z"
+}

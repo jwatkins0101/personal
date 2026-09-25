@@ -1,0 +1,31 @@
+{
+  "gate": "commitment-close",
+  "story": "S3-2",
+  "tier": "unit",
+  "acceptance": [
+    "AC-19"
+  ],
+  "passed": true,
+  "problems": [],
+  "tested_commit": "e2fa332b3c4bd88aba477687cfc561cfe9b2af95",
+  "worktree_dirty": false,
+  "prd_revision": 4,
+  "gate_sha256": "884ccc75cf4d226035048e8c3f05aa3f9269cb5831d8f0495c308176a2cb0ab0",
+  "assertion_sha256": {
+    "src/cos/commitments.ts": "60e58a521bee70b780748256e1b68cfbcb317e8b2d6140108bf5051c585c1d49",
+    "src/storage/migrations/006_commitments.ts": "7a01686ab169bd54efbf2f7b6455ca17d25b654586a2a2cef705acd85d924f0c",
+    "tests/fixtures/cos/commitments-broken.ts": "f491a223ee022c486ba9216b320d56643fb848997fd0cdb434c8b2a34d388a3a"
+  },
+  "command": "npx tsx tests/gates/cos-phase3.ts commitment-close",
+  "exit_code": 0,
+  "output": "Running migration 1...\nMigration 1 complete.\nRunning migration 2...\nMigration 2 complete.\nRunning migration 3...\nMigration 3 complete.\nRunning migration 4...\nMigration 4 complete.\nRunning migration 5...\nMigration 5 complete.\nRunning migration 6...\nMigration 6 complete.\nPASS no evidence: refused\nPASS free-text evidence: refused\nPASS unconfirmed evidence: refused\nPASS still open after refusals\nPASS confirmed sent message closes it, evidence recorded\nPASS double close refused",
+  "negative_validation": {
+    "env": {
+      "COMMITMENTS_MODULE": "tests/fixtures/cos/commitments-broken.ts"
+    },
+    "reason": "closing without evidence must fail",
+    "exit_code": 1,
+    "output": "Running migration 1...\nMigration 1 complete.\nRunning migration 2...\nMigration 2 complete.\nRunning migration 3...\nMigration 3 complete.\nRunning migration 4...\nMigration 4 complete.\nRunning migration 5...\nMigration 5 complete.\nRunning migration 6...\nMigration 6 complete.\nFAIL no evidence: refused\nFAIL free-text evidence: refused\nFAIL unconfirmed evidence: refused\nFAIL still open after refusals\nPASS confirmed sent message closes it, evidence recorded\nFAIL double close refused"
+  },
+  "timestamp": "2026-09-25T05:01:43.591Z"
+}
