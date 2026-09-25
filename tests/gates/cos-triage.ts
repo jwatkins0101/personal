@@ -64,7 +64,7 @@ try {
     const log = readFileSync(r.logPath, "utf8").trim().split("\n").map((l) => JSON.parse(l));
     check(log.filter((e) => e.action === "archive").length === 2 && log.every((e) => e.at && e.id && e.tag === "hourly"), "every change is written to the undo log");
     calls.length = 0;
-    const n = await t.undoTriage("owlthat", "2026-09-25T00:00:00Z", deps as never);
+    const n = await t.undoTriage("owlthat", "2026-09-25T12:00:00Z", deps as never);   // same second as the run, no milliseconds
     check(n === 2 && calls.every((c) => c.add.includes("INBOX")) && calls.flatMap((c) => c.ids).sort().join() === "1,2" && calls.some((c) => c.remove.join() === "L-CoS/CI"), "undo puts both back in the inbox and removes the CoS labels");
     const wrote = await t.runRulesTriage("owlthat", owl, "in:inbox", { ...deps, sentDomains: async () => new Set(["newco.io", "pitchbook.com"]) }, { dryRun: true });
     check(!wrote.archived["CoS/Newsletters"] && wrote.byRule["you write to this sender"] >= 1, "a sender you write to is kept even when a rule would archive it");

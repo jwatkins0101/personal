@@ -98,7 +98,7 @@ export async function unstarTriage(account: string, sinceIso: string, deps: Pick
   const logPath = join(UNDO_DIR, `${account}.jsonl`);
   if (!existsSync(logPath)) return 0;
   const ids = readFileSync(logPath, "utf8").split("\n").filter(Boolean).map((l) => JSON.parse(l) as { at: string; id: string; action: string; tag?: string })
-    .filter((e) => e.action === "star" && e.at >= sinceIso && (!opts.tag || e.tag === opts.tag)).map((e) => e.id);
+    .filter((e) => e.action === "star" && Date.parse(e.at) >= Date.parse(sinceIso) && (!opts.tag || e.tag === opts.tag)).map((e) => e.id);
   if (ids.length) await deps.batchModify(ids, [], ["STARRED"]);
   appendFileSync(logPath, JSON.stringify({ at: new Date().toISOString(), account, action: "unstar", since: sinceIso, tag: opts.tag ?? null, count: ids.length }) + "\n");
   return ids.length;
@@ -109,7 +109,7 @@ export async function undoTriage(account: string, sinceIso: string, deps: Pick<T
   const logPath = join(UNDO_DIR, `${account}.jsonl`);
   if (!existsSync(logPath)) return 0;
   const entries = readFileSync(logPath, "utf8").split("\n").filter(Boolean).map((l) => JSON.parse(l) as { at: string; id: string; action: string; labelId?: string | null; tag?: string })
-    .filter((e) => e.action === "archive" && e.at >= sinceIso && (!opts.tag || e.tag === opts.tag));
+    .filter((e) => e.action === "archive" && Date.parse(e.at) >= Date.parse(sinceIso) && (!opts.tag || e.tag === opts.tag));
   const byLabel = new Map<string, string[]>();
   for (const e of entries) byLabel.set(e.labelId ?? "", [...(byLabel.get(e.labelId ?? "") ?? []), e.id]);
   for (const [labelId, ids] of byLabel) await deps.batchModify(ids, ["INBOX"], labelId ? [labelId] : []);
