@@ -1,0 +1,30 @@
+{
+  "gate": "ledger-schema",
+  "story": "S1-2",
+  "tier": "unit",
+  "acceptance": [
+    "AC-07"
+  ],
+  "passed": true,
+  "problems": [],
+  "tested_commit": "91a2a17039c7ab89183ff1723156d45cdba82792",
+  "worktree_dirty": false,
+  "prd_revision": 2,
+  "gate_sha256": "2ab62c645ac7ce3b4a7d0600705e89a7e094f65a13156e33df475494edb0274a",
+  "assertion_sha256": {
+    "cos/lib/ledger.mjs": "68fd202a0ffc62fa677055db0c98b8603940af45f688374286df6a9737c6baa7",
+    "tests/fixtures/ledger/lib-no-validate.mjs": "9560e17daa9b11fe0abb0237cd997d071e8b5e32d160a1331ae9eeae766117a6"
+  },
+  "command": "npx tsx tests/gates/ledger.ts schema",
+  "exit_code": 0,
+  "output": "PASS valid record accepted\nPASS invalid record rejected with 4 problems\nPASS invalid record is logged as failed/invalid_record\nPASS one JSONL line written per run\nPASS items_in/items_out must be set together",
+  "negative_validation": {
+    "env": {
+      "COS_LEDGER_LIB": "tests/fixtures/ledger/lib-no-validate.mjs"
+    },
+    "reason": "a ledger that accepts anything must fail",
+    "exit_code": 1,
+    "output": "PASS valid record accepted\nFAIL invalid record rejected with 0 problems\nFAIL invalid record is logged as failed/invalid_record\nFAIL one JSONL line written per run\nFAIL items_in/items_out must be set together"
+  },
+  "timestamp": "2026-09-25T02:51:11.630Z"
+}

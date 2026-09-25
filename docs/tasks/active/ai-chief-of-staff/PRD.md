@@ -1,6 +1,6 @@
 # Feature: AI Chief of Staff (v1)
 
-Revision: 2. Status: in progress. Feature ID: ai-chief-of-staff.
+Revision: 3. Status: in progress. Feature ID: ai-chief-of-staff.
 Source plan: `PLAN.md` (approved 2026-09-24, decisions D1–D8 = recommended). Harness: Ralph 2.0 @ `6d9f21ea27bb41662e1e69dd19ca1c483ad41c44`.
 
 ## Current specification
@@ -77,7 +77,6 @@ It never sends, pays or signs up on its own.
 |---|---|---|
 | `inbox` | Gmail triage | hourly |
 | `tasks` | task-capture | 08:00 / 18:00 |
-| `flights` | cron-flight-check | **moved to 07:20** |
 | `deals` | deal-watch | 07:18 |
 | `yt` | youtube daily brief | 07:03 |
 | `calendar` | read-only via `src/calendar/apple.ts` | at brief time |
@@ -151,7 +150,7 @@ Existing prompt-driven lanes emit this record with a wrapper step (the lane writ
 | AC-14 | Approvals: `approve`/`send`/`skip` change state; `send` shows the recipients and body and sends only that draft; unanswered items expire with no side effect | `gate:approvals` (stubbed gws) including an expiry test; live: 1 real `send` of a self-addressed test draft | not_run |
 | AC-15 | After `morning`, a one-line iMessage (status + count of Decide items + brief path) reaches the principal's own handle | Live evidence (screenshot/log). Fallback per A2 | not_run |
 | AC-16 | Daily cost is tallied; when it passes $5 the remaining CoS calls are skipped and escalated | `gate:budget` with a fixture over budget | not_run |
-| AC-17 | launchd `com.assistance.cos-morning` 07:30 weekdays; flights moved to 07:20; wake schedule set | `gate:launchd-lint`; **live:** 5 consecutive weekday briefs with reconciled counts and 0 unverifiable Decide items | not_run |
+| AC-17 | launchd `com.assistance.cos-morning` 07:30 weekdays; wake schedule set | `gate:launchd-lint`; **live:** 5 consecutive weekday briefs with reconciled counts and 0 unverifiable Decide items | not_run |
 | **Phase 3: commitments, EOD, weekly** |||
 | AC-18 | Commitments are captured with `source_ref` and `due_quote`; vague due phrases leave `due_at` null and add an open question | `gate:commitments-dates` (fixtures incl. "by Friday", "next next week", "soon") | not_run |
 | AC-19 | A commitment closes only with evidence (sent ID, event UID or task ID) | `gate:commitment-close` negative test | not_run |
@@ -164,7 +163,7 @@ All gates are registered in `cos/gates.json` (tier, command, script sha256, asse
 ### Delivery
 - **Repo:** `jwatkins0101/personal` (local `~/Documents/Sites/assistance`), branch `feature/ai-chief-of-staff` in its own worktree.
 - **Deployment units:**
-  - launchd agents: `com.assistance.gmail-triage` (updated), `com.assistance.cos-morning`, `com.assistance.cos-eod`, `com.assistance.cos-weekly`, `com.assistance.flight-check` (time change);
+  - launchd agents: `com.assistance.gmail-triage`, `com.assistance.task-capture`, `com.jermaine.deal-watch`, `com.jermaine.yt-daily-brief` (all through `cos/bin/lane-run.sh`), `com.assistance.cos-morning`, `com.assistance.cos-eod`, `com.assistance.cos-weekly`; `com.assistance.flight-check` removed (D10);
   - deployed prompt/runner copies in `~/Library/Application Support/assistance/`.
 - **Rollback:** `launchctl bootout gui/$UID/<label>` for the new agents; redeploy the previous prompt from git (`scripts/deploy-triage-launchd.sh` at the prior SHA). The DB tables are additive.
 - **CI:** none exists. Gates run locally via `npm run gates` (owner decision OD-1). The release record is the local gate output + commit SHA + live evidence.

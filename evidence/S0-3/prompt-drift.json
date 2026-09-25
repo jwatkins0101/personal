@@ -7,7 +7,7 @@
   ],
   "passed": true,
   "problems": [],
-  "tested_commit": "7b86b4ee5971ec29760b5b3ea2c8ad4e711193ad",
+  "tested_commit": "91a2a17039c7ab89183ff1723156d45cdba82792",
   "worktree_dirty": false,
   "prd_revision": 2,
   "gate_sha256": "d144fd73d3221530b88072470808d33e662948bf81af8568593904111bc57dc0",
@@ -16,14 +16,14 @@
   },
   "command": "bash tests/gates/prompt-drift.sh",
   "exit_code": 0,
-  "output": "PASS deployed prompt matches repo (3d95207a79a45f8b74ae5dd68cda2250c11d96195325b6833627cb12a136266e)",
+  "output": "PASS deployed prompt matches repo (5910c19c445d1c7dfc95a8c127581fe2476471a4b3b331ba1111af9b046c5440)",
   "negative_validation": {
     "env": {
       "DEPLOYED": "tests/fixtures/gates/drifted-prompt.md"
     },
     "reason": "an edited deployed copy must be caught",
     "exit_code": 1,
-    "output": "FAIL drift: repo=3d95207a79a45f8b74ae5dd68cda2250c11d96195325b6833627cb12a136266e deployed=8108d7f79edce01907c0b8fbd03091fb24e026fe5e7b090a294e6d84ef638510. Run scripts/deploy-triage-launchd.sh (or reconcile edits back into the repo first)."
+    "output": "FAIL drift: repo=5910c19c445d1c7dfc95a8c127581fe2476471a4b3b331ba1111af9b046c5440 deployed=8108d7f79edce01907c0b8fbd03091fb24e026fe5e7b090a294e6d84ef638510. Run scripts/deploy-triage-launchd.sh (or reconcile edits back into the repo first)."
   },
-  "timestamp": "2026-09-25T02:39:12.266Z"
+  "timestamp": "2026-09-25T02:49:52.544Z"
 }

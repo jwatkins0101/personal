@@ -1,0 +1,30 @@
+{
+  "gate": "reconcile",
+  "story": "S1-3",
+  "tier": "unit",
+  "acceptance": [
+    "AC-08"
+  ],
+  "passed": true,
+  "problems": [],
+  "tested_commit": "91a2a17039c7ab89183ff1723156d45cdba82792",
+  "worktree_dirty": false,
+  "prd_revision": 2,
+  "gate_sha256": "2ab62c645ac7ce3b4a7d0600705e89a7e094f65a13156e33df475494edb0274a",
+  "assertion_sha256": {
+    "cos/lib/ledger.mjs": "68fd202a0ffc62fa677055db0c98b8603940af45f688374286df6a9737c6baa7",
+    "tests/fixtures/ledger/lib-no-reconcile.mjs": "8fdab4cca95cab632da0d1ae92c9fcd8dc8a1ff85f1c3157f16b4b5de32b4112"
+  },
+  "command": "npx tsx tests/gates/ledger.ts reconcile",
+  "exit_code": 0,
+  "output": "PASS 17 in vs 16 out marks the run failed\nPASS gap names both counts\nPASS reconciled run stays ok\nPASS non-counting lane is not reconciled",
+  "negative_validation": {
+    "env": {
+      "COS_LEDGER_LIB": "tests/fixtures/ledger/lib-no-reconcile.mjs"
+    },
+    "reason": "17-vs-16 must be caught",
+    "exit_code": 1,
+    "output": "FAIL 17 in vs 16 out marks the run failed\nFAIL gap names both counts\nPASS reconciled run stays ok\nPASS non-counting lane is not reconciled"
+  },
+  "timestamp": "2026-09-25T02:51:12.210Z"
+}

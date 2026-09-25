@@ -1,0 +1,30 @@
+{
+  "gate": "artifacts",
+  "story": "S1-4",
+  "tier": "unit",
+  "acceptance": [
+    "AC-09"
+  ],
+  "passed": true,
+  "problems": [],
+  "tested_commit": "91a2a17039c7ab89183ff1723156d45cdba82792",
+  "worktree_dirty": false,
+  "prd_revision": 2,
+  "gate_sha256": "2ab62c645ac7ce3b4a7d0600705e89a7e094f65a13156e33df475494edb0274a",
+  "assertion_sha256": {
+    "cos/lib/ledger.mjs": "68fd202a0ffc62fa677055db0c98b8603940af45f688374286df6a9737c6baa7",
+    "tests/fixtures/ledger/lib-no-artifacts.mjs": "6bee991917d55fb7dbfa0ead33f5d6140d6cfa87f933b2ba882917edb4e7637f"
+  },
+  "command": "npx tsx tests/gates/ledger.ts artifacts",
+  "exit_code": 0,
+  "output": "PASS existing non-empty artifact passes\nPASS missing artifact fails the run\nPASS empty artifact fails the run",
+  "negative_validation": {
+    "env": {
+      "COS_LEDGER_LIB": "tests/fixtures/ledger/lib-no-artifacts.mjs"
+    },
+    "reason": "a claimed missing file must be caught",
+    "exit_code": 1,
+    "output": "PASS existing non-empty artifact passes\nFAIL missing artifact fails the run\nFAIL empty artifact fails the run"
+  },
+  "timestamp": "2026-09-25T02:51:12.785Z"
+}

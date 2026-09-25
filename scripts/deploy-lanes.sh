@@ -3,7 +3,7 @@
 # (ai-chief-of-staff AC-07, AC-11). Idempotent. Backs up each plist before changing it.
 #   scripts/deploy-lanes.sh            deploy runtime + all lanes
 #   scripts/deploy-lanes.sh runtime    deploy cos/bin + cos/lib only
-#   scripts/deploy-lanes.sh <lane>     deploy runtime + one lane (inbox|flights|deals|yt|tasks)
+#   scripts/deploy-lanes.sh <lane>     deploy runtime + one lane (inbox|deals|yt|tasks)
 set -euo pipefail
 REPO_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 case "$REPO_DIR" in */.claude/worktrees/*)
@@ -41,15 +41,11 @@ set_lane() {
 SITES="$HOME/Documents/Sites"
 set_lane inbox com.assistance.gmail-triage gmail-triage-launchd.log "$AS/triage" -- \
   /bin/bash "$WRAP" inbox --attempts 2 -- /bin/bash "$AS/triage/run-gmail-triage.sh"
-set_lane flights com.assistance.flight-check flights-launchd.log "$AS" --time 07:20 -- \
-  /bin/bash "$WRAP" flights --attempts 3 -- /bin/bash "$REPO_DIR/scripts/cron-flight-check.sh"
 set_lane deals com.jermaine.deal-watch deals-launchd.log "$AS" -- \
   /bin/bash "$WRAP" deals --attempts 1 --artifact "$SITES/deal-watch/briefs/brief-{date}.html" -- /bin/zsh "$SITES/deal-watch/run.sh"
 set_lane yt com.jermaine.yt-daily-brief yt-launchd.log "$AS" -- \
   /bin/bash "$WRAP" yt --attempts 2 --artifact "$SITES/youtube-knowledge/briefs/{date}.md" -- \
   /bin/zsh -lc 'cd "$HOME/Documents/Sites" && "$HOME/.local/bin/claude" -p "Follow the instructions in youtube-knowledge/daily-brief.md exactly." --dangerously-skip-permissions'
-
-# (flight check runs at 07:20 so the 07:30 brief has same-day data: D5, set via --time above)
 
 # task-capture wraps each of its two steps itself (see deploy-task-capture-launchd.sh).
 if [ "$ONLY" = "all" ] || [ "$ONLY" = "tasks" ]; then bash "$REPO_DIR/scripts/deploy-task-capture-launchd.sh"; fi

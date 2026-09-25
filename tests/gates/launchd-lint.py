@@ -35,6 +35,9 @@ with tempfile.TemporaryDirectory() as d:
     check(last("counts")["status"] == "failed", "unreconciled lane summary fails the run")
 
 # ---- Part B: live LaunchAgents ----
+# Flight check was removed (D10): its job must stay unloaded.
+check(not os.path.exists(os.path.join(os.environ.get("PLIST_DIR", os.path.join(HOME, "Library/LaunchAgents")), "com.assistance.flight-check.plist")) or "PLIST_DIR" in os.environ,
+      "com.assistance.flight-check: removed (D10)")
 plist_dir = os.environ.get("PLIST_DIR", os.path.join(HOME, "Library/LaunchAgents"))
 lanes = json.load(open(os.path.join(ROOT, "cos/lanes.json")))["lanes"]
 docs = os.path.join(HOME, "Documents")
@@ -60,7 +63,4 @@ for l in lanes:
     else:
         check(len(args) > 2 and args[1].endswith("/cos/bin/lane-run.sh") and args[1].startswith("/") and not args[1].startswith(docs) and args[2] == l["lane"],
               f"{label}: wrapped by lane-run.sh as lane '{l['lane']}'")
-    sci = p.get("StartCalendarInterval")
-    if label == "com.assistance.flight-check":
-        check(isinstance(sci, dict) and (sci.get("Hour"), sci.get("Minute")) == (7, 20), f"{label}: scheduled 07:20 (D5)")
 sys.exit(fail)
