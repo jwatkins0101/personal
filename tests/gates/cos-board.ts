@@ -104,6 +104,7 @@ try {
     check(out.answered.length === 1 && out.answered[0].reply.sentId === "s1", "answered item records your sent message");
     check(out.kept.some((x) => x.id === "a3"), "a failed check keeps the mail (never hides on error)");
     const g = (await import("node:fs")).readFileSync("src/cos/gather.ts", "utf8");
+    check(/getCachedEvents\(3, now, -1\)/.test(g) && /=== yesterday \? "yesterday"/.test(g) && /already happened/.test((await import("node:fs")).readFileSync("src/cos/synth.ts", "utf8")), "brief reads yesterday's calendar and treats it as already happened (D18)");
     check(/dropAnswered\(inbox, replied\)/.test(g) && /inbox\.splice\(0, inbox\.length, \.\.\.answered\.kept\)/.test(g), "morning gather filters answered mail before synthesis");
   } else check(false, `unknown gate ${which}`);
 } catch (e) { check(false, `threw: ${(e as Error).message}`); }

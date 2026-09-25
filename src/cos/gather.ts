@@ -21,7 +21,7 @@ export interface BriefInputs {
   generated_at: string;
   inbox: { id: string; from: string; subject: string; snippet: string; date: string; starred: boolean }[];
   tasks: { id: string; title: string; due?: string; list?: string; notes?: string }[];
-  calendar: { day: "today" | "tomorrow"; title: string; start: string; end: string; location?: string; all_day: boolean; ref: string }[];
+  calendar: { day: "yesterday" | "today" | "tomorrow"; title: string; start: string; end: string; location?: string; all_day: boolean; ref: string }[];
   lanes: LaneHealth[];
   lane_gaps: { lane: string; started_at: string; status: string; gaps: string[] }[];
   fyi_sources: { yt_brief?: string; deals_brief?: string };
@@ -56,10 +56,12 @@ export async function gatherInputs(now = new Date(), replied: RepliedFn = replie
   const tasks = await attempt("Google Tasks", gaps, async () =>
     (await listOpenGtdTasks()).map((t) => ({ id: t.id, title: t.title, due: t.due, list: t.list, notes: (t.notes ?? "").slice(0, 200) })), []);
 
+  // Yesterday is included so the brief knows what already happened (D18): no "confirm the lunch" after the lunch.
   const calendar = await attempt("Apple Calendar", gaps, async () => {
     const today = localDate(now);
-    return getCachedEvents(2, now).map((e) => ({
-      day: (e.start.slice(0, 10) === today ? "today" : "tomorrow") as "today" | "tomorrow",
+    const yesterday = localDate(new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1));
+    return getCachedEvents(3, now, -1).map((e) => ({
+      day: (e.start.slice(0, 10) === yesterday ? "yesterday" : e.start.slice(0, 10) === today ? "today" : "tomorrow") as "yesterday" | "today" | "tomorrow",
       title: `${e.title}${e.calendar ? ` (${e.calendar})` : ""}`, start: e.start, end: e.end,
       location: e.location || undefined, all_day: e.all_day, ref: `cal:${e.title}@${e.start}`,
     }));

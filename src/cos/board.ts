@@ -98,7 +98,7 @@ export async function buildState(deps: BoardDeps): Promise<BoardState> {
   for (const r of decided) {
     const done = (r.result ?? "").startsWith("done:");
     completed.push({ at: r.decided_at!, kind: done ? "done" : (r.status as CompletedItem["kind"]), text: r.title,
-      detail: done ? (r.result!.slice(5).startsWith("gmail:") ? `you handled it: ${r.result!.slice(5)}` : "marked done by you")
+      detail: done ? (/^(gmail|cal):/.test(r.result!.slice(5)) ? `you handled it: ${r.result!.slice(5)}` : "marked done by you")
         : r.status === "sent" ? `sent${(r.result ?? "").includes(";edited") ? " (you edited it)" : ""}` : r.status, ref: r.source_ref });
   }
   for (const c of listCommitments(db, "closed")) {

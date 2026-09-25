@@ -400,7 +400,7 @@
       "script_sha256": "1d44c64def143f74f8a25eada7777e6618b3519236a7b91cf59caf3a6e17ecb0",
       "assertion_sha256": {
         "src/cos/render.ts": "54a38affce981b0e4de8bbac3b077d627ff277723a15024511c1590b9dddd595",
-        "src/cos/synth.ts": "336e72d8a5ade3e460fce972586062f880e4851d46215565c9105faac2be3b02",
+        "src/cos/synth.ts": "a080f017a1b0bc18b17f0ac7534b4f9ff0bc749f25763f2c153bb88bf359a097",
         "tests/fixtures/cos/synthesis.json": "1e5b96673754f9a84665a86e79be75bd0ad31b5026a8c51799bae23d39458ed5",
         "tests/fixtures/cos/inputs.json": "5b674a883c0222c72c675d10efc7edc123ff52843923e089d8448b1eda60f84f",
         "tests/fixtures/cos/render-broken.ts": "686244c5bbe89d21200cfd4773c7e42256dd249e997d210081ed071bc7cc564e"
@@ -689,9 +689,9 @@
         },
         "reason": "a board that serves a frozen state is not live"
       },
-      "script_sha256": "3b0b5e0c0876ab97a76195200ee240fb26df284188c4731d4fe3e863a3b72e54",
+      "script_sha256": "5de534db0369835f730455c6a4d4f329cf9a4b234395ab637e002ed544313509",
       "assertion_sha256": {
-        "src/cos/board.ts": "464681ebb1b00a5acd001206d971a07e83d0d48b08975e2e31ad79845300e3a1",
+        "src/cos/board.ts": "f3d2810cf4c44f6068095679db3ed07f939eabe7ec213b1c482c74a5bdeb639a",
         "tests/fixtures/cos/board-frozen.ts": "7544e49410333ea6cdc198d57d511c3e364bd616ccab5815d809e6f6ee25149c",
         "src/cos/replied.ts": "06aa4cf473ded38e2b93880e46aa87cde5055756a1151b3cea06777562bcac57"
       }
@@ -721,9 +721,9 @@
         },
         "reason": "a board with no token/host checks must fail"
       },
-      "script_sha256": "3b0b5e0c0876ab97a76195200ee240fb26df284188c4731d4fe3e863a3b72e54",
+      "script_sha256": "5de534db0369835f730455c6a4d4f329cf9a4b234395ab637e002ed544313509",
       "assertion_sha256": {
-        "src/cos/board.ts": "464681ebb1b00a5acd001206d971a07e83d0d48b08975e2e31ad79845300e3a1",
+        "src/cos/board.ts": "f3d2810cf4c44f6068095679db3ed07f939eabe7ec213b1c482c74a5bdeb639a",
         "src/cos/cli.ts": "b8d7ff378e33e70ca538729f16016ab1fa5e1ae90e271f3d15ff02524952dba5",
         "tests/fixtures/cos/board-open.ts": "de4387422ab139538a82376a793cede0ce9a6d70d9a76041cafa08055f1bcc08"
       }
@@ -753,10 +753,10 @@
         },
         "reason": "a filter that never detects your replies must fail"
       },
-      "script_sha256": "3b0b5e0c0876ab97a76195200ee240fb26df284188c4731d4fe3e863a3b72e54",
+      "script_sha256": "5de534db0369835f730455c6a4d4f329cf9a4b234395ab637e002ed544313509",
       "assertion_sha256": {
         "src/cos/replied.ts": "06aa4cf473ded38e2b93880e46aa87cde5055756a1151b3cea06777562bcac57",
-        "src/cos/gather.ts": "eb87dfd60f1eecd77c1e5e029a77535599566f5f47c50ea165f0d41da2bd629c",
+        "src/cos/gather.ts": "eec8a888c906665f2dbb6c3b09543faccfadd7e87412cbdf80d57c402d5433d1",
         "tests/fixtures/cos/replied-broken.ts": "d15f6cc7da52b3926a19e987ccd00f661e8822911b5b6e6e3dbb46e60a52dbbc"
       }
     }

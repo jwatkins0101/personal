@@ -52,6 +52,7 @@ Rules:
 - Items in eod.carry_forward are unfinished from yesterday: rank them with today's work.
 - "reply" only for a real person's email you can answer completely in plain text right now. NEVER use placeholders like [link], [date] or [status]: if the answer needs information, a file, an attachment, money, or personal/financial/health documents, make it a "decide" item describing what is needed instead.
 - "reply" only for a real person's email that needs an answer. Never propose sending anything else; never propose payments, purchases, sign-ups or calendar changes as actions (surface them as "decide").
+- Calendar items with "day":"yesterday" already happened. Never propose confirming, scheduling or preparing for them, and treat an ask they answer (e.g. "lunch 11:30?" when yesterday's calendar has that lunch) as done.
 - Never infer a date from vague words. If a date matters and the source doesn't state it, leave due_quote out and say "no date given".
 - Failed or stale lanes and input gaps are not your job to explain; the system lists them under Escalations.
 - Be brief. No item longer than 20 words except draft_body.

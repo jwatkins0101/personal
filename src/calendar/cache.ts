@@ -12,9 +12,9 @@ const APPLE_EPOCH = 978307200; // 2001-01-01 in Unix seconds
 
 export interface CachedEvent { calendar: string; title: string; start: string; end: string; all_day: boolean; location: string }
 
-/** Events starting from local midnight today (+ dayOffset) for `days` days. */
-export function getCachedEvents(days = 2, now = new Date()): CachedEvent[] {
-  const midnight = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime() / 1000 - APPLE_EPOCH;
+/** Events for `days` days starting at local midnight of today + startOffset (e.g. -1 = from yesterday). */
+export function getCachedEvents(days = 2, now = new Date(), startOffset = 0): CachedEvent[] {
+  const midnight = new Date(now.getFullYear(), now.getMonth(), now.getDate() + startOffset).getTime() / 1000 - APPLE_EPOCH;
   const until = midnight + days * 86400;
   const sql = `SELECT c.title AS calendar, ci.summary AS title,
       datetime(COALESCE(oc.occurrence_start_date, oc.occurrence_date) + ${APPLE_EPOCH}, 'unixepoch', 'localtime') AS start,
