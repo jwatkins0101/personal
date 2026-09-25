@@ -7,9 +7,9 @@
   ],
   "passed": true,
   "problems": [],
-  "tested_commit": "ee912cbf721f58372e016ed96f81f22971b0f53a",
+  "tested_commit": "ff7494076c42f2b9557814d67d35114b1a677e68",
   "worktree_dirty": true,
-  "prd_revision": 6,
+  "prd_revision": 7,
   "gate_sha256": "1d44c64def143f74f8a25eada7777e6618b3519236a7b91cf59caf3a6e17ecb0",
   "assertion_sha256": {
     "src/cos/budget.ts": "a7984b495c5da7359dc2b94999919beebd7ae89e9d722417bfabdf7252c6386a",
@@ -19,14 +19,14 @@
   },
   "command": "npx tsx tests/gates/cos-phase2.ts budget",
   "exit_code": 0,
-  "output": "PASS only today's spend counts ($4.90, not yesterday's $3)\nRunning migration 1...\nMigration 1 complete.\nRunning migration 2...\nMigration 2 complete.\nRunning migration 3...\nMigration 3 complete.\nRunning migration 4...\nMigration 4 complete.\nRunning migration 5...\nMigration 5 complete.\nRunning migration 6...\nMigration 6 complete.\nPASS over budget: model skipped and escalated\nPASS no actions proposed without the model\nPASS stale lanes and input gaps still escalate",
+  "output": "PASS only today's spend counts ($4.90, not yesterday's $3)\nRunning migration 1...\nMigration 1 complete.\nRunning migration 2...\nMigration 2 complete.\nRunning migration 3...\nMigration 3 complete.\nRunning migration 4...\nMigration 4 complete.\nRunning migration 5...\nMigration 5 complete.\nRunning migration 6...\nMigration 6 complete.\nRunning migration 7...\nMigration 7 complete.\nPASS over budget: model skipped and escalated\nPASS no actions proposed without the model\nPASS stale lanes and input gaps still escalate",
   "negative_validation": {
     "env": {
       "COS_DAILY_BUDGET_USD": "1000"
     },
     "reason": "with no effective ceiling the over-budget path must not trigger, failing the gate",
     "exit_code": 1,
-    "output": "PASS only today's spend counts ($4.90, not yesterday's $3)\nRunning migration 1...\nMigration 1 complete.\nRunning migration 2...\nMigration 2 complete.\nRunning migration 3...\nMigration 3 complete.\nRunning migration 4...\nMigration 4 complete.\nRunning migration 5...\nMigration 5 complete.\nRunning migration 6...\nMigration 6 complete.\nFAIL over budget: model skipped and escalated\nFAIL no actions proposed without the model\nPASS stale lanes and input gaps still escalate\n(node:34331) [DEP0205] DeprecationWarning: `module.register()` is deprecated. Use `module.registerHooks()` instead.\n(Use `node --trace-deprecation ...` to show where the warning was created)"
+    "output": "PASS only today's spend counts ($4.90, not yesterday's $3)\nRunning migration 1...\nMigration 1 complete.\nRunning migration 2...\nMigration 2 complete.\nRunning migration 3...\nMigration 3 complete.\nRunning migration 4...\nMigration 4 complete.\nRunning migration 5...\nMigration 5 complete.\nRunning migration 6...\nMigration 6 complete.\nRunning migration 7...\nMigration 7 complete.\nFAIL over budget: model skipped and escalated\nFAIL no actions proposed without the model\nPASS stale lanes and input gaps still escalate\n(node:43199) [DEP0205] DeprecationWarning: `module.register()` is deprecated. Use `module.registerHooks()` instead.\n(Use `node --trace-deprecation ...` to show where the warning was created)"
   },
-  "timestamp": "2026-09-25T05:24:27.790Z"
+  "timestamp": "2026-09-25T05:36:35.747Z"
 }

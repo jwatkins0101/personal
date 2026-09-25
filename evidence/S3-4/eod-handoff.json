@@ -7,9 +7,9 @@
   ],
   "passed": true,
   "problems": [],
-  "tested_commit": "ee912cbf721f58372e016ed96f81f22971b0f53a",
+  "tested_commit": "ff7494076c42f2b9557814d67d35114b1a677e68",
   "worktree_dirty": true,
-  "prd_revision": 6,
+  "prd_revision": 7,
   "gate_sha256": "884ccc75cf4d226035048e8c3f05aa3f9269cb5831d8f0495c308176a2cb0ab0",
   "assertion_sha256": {
     "src/cos/eod.ts": "d2ad1cab8f0ded1adf3afe3d4688ef3fb802d17f50fd06c69e5806ac8d8b319c",
@@ -19,14 +19,14 @@
   },
   "command": "npx tsx tests/gates/cos-phase3.ts eod-handoff",
   "exit_code": 0,
-  "output": "Running migration 1...\nMigration 1 complete.\nRunning migration 2...\nMigration 2 complete.\nRunning migration 3...\nMigration 3 complete.\nRunning migration 4...\nMigration 4 complete.\nRunning migration 5...\nMigration 5 complete.\nRunning migration 6...\nMigration 6 complete.\nPASS EOD writes eod/2026-09-24.json\nPASS carry-forward kept; invented item dropped with a gap\nPASS Friday's brief found Thursday's EOD\nPASS your open commitment shows under Deadlines\nPASS their undated promise shows under Waiting on\nPASS no Monday EOD: Tuesday's brief escalates missing_eod\nPASS past-due commitment escalates as a dropped ball",
+  "output": "Running migration 1...\nMigration 1 complete.\nRunning migration 2...\nMigration 2 complete.\nRunning migration 3...\nMigration 3 complete.\nRunning migration 4...\nMigration 4 complete.\nRunning migration 5...\nMigration 5 complete.\nRunning migration 6...\nMigration 6 complete.\nRunning migration 7...\nMigration 7 complete.\nPASS EOD writes eod/2026-09-24.json\nPASS carry-forward kept; invented item dropped with a gap\nPASS Friday's brief found Thursday's EOD\nPASS your open commitment shows under Deadlines\nPASS their undated promise shows under Waiting on\nPASS no Monday EOD: Tuesday's brief escalates missing_eod\nPASS past-due commitment escalates as a dropped ball",
   "negative_validation": {
     "env": {
       "EOD_MODULE": "tests/fixtures/cos/eod-broken.ts"
     },
     "reason": "an EOD that writes no hand-off must fail",
     "exit_code": 1,
-    "output": "Running migration 1...\nMigration 1 complete.\nRunning migration 2...\nMigration 2 complete.\nRunning migration 3...\nMigration 3 complete.\nRunning migration 4...\nMigration 4 complete.\nRunning migration 5...\nMigration 5 complete.\nRunning migration 6...\nMigration 6 complete.\nFAIL EOD writes eod/2026-09-24.json\nFAIL carry-forward kept; invented item dropped with a gap\nFAIL Friday's brief found Thursday's EOD\nFAIL your open commitment shows under Deadlines\nFAIL their undated promise shows under Waiting on\nPASS no Monday EOD: Tuesday's brief escalates missing_eod\nFAIL past-due commitment escalates as a dropped ball"
+    "output": "Running migration 1...\nMigration 1 complete.\nRunning migration 2...\nMigration 2 complete.\nRunning migration 3...\nMigration 3 complete.\nRunning migration 4...\nMigration 4 complete.\nRunning migration 5...\nMigration 5 complete.\nRunning migration 6...\nMigration 6 complete.\nRunning migration 7...\nMigration 7 complete.\nFAIL EOD writes eod/2026-09-24.json\nFAIL carry-forward kept; invented item dropped with a gap\nFAIL Friday's brief found Thursday's EOD\nFAIL your open commitment shows under Deadlines\nFAIL their undated promise shows under Waiting on\nPASS no Monday EOD: Tuesday's brief escalates missing_eod\nFAIL past-due commitment escalates as a dropped ball"
   },
-  "timestamp": "2026-09-25T05:24:30.326Z"
+  "timestamp": "2026-09-25T05:36:38.297Z"
 }

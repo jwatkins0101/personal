@@ -7,9 +7,9 @@
   ],
   "passed": true,
   "problems": [],
-  "tested_commit": "ee912cbf721f58372e016ed96f81f22971b0f53a",
+  "tested_commit": "ff7494076c42f2b9557814d67d35114b1a677e68",
   "worktree_dirty": true,
-  "prd_revision": 6,
+  "prd_revision": 7,
   "gate_sha256": "5de534db0369835f730455c6a4d4f329cf9a4b234395ab637e002ed544313509",
   "assertion_sha256": {
     "src/cos/replied.ts": "06aa4cf473ded38e2b93880e46aa87cde5055756a1151b3cea06777562bcac57",
@@ -18,14 +18,14 @@
   },
   "command": "npx tsx tests/gates/cos-board.ts answered-mail",
   "exit_code": 0,
-  "output": "Running migration 1...\nMigration 1 complete.\nRunning migration 2...\nMigration 2 complete.\nRunning migration 3...\nMigration 3 complete.\nRunning migration 4...\nMigration 4 complete.\nRunning migration 5...\nMigration 5 complete.\nRunning migration 6...\nMigration 6 complete.\nPASS answered mail dropped before the brief; unanswered kept\nPASS answered item records your sent message\nPASS a failed check keeps the mail (never hides on error)\nPASS brief reads yesterday's calendar and treats it as already happened (D18)\nPASS morning gather filters answered mail before synthesis\n(node:35077) [DEP0205] DeprecationWarning: `module.register()` is deprecated. Use `module.registerHooks()` instead.\n(Use `node --trace-deprecation ...` to show where the warning was created)",
+  "output": "Running migration 1...\nMigration 1 complete.\nRunning migration 2...\nMigration 2 complete.\nRunning migration 3...\nMigration 3 complete.\nRunning migration 4...\nMigration 4 complete.\nRunning migration 5...\nMigration 5 complete.\nRunning migration 6...\nMigration 6 complete.\nRunning migration 7...\nMigration 7 complete.\nPASS answered mail dropped before the brief; unanswered kept\nPASS answered item records your sent message\nPASS a failed check keeps the mail (never hides on error)\nPASS brief reads yesterday's calendar and treats it as already happened (D18)\nPASS morning gather filters answered mail before synthesis\n(node:43945) [DEP0205] DeprecationWarning: `module.register()` is deprecated. Use `module.registerHooks()` instead.\n(Use `node --trace-deprecation ...` to show where the warning was created)",
   "negative_validation": {
     "env": {
       "REPLIED_MODULE": "tests/fixtures/cos/replied-broken.ts"
     },
     "reason": "a filter that never detects your replies must fail",
     "exit_code": 1,
-    "output": "Running migration 1...\nMigration 1 complete.\nRunning migration 2...\nMigration 2 complete.\nRunning migration 3...\nMigration 3 complete.\nRunning migration 4...\nMigration 4 complete.\nRunning migration 5...\nMigration 5 complete.\nRunning migration 6...\nMigration 6 complete.\nFAIL answered mail dropped before the brief; unanswered kept\nFAIL answered item records your sent message\nPASS a failed check keeps the mail (never hides on error)\nPASS brief reads yesterday's calendar and treats it as already happened (D18)\nPASS morning gather filters answered mail before synthesis\n(node:35125) [DEP0205] DeprecationWarning: `module.register()` is deprecated. Use `module.registerHooks()` instead.\n(Use `node --trace-deprecation ...` to show where the warning was created)"
+    "output": "Running migration 1...\nMigration 1 complete.\nRunning migration 2...\nMigration 2 complete.\nRunning migration 3...\nMigration 3 complete.\nRunning migration 4...\nMigration 4 complete.\nRunning migration 5...\nMigration 5 complete.\nRunning migration 6...\nMigration 6 complete.\nRunning migration 7...\nMigration 7 complete.\nFAIL answered mail dropped before the brief; unanswered kept\nFAIL answered item records your sent message\nPASS a failed check keeps the mail (never hides on error)\nPASS brief reads yesterday's calendar and treats it as already happened (D18)\nPASS morning gather filters answered mail before synthesis\n(node:43993) [DEP0205] DeprecationWarning: `module.register()` is deprecated. Use `module.registerHooks()` instead.\n(Use `node --trace-deprecation ...` to show where the warning was created)"
   },
-  "timestamp": "2026-09-25T05:24:33.043Z"
+  "timestamp": "2026-09-25T05:36:40.974Z"
 }

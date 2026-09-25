@@ -1,0 +1,34 @@
+{
+  "gate": "agent-flow",
+  "story": "S5-1",
+  "tier": "unit",
+  "acceptance": [
+    "AC-27"
+  ],
+  "passed": true,
+  "problems": [],
+  "tested_commit": "ff7494076c42f2b9557814d67d35114b1a677e68",
+  "worktree_dirty": true,
+  "prd_revision": 7,
+  "gate_sha256": "995a390172a706715d3429b7ea549be75a80d28872b3a908ba0260630266eb0a",
+  "assertion_sha256": {
+    "src/cos/agent.ts": "45dcd200ac98fd7d2e1315b6a714baa98cb1cd357435c66e7df0af9bdc1d7441",
+    "src/cos/board.ts": "035f4a87f1bf68d6b20a9f30bfe7285dcc209f8b7bf861128ac88ce4ab4be4bf",
+    "src/storage/migrations/007_agent_jobs.ts": "4dd4dc3e0fc7362def9abbd3badb39569fab64dad039aca50c0320690ae18f17",
+    "tests/fixtures/cos/agent/aacsb.json": "184ec053cc73ca7fcf3c4641e82a95905e73dd0ea94edcfcef62dac3e6e01d9f",
+    "tests/fixtures/cos/agent/placeholder.json": "503c1900857e8f42573b180db88074682163e00707ec1e7de86495214bf47107",
+    "tests/fixtures/cos/agent-broken.ts": "d53625323ab85280160dd3e361035dbe5e3f921b92855e6baa4fb1004401869c"
+  },
+  "command": "npx tsx tests/gates/cos-agent.ts agent-flow",
+  "exit_code": 0,
+  "output": "Running migration 1...\nMigration 1 complete.\nRunning migration 2...\nMigration 2 complete.\nRunning migration 3...\nMigration 3 complete.\nRunning migration 4...\nMigration 4 complete.\nRunning migration 5...\nMigration 5 complete.\nRunning migration 6...\nMigration 6 complete.\nRunning migration 7...\nMigration 7 complete.\nPASS hand-off creates a queued job\nPASS a fresh job is not reaped as stale\nPASS a job stuck past the timeout is reaped\nPASS second hand-off of the same item refused while one is active\nPASS job finishes ready with a summary\nPASS draft goes to the ORIGINAL sender in the original thread, not the agent's 'to'\nPASS findings without a real message ref are dropped\nPASS item becomes a pending reply: sending still needs Review & send\nPASS placeholder reply: no draft, listed under needs-from-you\nPASS placeholder item stays a decision\nPASS no more than 2 agents at once\nPASS a stopped job never runs or drafts\nPASS agent spend recorded in the ledger (counts toward $5/day)\nPASS no hand-off when the daily budget is nearly used\nPASS board page script parses and has the Hand to agent button",
+  "negative_validation": {
+    "env": {
+      "AGENT_MODULE": "tests/fixtures/cos/agent-broken.ts"
+    },
+    "reason": "an agent path that trusts the agent's recipient or drafts placeholders must fail",
+    "exit_code": 1,
+    "output": "Running migration 1...\nMigration 1 complete.\nRunning migration 2...\nMigration 2 complete.\nRunning migration 3...\nMigration 3 complete.\nRunning migration 4...\nMigration 4 complete.\nRunning migration 5...\nMigration 5 complete.\nRunning migration 6...\nMigration 6 complete.\nRunning migration 7...\nMigration 7 complete.\nPASS hand-off creates a queued job\nPASS a fresh job is not reaped as stale\nPASS a job stuck past the timeout is reaped\nPASS second hand-off of the same item refused while one is active\nPASS job finishes ready with a summary\nFAIL draft goes to the ORIGINAL sender in the original thread, not the agent's 'to'\nFAIL findings without a real message ref are dropped\nFAIL item becomes a pending reply: sending still needs Review & send\nFAIL placeholder reply: no draft, listed under needs-from-you\nPASS placeholder item stays a decision\nPASS no more than 2 agents at once\nFAIL a stopped job never runs or drafts\nFAIL threw: ENOENT: no such file or directory, open '/var/folders/nn/g7_sgcl51rgc44hx6bxjd1qw0000gn/T/cos-agent-WFaNHR/ledger/cos-agent.jsonl'"
+  },
+  "timestamp": "2026-09-25T05:36:41.614Z"
+}

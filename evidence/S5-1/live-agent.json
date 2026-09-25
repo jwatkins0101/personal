@@ -1,0 +1,38 @@
+{
+  "gate": "live-agent",
+  "story": "S5-1",
+  "acceptance": [
+    "AC-27",
+    "AC-28"
+  ],
+  "tested_commit": "ff7494076c42f2b9557814d67d35114b1a677e68",
+  "command": "POST /api/approvals/2026-09-25/4/agent on the live board (same as the button)",
+  "jobs": [
+    {
+      "id": 1,
+      "status": "failed",
+      "started_at": null,
+      "finished_at": "2026-09-25T05:31:44.722Z",
+      "cost_usd": null,
+      "draft_id": null,
+      "error": "runner stopped without finishing",
+      "summary": null
+    },
+    {
+      "id": 2,
+      "status": "ready",
+      "started_at": "2026-09-25T05:32:16.252Z",
+      "finished_at": "2026-09-25T05:33:19.964Z",
+      "cost_usd": 0.4945404,
+      "draft_id": null,
+      "error": null,
+      "summary": "Andrew Wright (ISAO Dept. Chair, UofL College of Business) emailed about 29 faculty on Sep 24, 2026. He asks each person to reply with three things: an AACSB qualification status (SA, PA, SP, IP or A)"
+    }
+  ],
+  "notes": [
+    "job 1 failed instantly: stale-job reaper compared SQLite and ISO timestamps as text (fixed in this commit's parent; gate added)",
+    "job 2: ready in 67s, $0.49; found the 'respond by November 1' deadline the brief missed; no draft (needs the principal's status) and no placeholder; flagged the unreadable .docx attachment"
+  ],
+  "passed": true,
+  "timestamp": "2026-09-25T05:36:42.725351+00:00"
+}

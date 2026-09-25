@@ -7,9 +7,9 @@
   ],
   "passed": true,
   "problems": [],
-  "tested_commit": "ee912cbf721f58372e016ed96f81f22971b0f53a",
+  "tested_commit": "ff7494076c42f2b9557814d67d35114b1a677e68",
   "worktree_dirty": true,
-  "prd_revision": 6,
+  "prd_revision": 7,
   "gate_sha256": "1d44c64def143f74f8a25eada7777e6618b3519236a7b91cf59caf3a6e17ecb0",
   "assertion_sha256": {
     "src/cos/verify.ts": "e89a79b353efb7f298c4db959f3b278d55e8e07a2702394ac341b219ff1472f5",
@@ -26,5 +26,5 @@
     "exit_code": 1,
     "output": "FAIL matching proposal passes\nFAIL date that isn't in the source goes to Escalations\nFAIL wrong sender goes to Escalations\nFAIL unfetchable source goes to Escalations"
   },
-  "timestamp": "2026-09-25T05:24:25.159Z"
+  "timestamp": "2026-09-25T05:36:33.015Z"
 }
