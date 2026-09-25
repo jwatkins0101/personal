@@ -12,6 +12,7 @@
  *   board-url         print the board URL (with its local token)
  *   agent-run JOB     run one "hand to agent" job (spawned by the board)
  *   agent-jobs        list recent agent jobs
+ *   accounts          verify each Google account profile (who is really signed in)
  */
 import { readFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
@@ -126,6 +127,19 @@ async function main(): Promise<number> {
       for (const r of getDb().prepare("SELECT id, brief_date, day_index, status, cost_usd, error, summary FROM cos_agent_jobs ORDER BY id DESC LIMIT 20").all() as Record<string, unknown>[])
         console.log(`#${r.id} ${r.brief_date}/${r.day_index} ${r.status}${r.cost_usd != null ? ` $${Number(r.cost_usd).toFixed(2)}` : ""} ${r.error ?? String(r.summary ?? "").slice(0, 80)}`);
       return 0;
+    }
+    case "accounts": {
+      const { loadAccounts, checkAccount, loginCommand } = await import("./accounts.js");
+      const f = loadAccounts();
+      let bad = 0;
+      for (const a of f.accounts) {
+        const c = checkAccount(a);
+        const mark = { ok: "OK   ", needs_login: "LOGIN", wrong_account: "WRONG", error: "ERROR" }[c.state];
+        console.log(`${mark} ${a.id.padEnd(11)} expected ${c.expected ?? "?"}${c.signed_in_as ? `, signed in as ${c.signed_in_as}` : ""}${c.detail ? ` (${c.detail})` : ""}`);
+        if (c.state !== "ok") { bad++; console.log(`      login: ${loginCommand(a, f.scopes)}`); }
+      }
+      for (const n of f.not_google) console.log(`SKIP  ${n.id.padEnd(11)} ${n.email}: ${n.provider}. ${n.note}`);
+      return bad ? 1 : 0;
     }
     case "ping-test": {
       const { sendIMessageToSelf } = await import("./notify.js");

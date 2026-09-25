@@ -1,0 +1,15 @@
+{
+  "scopes": ["openid", "email", "profile",
+    "https://www.googleapis.com/auth/gmail.modify", "https://www.googleapis.com/auth/calendar", "https://www.googleapis.com/auth/tasks",
+    "https://www.googleapis.com/auth/drive", "https://www.googleapis.com/auth/documents", "https://www.googleapis.com/auth/spreadsheets",
+    "https://www.googleapis.com/auth/presentations"],
+  "accounts": [
+    { "id": "personal",   "email": "jermainewatkins@gmail.com", "config_dir": "~/.config/gws",            "default": true },
+    { "id": "owlthat",    "email": "jwatkins@owlthat.com",      "config_dir": "~/.config/gws-owlthat" },
+    { "id": "veryhealth", "email": "jermaine@very.health",      "config_dir": "~/.config/gws-veryhealth" },
+    { "id": "techunify",  "email": null, "domain": "techunify.com", "config_dir": "~/.config/gws-techunify" }
+  ],
+  "not_google": [
+    { "id": "uofl", "email": "jewatk02@louisville.edu", "provider": "Microsoft Exchange", "note": "gws cannot reach it; needs a separate Microsoft 365 connection" }
+  ]
+}
