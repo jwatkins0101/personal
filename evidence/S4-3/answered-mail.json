@@ -1,0 +1,31 @@
+{
+  "gate": "answered-mail",
+  "story": "S4-3",
+  "tier": "unit",
+  "acceptance": [
+    "AC-26"
+  ],
+  "passed": true,
+  "problems": [],
+  "tested_commit": "6be39f3aa0cc43cdc870995f238d81e4edc8475e",
+  "worktree_dirty": true,
+  "prd_revision": 6,
+  "gate_sha256": "3b0b5e0c0876ab97a76195200ee240fb26df284188c4731d4fe3e863a3b72e54",
+  "assertion_sha256": {
+    "src/cos/replied.ts": "06aa4cf473ded38e2b93880e46aa87cde5055756a1151b3cea06777562bcac57",
+    "src/cos/gather.ts": "eb87dfd60f1eecd77c1e5e029a77535599566f5f47c50ea165f0d41da2bd629c",
+    "tests/fixtures/cos/replied-broken.ts": "d15f6cc7da52b3926a19e987ccd00f661e8822911b5b6e6e3dbb46e60a52dbbc"
+  },
+  "command": "npx tsx tests/gates/cos-board.ts answered-mail",
+  "exit_code": 0,
+  "output": "Running migration 1...\nMigration 1 complete.\nRunning migration 2...\nMigration 2 complete.\nRunning migration 3...\nMigration 3 complete.\nRunning migration 4...\nMigration 4 complete.\nRunning migration 5...\nMigration 5 complete.\nRunning migration 6...\nMigration 6 complete.\nPASS answered mail dropped before the brief; unanswered kept\nPASS answered item records your sent message\nPASS a failed check keeps the mail (never hides on error)\nPASS morning gather filters answered mail before synthesis\n(node:29186) [DEP0205] DeprecationWarning: `module.register()` is deprecated. Use `module.registerHooks()` instead.\n(Use `node --trace-deprecation ...` to show where the warning was created)",
+  "negative_validation": {
+    "env": {
+      "REPLIED_MODULE": "tests/fixtures/cos/replied-broken.ts"
+    },
+    "reason": "a filter that never detects your replies must fail",
+    "exit_code": 1,
+    "output": "Running migration 1...\nMigration 1 complete.\nRunning migration 2...\nMigration 2 complete.\nRunning migration 3...\nMigration 3 complete.\nRunning migration 4...\nMigration 4 complete.\nRunning migration 5...\nMigration 5 complete.\nRunning migration 6...\nMigration 6 complete.\nFAIL answered mail dropped before the brief; unanswered kept\nFAIL answered item records your sent message\nPASS a failed check keeps the mail (never hides on error)\nPASS morning gather filters answered mail before synthesis\n(node:29234) [DEP0205] DeprecationWarning: `module.register()` is deprecated. Use `module.registerHooks()` instead.\n(Use `node --trace-deprecation ...` to show where the warning was created)"
+  },
+  "timestamp": "2026-09-25T05:20:18.602Z"
+}

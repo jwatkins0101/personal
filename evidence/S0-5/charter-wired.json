@@ -7,9 +7,9 @@
   ],
   "passed": true,
   "problems": [],
-  "tested_commit": "7bfd2ae324c3a4a16cef6de454d7535ebedaaf66",
-  "worktree_dirty": true,
-  "prd_revision": 5,
+  "tested_commit": "6be39f3aa0cc43cdc870995f238d81e4edc8475e",
+  "worktree_dirty": false,
+  "prd_revision": 6,
   "gate_sha256": "824aecf9d40a634fcd39f67a041b94bd548b4f113a8a3c5433d94fa7b8763cb2",
   "assertion_sha256": {
     "cos/CLAUDE.md": "aa2fa40e2fdd4868ce8f82fa3c44055fa943b9d0664796d882f084a39e1f56bf",
@@ -26,5 +26,5 @@
     "exit_code": 1,
     "output": "FAIL builder failed: Chief of Staff charter missing: /nonexistent/charter.md"
   },
-  "timestamp": "2026-09-25T05:14:47.529Z"
+  "timestamp": "2026-09-25T05:18:45.419Z"
 }

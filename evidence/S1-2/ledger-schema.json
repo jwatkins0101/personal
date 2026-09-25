@@ -7,9 +7,9 @@
   ],
   "passed": true,
   "problems": [],
-  "tested_commit": "7bfd2ae324c3a4a16cef6de454d7535ebedaaf66",
-  "worktree_dirty": true,
-  "prd_revision": 5,
+  "tested_commit": "6be39f3aa0cc43cdc870995f238d81e4edc8475e",
+  "worktree_dirty": false,
+  "prd_revision": 6,
   "gate_sha256": "2ab62c645ac7ce3b4a7d0600705e89a7e094f65a13156e33df475494edb0274a",
   "assertion_sha256": {
     "cos/lib/ledger.mjs": "68fd202a0ffc62fa677055db0c98b8603940af45f688374286df6a9737c6baa7",
@@ -26,5 +26,5 @@
     "exit_code": 1,
     "output": "PASS valid record accepted\nFAIL invalid record rejected with 0 problems\nFAIL invalid record is logged as failed/invalid_record\nFAIL one JSONL line written per run\nFAIL items_in/items_out must be set together"
   },
-  "timestamp": "2026-09-25T05:16:09.019Z"
+  "timestamp": "2026-09-25T05:20:05.136Z"
 }
