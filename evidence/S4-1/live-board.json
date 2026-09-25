@@ -1,0 +1,19 @@
+{
+  "gate": "live-board",
+  "story": "S4-1",
+  "acceptance": [
+    "AC-24",
+    "AC-25"
+  ],
+  "tested_commit": "7bfd2ae324c3a4a16cef6de454d7535ebedaaf66",
+  "command": "scripts/deploy-lanes.sh cos-board (from ~/Code/assistance @ 7bfd2ae); curl checks; kill -> launchd restart",
+  "checks": {
+    "listen": "127.0.0.1:8787 only (lsof)",
+    "token_file_mode": "-rw-------",
+    "no_token": 401,
+    "state": "5 pending Decide items, 1 completed today, 8 lanes, no warnings",
+    "keepalive": "killed pid 19976 -> down -> launchd restarted as pid 20099, healthz ok after ~20s"
+  },
+  "passed": true,
+  "timestamp": "2026-09-25T05:16:20.928180+00:00"
+}

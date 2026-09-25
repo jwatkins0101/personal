@@ -200,16 +200,24 @@
     {
       "id": "AC-24",
       "implemented": true,
-      "verified": false,
-      "deployed": false,
-      "live_verified": false
+      "verified": true,
+      "deployed": true,
+      "live_verified": true,
+      "evidence": [
+        "evidence/S4-1/board-live.json",
+        "evidence/S4-1/live-board.json"
+      ]
     },
     {
       "id": "AC-25",
       "implemented": true,
-      "verified": false,
-      "deployed": false,
-      "live_verified": false
+      "verified": true,
+      "deployed": true,
+      "live_verified": true,
+      "evidence": [
+        "evidence/S4-1/board-security.json",
+        "evidence/S4-1/live-board.json"
+      ]
     }
   ],
   "release_record": null,
@@ -221,7 +229,8 @@
     "evidence/S1-5/live-health.json",
     "evidence/S2-1/live-morning-brief.json",
     "evidence/S2-4/live-imessage-ping.json",
-    "evidence/S3-4/live-eod.json"
+    "evidence/S3-4/live-eod.json",
+    "evidence/S4-1/live-board.json"
   ],
   "owner_decisions": [
     "D1",

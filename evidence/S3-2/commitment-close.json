@@ -7,9 +7,9 @@
   ],
   "passed": true,
   "problems": [],
-  "tested_commit": "e2fa332b3c4bd88aba477687cfc561cfe9b2af95",
-  "worktree_dirty": false,
-  "prd_revision": 4,
+  "tested_commit": "7bfd2ae324c3a4a16cef6de454d7535ebedaaf66",
+  "worktree_dirty": true,
+  "prd_revision": 5,
   "gate_sha256": "884ccc75cf4d226035048e8c3f05aa3f9269cb5831d8f0495c308176a2cb0ab0",
   "assertion_sha256": {
     "src/cos/commitments.ts": "60e58a521bee70b780748256e1b68cfbcb317e8b2d6140108bf5051c585c1d49",
@@ -27,5 +27,5 @@
     "exit_code": 1,
     "output": "Running migration 1...\nMigration 1 complete.\nRunning migration 2...\nMigration 2 complete.\nRunning migration 3...\nMigration 3 complete.\nRunning migration 4...\nMigration 4 complete.\nRunning migration 5...\nMigration 5 complete.\nRunning migration 6...\nMigration 6 complete.\nFAIL no evidence: refused\nFAIL free-text evidence: refused\nFAIL unconfirmed evidence: refused\nFAIL still open after refusals\nPASS confirmed sent message closes it, evidence recorded\nFAIL double close refused"
   },
-  "timestamp": "2026-09-25T05:01:43.591Z"
+  "timestamp": "2026-09-25T05:16:17.519Z"
 }

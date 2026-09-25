@@ -7,9 +7,9 @@
   ],
   "passed": true,
   "problems": [],
-  "tested_commit": "e2fa332b3c4bd88aba477687cfc561cfe9b2af95",
-  "worktree_dirty": false,
-  "prd_revision": 4,
+  "tested_commit": "7bfd2ae324c3a4a16cef6de454d7535ebedaaf66",
+  "worktree_dirty": true,
+  "prd_revision": 5,
   "gate_sha256": "884ccc75cf4d226035048e8c3f05aa3f9269cb5831d8f0495c308176a2cb0ab0",
   "assertion_sha256": {
     "src/cos/eod.ts": "d2ad1cab8f0ded1adf3afe3d4688ef3fb802d17f50fd06c69e5806ac8d8b319c",
@@ -28,5 +28,5 @@
     "exit_code": 1,
     "output": "Running migration 1...\nMigration 1 complete.\nRunning migration 2...\nMigration 2 complete.\nRunning migration 3...\nMigration 3 complete.\nRunning migration 4...\nMigration 4 complete.\nRunning migration 5...\nMigration 5 complete.\nRunning migration 6...\nMigration 6 complete.\nFAIL EOD writes eod/2026-09-24.json\nFAIL carry-forward kept; invented item dropped with a gap\nFAIL Friday's brief found Thursday's EOD\nFAIL your open commitment shows under Deadlines\nFAIL their undated promise shows under Waiting on\nPASS no Monday EOD: Tuesday's brief escalates missing_eod\nFAIL past-due commitment escalates as a dropped ball"
   },
-  "timestamp": "2026-09-25T05:01:44.875Z"
+  "timestamp": "2026-09-25T05:16:18.764Z"
 }
