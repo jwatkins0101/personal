@@ -1,0 +1,33 @@
+{
+  "gate": "claude-json-parse",
+  "story": "S1-0",
+  "tier": "unit",
+  "acceptance": [
+    "AC-23"
+  ],
+  "passed": true,
+  "problems": [],
+  "tested_commit": "7b86b4ee5971ec29760b5b3ea2c8ad4e711193ad",
+  "worktree_dirty": false,
+  "prd_revision": 2,
+  "gate_sha256": "db5cdb9ecd53b4445ae1830594200f351ed79b39abdcb271d620d27f529cff95",
+  "assertion_sha256": {
+    "src/claude/result.ts": "9afc8f479d77cf0941e2eddf5f4dacd4cfa68c45c4cc3da8858ed1ace46f0201",
+    "tests/fixtures/claude-cli/array-output.json": "b27c745c8445a50081e5259613ac98b77db8526bff808a376661bf085407dfb2",
+    "tests/fixtures/claude-cli/object-output.json": "7c98cebd2b8ac4a830deb3324f055a59e62ddd4c523c9265156bf9c13bc8a57a",
+    "tests/fixtures/claude-cli/no-result-output.json": "87dfa9ce3a51490e24a98baa6af08672b93acdc13de2fb94dba298619708db47",
+    "tests/fixtures/claude-cli/legacy-parser.ts": "aa8d9c521719113e2a284a40a45d07326aef4bf1e7593b001895c4b2acd50418"
+  },
+  "command": "npx tsx tests/gates/claude-json-parse.ts",
+  "exit_code": 0,
+  "output": "PASS current CLI event-array output parses to the final result\nPASS cost is read from the result event\nPASS legacy single-object output still parses\nPASS output without a result event is rejected\nPASS classifier uses the shared parser",
+  "negative_validation": {
+    "env": {
+      "PARSER_MODULE": "tests/fixtures/claude-cli/legacy-parser.ts"
+    },
+    "reason": "the pre-fix object-only parser must fail on current CLI output",
+    "exit_code": 1,
+    "output": "FAIL current CLI event-array output parses to the final result\nFAIL cost is read from the result event\nPASS legacy single-object output still parses\nPASS output without a result event is rejected\nPASS classifier uses the shared parser"
+  },
+  "timestamp": "2026-09-25T02:39:13.877Z"
+}

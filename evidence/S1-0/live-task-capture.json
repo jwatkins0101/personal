@@ -1,0 +1,75 @@
+{
+  "gate": "live-task-capture",
+  "story": "S1-0",
+  "acceptance": [
+    "AC-23"
+  ],
+  "tested_commit": "7b86b4ee5971ec29760b5b3ea2c8ad4e711193ad",
+  "command": "launchctl kickstart gui/$UID/com.assistance.task-capture (main @ 7b86b4e, after npm ci)",
+  "exit_code": 0,
+  "results": {
+    "email": {
+      "scanned": 164,
+      "actionable": 21,
+      "created": 0,
+      "already_captured": 21,
+      "note": "previous run 22:37 created the 21 backlog tasks"
+    },
+    "sms": {
+      "messages_read": 147,
+      "candidates": 22,
+      "action_items": 6,
+      "tasks_created": 4,
+      "already_captured": 0,
+      "collapsed_same_sender": 2
+    }
+  },
+  "outage": {
+    "first_failed_run": "2026-09-02 18:00",
+    "last_failed_run": "2026-09-24 18:00",
+    "cause": "no node_modules in main checkout; better-sqlite3 12.6.2 incompatible with Node 26; then CLI array JSON output"
+  },
+  "log_excerpt": [
+    "=== task-capture: Thu Sep 24 22:39:19 EDT 2026 ===",
+    "--- email -> tasks ---",
+    "",
+    "> productivity-assistant@3.0.0 tasks",
+    "> tsx src/commands/tasks.ts",
+    "",
+    "Capturing action items from the last 21 days of unread inbox...",
+    "",
+    "Scanned 164 unread \u00b7 21 actionable \u00b7 0 new tasks \u00b7 21 already captured",
+    "",
+    "Run `npm run tasks -- list` to see the board.",
+    "--- sms -> tasks (last 2 days) ---",
+    "",
+    "> productivity-assistant@3.0.0 sms-triage",
+    "> tsx src/commands/sms-triage.ts 2",
+    "",
+    "Reading iMessage/SMS from the last 2 days...",
+    "147 messages read \u00b7 22 candidate(s) with an ask. Classifying...",
+    "",
+    "Found 6 action item(s) in your texts:",
+    "",
+    "  \u2022 [P1] Send the requested meeting link",
+    "      from +18596194417  \u2014 \"Can you send a meeting link\"",
+    "  \u2022 [P1] Confirm or adjust the 11:30 time",
+    "      from Jason N  \u2014 \"11:30?\"",
+    "  \u2022 [P2] Confirm appointment was attended or reschedule if missed",
+    "      from Dentist  \u2014 \"First Choice Dental Center: Jermaine, remember that you hav\u2026\"",
+    "  \u2022 [P1] Reply with your starting location",
+    "      from Jason N  \u2014 \"I'm working from home. Where will you be coming from?\"",
+    "  \u2022 [P1] Reply confirming or declining lunch",
+    "      from Jason N  \u2014 \"Lunch tomorrow?\"",
+    "  \u2022 [P1] Confirm carry out request",
+    "      from Jada Watkins  \u2014 \"Can you make it carry out please\"",
+    "",
+    "\u2192 Tasks: 4 new \u00b7 0 already captured",
+    "  Routed \u2192 \ud83d\udce5 Inbox: 4",
+    "",
+    "Run `npm run tasks -- list` to see the board.",
+    "=== done: Thu Sep 24 22:40:15 EDT 2026 ==="
+  ],
+  "passed": true,
+  "timestamp": "2026-09-25T02:41:02.771976+00:00"
+}
