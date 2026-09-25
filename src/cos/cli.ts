@@ -13,6 +13,7 @@
  *   agent-run JOB     run one "hand to agent" job (spawned by the board)
  *   agent-jobs        list recent agent jobs
  *   accounts          verify each Google account profile (who is really signed in)
+ *   analyze           read-only mailbox analysis across all accounts (HTML + JSON report)
  */
 import { readFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
@@ -142,6 +143,14 @@ async function main(): Promise<number> {
       }
       for (const n of f.not_google) console.log(`SKIP  ${n.id.padEnd(11)} ${n.email}: ${n.provider}. ${n.note}`);
       return bad ? 1 : 0;
+    }
+    case "analyze": {
+      const { analyzeAll } = await import("./analyze.js");
+      const r = await analyzeAll();
+      for (const m of r.reports) console.log(`${m.account.padEnd(11)} inbox ${m.inbox.total} (${m.inbox.unread} unread) · ${m.window.perDay}/day · ${m.mix.bulk}% bulk · triage clears ~${m.recommendation.inboxClearedPct}%`);
+      for (const e of r.errors) console.log(`ERROR ${e.account}: ${e.error}`);
+      console.log(`report: ${r.html}`);
+      return r.errors.length ? 1 : 0;
     }
     case "ping-test": {
       const { sendIMessageToSelf } = await import("./notify.js");
