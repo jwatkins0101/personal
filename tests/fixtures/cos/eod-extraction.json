@@ -1,0 +1,13 @@
+{
+  "done": [{"text":"Sent Terrica the pay stubs","source_ref":"gmail:s2"}],
+  "slipped": [{"text":"Invented item","source_ref":"gmail:ghost"}],
+  "decisions": [{"text":"Confirmed SOW review","source_ref":"approval:1"}],
+  "carry_forward": [{"text":"Send Jason the deck","source_ref":"gmail:s1"}],
+  "commitments_new": [
+    {"owner":"me","counterparty":"Jason Nguyen","what":"Send Jason the deck","due_quote":"by Friday","source_ref":"gmail:s1"},
+    {"owner":"me","counterparty":"Jason N","what":"send the deck","due_quote":"friday","source_ref":"sms:101"},
+    {"owner":"them","counterparty":"Dana Client","what":"Send the signed SOW","due_quote":"next next week","source_ref":"gmail:r1"},
+    {"owner":"them","counterparty":"Dana Client","what":"Wrong quote test","due_quote":"October 9","source_ref":"gmail:r1"}
+  ],
+  "commitments_closed": []
+}

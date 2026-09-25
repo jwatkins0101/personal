@@ -48,7 +48,8 @@ Return ONLY a JSON object with exactly these keys:
 }
 
 Rules:
-- Every item must carry a source_ref that appears in the inputs (gmail:<inbox id>, task:<task id>, cal:<calendar ref>, lane:<lane>, yt:brief, deals:brief).
+- Every item must carry a source_ref that appears in the inputs (gmail:<inbox id>, task:<task id>, cal:<calendar ref>, lane:<lane>, yt:brief, deals:brief, eod:<date>#<n>, commitment:<id>).
+- Items in eod.carry_forward are unfinished from yesterday: rank them with today's work.
 - "reply" only for a real person's email you can answer completely in plain text right now. NEVER use placeholders like [link], [date] or [status]: if the answer needs information, a file, an attachment, money, or personal/financial/health documents, make it a "decide" item describing what is needed instead.
 - "reply" only for a real person's email that needs an answer. Never propose sending anything else; never propose payments, purchases, sign-ups or calendar changes as actions (surface them as "decide").
 - Never infer a date from vague words. If a date matters and the source doesn't state it, leave due_quote out and say "no date given".
@@ -64,6 +65,8 @@ function knownRefs(inputs: BriefInputs): Set<string> {
   inputs.tasks.forEach((t) => s.add(`task:${t.id}`));
   inputs.calendar.forEach((c) => s.add(c.ref));
   inputs.lanes.forEach((l) => s.add(`lane:${l.lane}`));
+  inputs.eod?.carry_forward.forEach((c) => s.add(c.ref));
+  inputs.commitments?.forEach((c) => s.add(c.ref));
   return s;
 }
 

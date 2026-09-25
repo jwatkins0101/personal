@@ -1,0 +1,12 @@
+{
+  "date": "2026-09-24",
+  "sources": [
+    {"ref":"gmail:s1","direction":"sent","who":"Jason Nguyen <jason@acme.com>","subject":"Deck","text":"I'll send you the deck by Friday.","date":"2026-09-24T14:00:00-04:00"},
+    {"ref":"sms:101","direction":"sent","who":"Jason N","text":"will send the deck friday","date":"2026-09-24T15:00:00-04:00"},
+    {"ref":"gmail:r1","direction":"received","who":"Dana Client <dana@clientco.com>","subject":"SOW","text":"I'll get you the signed SOW next next week.","date":"2026-09-24T11:00:00-04:00"},
+    {"ref":"gmail:s2","direction":"sent","who":"Terrica <terrica@fmc.com>","subject":"Pay stubs","text":"Attached are the two pay stubs.","date":"2026-09-24T16:00:00-04:00"}
+  ],
+  "approvals_today": [{"n":1,"title":"Confirm SOW review","status":"sent","result":"gmail:x1"}],
+  "open_commitments": [],
+  "gaps": []
+}

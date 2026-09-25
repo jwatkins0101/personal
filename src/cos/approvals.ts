@@ -126,7 +126,9 @@ export async function send(db: Database.Database, ex: Executors, briefDate: stri
     throw new Error(`Refused: the draft still contains placeholder text (${(d.body.match(PLACEHOLDER) ?? d.subject.match(PLACEHOLDER))?.[0]}). Edit it in Gmail, then run send ${n} again.`);
   }
   const sentId = await ex.sendDraft(draftId);
-  finish(db, a.id, "sent", `gmail:${sentId}`, now);
+  const flat = (x: string) => x.replace(/\s+/g, " ").trim();
+  const edited = typeof a.payload.draft_body === "string" && flat(String(a.payload.draft_body)) !== flat(d.body);
+  finish(db, a.id, "sent", `gmail:${sentId}${edited ? ";edited" : ""}`, now);
   return `Sent to ${d.to} (message ${sentId}).`;
 }
 

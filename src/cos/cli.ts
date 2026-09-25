@@ -4,6 +4,10 @@
  *   morning           build today's brief (AC-12..16)
  *   queue [date]      list today's Decide items
  *   approve N | send N | skip N [--date YYYY-MM-DD]
+ *   eod               end-of-day wrap + commitment ledger update (AC-18..21)
+ *   weekly            Friday scorecard (AC-22)
+ *   commitments       list open commitments
+ *   close ID EVIDENCE close a commitment with evidence (gmail:/sms:/cal:/task:)
  */
 import { readFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
@@ -51,6 +55,41 @@ async function main(): Promise<number> {
       console.log(`brief: ${r.files.html}\nstatus: ${r.brief.status} · decide: ${r.brief.decide.length} · escalations: ${r.brief.escalations.length} · ping: ${r.ping}`);
       return 0;
     }
+    case "eod": {
+      const { runEod } = await import("./eod.js");
+      const r = await runEod();
+      const c = r.record.commitments;
+      console.log(`eod: ${r.path}\ndone ${r.record.done.length} · slipped ${r.record.slipped.length} · commitments +${c.created.length} new, ${c.merged.length} merged, ${c.closed.length} closed, ${c.open_count} open · gaps ${r.record.gaps.length}`);
+      return 0;
+    }
+    case "weekly": {
+      const { buildScorecard, writeScorecard } = await import("./weekly.js");
+      const { pingSelf } = await import("./notify.js");
+      const { writeLaneSummary } = await import("./summary.js");
+      const config = JSON.parse(readFileSync(LANES_PATH, "utf8")) as { lanes: LaneConfig[] };
+      const sc = buildScorecard(getDb(), config.lanes);
+      const f = writeScorecard(sc);
+      writeLaneSummary({ items_in: 1, items_out: { scorecard: 1 }, artifacts: [f.md, f.json], cost_usd: 0 });
+      await pingSelf(`Weekly review ${sc.week}: ${sc.dropped_balls.count} dropped balls, ${sc.caught_errors.count} caught errors, ${sc.approvals.per_day} approvals/day, $${sc.cost_usd.toFixed(2)}.\n${f.md}`, `Weekly review ${sc.week}`);
+      console.log(`weekly: ${f.md}`);
+      return 0;
+    }
+    case "commitments": {
+      const { listCommitments } = await import("./commitments.js");
+      const rows = listCommitments(getDb(), "open");
+      if (!rows.length) console.log("No open commitments.");
+      for (const c of rows) console.log(`#${c.id} [${c.owner}] ${c.counterparty}: ${c.what} · due ${c.due_at ?? "?"}${c.open_question ? ` · ${c.open_question}` : ""} (${c.source_refs.join(", ")})`);
+      return 0;
+    }
+    case "close": {
+      const { closeCommitment } = await import("./commitments.js");
+      const { makeEvidenceChecker } = await import("./eod.js");
+      const ev = argv[2];
+      try {
+        const c = await closeCommitment(getDb(), n, ev, makeEvidenceChecker({ date: date, sources: [], approvals_today: [], open_commitments: [], gaps: [] }));
+        console.log(`Closed #${c.id}: ${c.what} (evidence ${c.closed_evidence})`); return 0;
+      } catch (e) { console.error((e as Error).message); return 1; }
+    }
     case "ping-test": {
       const { sendIMessageToSelf } = await import("./notify.js");
       const r = sendIMessageToSelf(`Chief of Staff test ping ${new Date().toLocaleTimeString()}`);
@@ -75,7 +114,7 @@ async function main(): Promise<number> {
       } catch (e) { console.error((e as Error).message); return 1; }
     }
     default:
-      console.error("usage: npm run cos -- health | morning | queue | approve N | send N | skip N [--date YYYY-MM-DD]");
+      console.error("usage: npm run cos -- health | morning | eod | weekly | queue | approve N | send N | skip N | commitments | close ID EVIDENCE [--date YYYY-MM-DD]");
       return 2;
   }
 }

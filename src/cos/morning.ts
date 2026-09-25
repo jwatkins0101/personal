@@ -15,6 +15,8 @@ import { writeBrief, type Brief } from "./render.js";
 import { pingSelf } from "./notify.js";
 import { writeLaneSummary } from "./summary.js";
 import { getMessageMeta, getMessageIdHeader, createReplyDraft } from "../mail/gmail-api.js";
+import { previousWorkday, readEod } from "./eod.js";
+import { listCommitments, overdue } from "./commitments.js";
 
 export const BRIEF_DIR = process.env.COS_BRIEF_DIR ?? join(homedir(), "Library/Application Support/assistance/briefs");
 const MIN_SYNTH_BUDGET = 0.25;
@@ -52,6 +54,15 @@ export async function runMorning(now = new Date(), deps: { gather?: (now: Date) 
   for (const l of inputs.lanes) if (l.state !== "ok") escalations.push(`lane ${l.lane}: ${l.state}${l.last_started_at ? ` (last run ${l.last_started_at})` : " (never ran)"}${l.gaps.length ? ` - ${l.gaps.join("; ")}` : ""}`);
   for (const g of inputs.lane_gaps) if (!inputs.lanes.some((l) => l.lane === g.lane && l.state !== "ok")) escalations.push(`lane ${g.lane} run at ${g.started_at}: ${g.status} - ${g.gaps.join("; ")}`);
   for (const g of inputs.gaps) escalations.push(g);
+
+  // Phase 3: yesterday's end-of-day hand-off and the commitment ledger (AC-18, AC-21).
+  const prevDay = previousWorkday(inputs.date);
+  const eod = readEod(prevDay);
+  if (!eod) escalations.push(`missing_eod: no end-of-day wrap for ${prevDay}`);
+  inputs.eod = eod ? { date: eod.date, carry_forward: eod.carry_forward.map((c, i) => ({ text: c.text, ref: `eod:${eod.date}#${i + 1}` })) } : null;
+  const openCommitments = listCommitments(db, "open");
+  inputs.commitments = openCommitments.map((c) => ({ ref: `commitment:${c.id}`, owner: c.owner, counterparty: c.counterparty, what: c.what, due_at: c.due_at, open_question: c.open_question }));
+  for (const c of overdue(db, inputs.date)) escalations.push(`overdue commitment #${c.id}: ${c.owner === "me" ? "you owe" : `${c.counterparty} owes you`} "${c.what}" (due ${c.due_at}) [commitment:${c.id}]`);
 
   // Budget (D7) and synthesis.
   const remaining = remainingBudget(now);
@@ -106,6 +117,12 @@ export async function runMorning(now = new Date(), deps: { gather?: (now: Date) 
   }
   addApprovals(db, inputs.date, toQueue);
   const decide = listApprovals(db, inputs.date).filter((a) => a.status === "pending");
+
+  // Commitments always show, whatever the model ranked (deterministic, deduped by source_ref).
+  const addUnique = (xs: { text: string; source_ref?: string }[], ys: { text: string; source_ref: string }[]) => { for (const y of ys) if (!xs.some((x) => x.source_ref === y.source_ref)) xs.push(y); };
+  const in14 = new Date(now.getTime() + 14 * 86400_000).toISOString().slice(0, 10);
+  addUnique(synthesis.waiting_on, openCommitments.filter((c) => c.owner === "them").map((c) => ({ text: `${c.counterparty}: ${c.what}${c.due_at ? ` (due ${c.due_at})` : " (no date given)"}`, source_ref: `commitment:${c.id}` })));
+  addUnique(synthesis.deadlines, openCommitments.filter((c) => c.owner === "me" && c.due_at && c.due_at >= inputs.date && c.due_at <= in14).map((c) => ({ text: `You to ${c.counterparty}: ${c.what} (due ${c.due_at})`, source_ref: `commitment:${c.id}` })));
 
   const brief: Brief = {
     date: inputs.date, status: synthesis.status, status_line: synthesis.status_line, decide,

@@ -6,6 +6,7 @@ import * as m002 from "./002_people.js";
 import * as m003 from "./003_pipeline.js";
 import * as m004 from "./004_flights.js";
 import * as m005 from "./005_cos.js";
+import * as m006 from "./006_commitments.js";
 
 export interface Migration {
   version: number;
@@ -20,4 +21,5 @@ export const migrations: Migration[] = [
   m003,
   m004,
   m005,
+  m006,
 ];

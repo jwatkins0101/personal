@@ -25,6 +25,10 @@ export interface BriefInputs {
   lane_gaps: { lane: string; started_at: string; status: string; gaps: string[] }[];
   fyi_sources: { yt_brief?: string; deals_brief?: string };
   gaps: string[];
+  /** Previous workday's end-of-day carry-forward (Phase 3). */
+  eod?: { date: string; carry_forward: { text: string; ref: string }[] } | null;
+  /** Open commitments (Phase 3). */
+  commitments?: { ref: string; owner: "me" | "them"; counterparty: string; what: string; due_at: string | null; open_question: string | null }[];
 }
 
 async function attempt<T>(label: string, gaps: string[], f: () => Promise<T>, fallback: T): Promise<T> {

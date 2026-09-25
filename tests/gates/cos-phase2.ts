@@ -11,6 +11,7 @@ process.env.DB_PATH = join(tmp, "db.sqlite");
 process.env.COS_BRIEF_DIR = join(tmp, "briefs");
 process.env.COS_LEDGER_DIR = join(tmp, "ledger");
 process.env.COS_NO_PING = "1";
+process.env.COS_EOD_DIR = join(tmp, "eod");
 process.env.COS_SYNTH_FIXTURE = resolve("tests/fixtures/cos/synthesis.json");
 const imp = async <T>(envKey: string, def: string): Promise<T> => import(pathToFileURL(resolve(process.env[envKey] ?? def)).href) as Promise<T>;
 

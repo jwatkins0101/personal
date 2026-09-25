@@ -61,6 +61,13 @@ for l in lanes:
         sci = p.get("StartCalendarInterval")
         days = sorted(x.get("Weekday") for x in sci) if isinstance(sci, list) else []
         check(days == [1, 2, 3, 4, 5] and all((x.get("Hour"), x.get("Minute")) == (7, 30) for x in sci), f"{label}: 07:30 Mon-Fri (AC-17)")
+    if label in ("com.assistance.cos-eod", "com.assistance.cos-weekly"):
+        sci = p.get("StartCalendarInterval")
+        want = ([1, 2, 3, 4, 5], (17, 30)) if label.endswith("eod") else ([5], (15, 0))
+        days = sorted(x.get("Weekday") for x in sci) if isinstance(sci, list) else []
+        check(days == want[0] and all((x.get("Hour"), x.get("Minute")) == want[1] for x in sci), f"{label}: scheduled {want[1][0]:02d}:{want[1][1]:02d} on {want[0]}")
+    if label == "com.assistance.cos-eod":
+        check(any(a.endswith("/with-sms-snapshot.sh") for a in args), f"{label}: runs with SMS snapshots")
     if label == "com.assistance.task-capture":
         runner = args[1] if len(args) > 1 else ""
         txt = open(runner).read() if os.path.exists(runner) else ""

@@ -327,7 +327,7 @@
       "assertion_sha256": {
         "cos/lib/ledger.mjs": "68fd202a0ffc62fa677055db0c98b8603940af45f688374286df6a9737c6baa7",
         "tests/fixtures/ledger/lib-no-heartbeat.mjs": "cb962b43b4b42c096c721134f73792011b7efdb798d7e21186a03074786a89dd",
-        "src/cos/cli.ts": "24bf16c0ef038e20bd82659a098bfb9be21d616551cf9e9f731522ca629d8b8c"
+        "src/cos/cli.ts": "37ce2b63b1ee6c0fd2b893b829a0bd2989e016a521f01a7121616a53d38beaa4"
       }
     },
     {
@@ -349,7 +349,8 @@
         "cos/lanes.json",
         "scripts/deploy-lanes.sh",
         "scripts/set-launchd-lane.py",
-        "tests/fixtures/launchd/com.jermaine.yt-daily-brief.plist"
+        "tests/fixtures/launchd/com.jermaine.yt-daily-brief.plist",
+        "cos/bin/with-sms-snapshot.sh"
       ],
       "negative": {
         "env": {
@@ -357,15 +358,16 @@
         },
         "reason": "the pre-fix yt plist (zsh, logs in ~/Documents) must fail"
       },
-      "script_sha256": "ec0e6ff749a3d6c4d6fcdb5653395ce278c5d455c972bae1e8bd5577b031afce",
+      "script_sha256": "8d62069097ef91561122de686ae1dfef095dd0c65ade4834f859a442b78b9cc4",
       "assertion_sha256": {
         "cos/bin/lane-run.sh": "16193c3810c5a75ec28e7d633705da0e80a78cf4fb4f092bd6488c7842c14631",
         "cos/bin/record-run.mjs": "0f4bfbbde771e1458a83ed129dcf4b53659fd78e77a212b43ad83a4f76d405c6",
         "cos/lib/ledger.mjs": "68fd202a0ffc62fa677055db0c98b8603940af45f688374286df6a9737c6baa7",
-        "cos/lanes.json": "249113c83af0f40f1a78e4938ac5b6b49a9cea1680db39c8ecd0a81135aa19b6",
-        "scripts/deploy-lanes.sh": "ea08253de3438b73819cc1d6ceeeace91455c3bc5cc76e01b96c4e15f4692dfe",
+        "cos/lanes.json": "d570a21b56bdf949a43f6edc9aac66403426c271c60f27ddf0fc9678259b9f8b",
+        "scripts/deploy-lanes.sh": "a7c9c2596df331f6cabcb0b51cd13425dc92c0e482777c5d3aaafc26344aefda",
         "scripts/set-launchd-lane.py": "28613227e58eb8d6113b2f2f53e17085957eff24811314c9e617a0bfdeeb9d60",
-        "tests/fixtures/launchd/com.jermaine.yt-daily-brief.plist": "9311a7dbd4c82b256d938ac8e0a8b4366925e1c3836861cf687d2f9c845fa1f5"
+        "tests/fixtures/launchd/com.jermaine.yt-daily-brief.plist": "9311a7dbd4c82b256d938ac8e0a8b4366925e1c3836861cf687d2f9c845fa1f5",
+        "cos/bin/with-sms-snapshot.sh": "b15e96905a52488583678a24408bcc501f55300aa0c8407a4da69a3e4e97cdcd"
       }
     },
     {
@@ -395,10 +397,10 @@
         },
         "reason": "a renderer that drops audio and escalations must fail"
       },
-      "script_sha256": "64243a7969f74aa6cfdf625f54c777f5aa1e084169f1fab7882117bdbde72597",
+      "script_sha256": "1d44c64def143f74f8a25eada7777e6618b3519236a7b91cf59caf3a6e17ecb0",
       "assertion_sha256": {
         "src/cos/render.ts": "54a38affce981b0e4de8bbac3b077d627ff277723a15024511c1590b9dddd595",
-        "src/cos/synth.ts": "8fd310f89134c0f35585b7fa1c14438e9d55af42df38a25c9ee3e22da5586f20",
+        "src/cos/synth.ts": "336e72d8a5ade3e460fce972586062f880e4851d46215565c9105faac2be3b02",
         "tests/fixtures/cos/synthesis.json": "1e5b96673754f9a84665a86e79be75bd0ad31b5026a8c51799bae23d39458ed5",
         "tests/fixtures/cos/inputs.json": "5b674a883c0222c72c675d10efc7edc123ff52843923e089d8448b1eda60f84f",
         "tests/fixtures/cos/render-broken.ts": "686244c5bbe89d21200cfd4773c7e42256dd249e997d210081ed071bc7cc564e"
@@ -428,7 +430,7 @@
         },
         "reason": "a verifier that trusts everything must fail"
       },
-      "script_sha256": "64243a7969f74aa6cfdf625f54c777f5aa1e084169f1fab7882117bdbde72597",
+      "script_sha256": "1d44c64def143f74f8a25eada7777e6618b3519236a7b91cf59caf3a6e17ecb0",
       "assertion_sha256": {
         "src/cos/verify.ts": "e89a79b353efb7f298c4db959f3b278d55e8e07a2702394ac341b219ff1472f5",
         "tests/fixtures/cos/verify-broken.ts": "873ff9550df2303c9de2a74cdc8c5f99ed177030ff20b8b40fe82120ac608e3f"
@@ -459,9 +461,9 @@
         },
         "reason": "a send without expiry/recipient/placeholder checks must fail"
       },
-      "script_sha256": "64243a7969f74aa6cfdf625f54c777f5aa1e084169f1fab7882117bdbde72597",
+      "script_sha256": "1d44c64def143f74f8a25eada7777e6618b3519236a7b91cf59caf3a6e17ecb0",
       "assertion_sha256": {
-        "src/cos/approvals.ts": "22834ebaffd76a1cd4323db8cfa6f9d87710ef9a95d2666e9d94332e771371de",
+        "src/cos/approvals.ts": "d615be67d4897c00987bc909a1f6ac6c26b60c13b542c40475f67275d2078739",
         "src/storage/migrations/005_cos.ts": "ace258d8d5151e726ee8ff6059097a6320c1b25670a9fc7a7e9bae88fbb3e37a",
         "tests/fixtures/cos/approvals-broken.ts": "ea30e21a185a2f168acd9a8a4241c9413462f491994a2e1a942e612253aee883"
       }
@@ -492,12 +494,174 @@
         },
         "reason": "with no effective ceiling the over-budget path must not trigger, failing the gate"
       },
-      "script_sha256": "64243a7969f74aa6cfdf625f54c777f5aa1e084169f1fab7882117bdbde72597",
+      "script_sha256": "1d44c64def143f74f8a25eada7777e6618b3519236a7b91cf59caf3a6e17ecb0",
       "assertion_sha256": {
         "src/cos/budget.ts": "a7984b495c5da7359dc2b94999919beebd7ae89e9d722417bfabdf7252c6386a",
-        "src/cos/morning.ts": "bd1e61ae37d331369eb9c54f61c8f8a8f97d011344b1c010f77b916e5d927a10",
+        "src/cos/morning.ts": "a96305e4ae7b75c246f0c5f60db7a335d80d63131f0e24f850aa520c8c40ca52",
         "tests/fixtures/cos/inputs.json": "5b674a883c0222c72c675d10efc7edc123ff52843923e089d8448b1eda60f84f",
         "tests/fixtures/cos/synthesis.json": "1e5b96673754f9a84665a86e79be75bd0ad31b5026a8c51799bae23d39458ed5"
+      }
+    },
+    {
+      "id": "commitments-dates",
+      "story": "S3-1",
+      "tier": "unit",
+      "acceptance": [
+        "AC-18"
+      ],
+      "command": [
+        "npx",
+        "tsx",
+        "tests/gates/cos-phase3.ts",
+        "commitments-dates"
+      ],
+      "script": "tests/gates/cos-phase3.ts",
+      "assertion_files": [
+        "src/cos/dates.ts",
+        "src/cos/eod.ts",
+        "tests/fixtures/cos/eod-inputs.json",
+        "tests/fixtures/cos/eod-extraction.json",
+        "tests/fixtures/cos/dates-broken.ts"
+      ],
+      "negative": {
+        "env": {
+          "DATES_MODULE": "tests/fixtures/cos/dates-broken.ts"
+        },
+        "reason": "a resolver that guesses dates from vague words must fail"
+      },
+      "script_sha256": "884ccc75cf4d226035048e8c3f05aa3f9269cb5831d8f0495c308176a2cb0ab0",
+      "assertion_sha256": {
+        "src/cos/dates.ts": "b3e2aad0815d84525b4571926ea6d24f1f9a3d8ad09b18d93114b02548e65cb7",
+        "src/cos/eod.ts": "d2ad1cab8f0ded1adf3afe3d4688ef3fb802d17f50fd06c69e5806ac8d8b319c",
+        "tests/fixtures/cos/eod-inputs.json": "ee4868a45a2d437c54856678dea5c3834ac056c8facd0becf7d56261692f22c4",
+        "tests/fixtures/cos/eod-extraction.json": "ed2624a499bea5bbe2c341ad80804433523656687d9a2e9519163028f41706e6",
+        "tests/fixtures/cos/dates-broken.ts": "8dfd112705e62873f7a8cb1aab6fee34d31c25ab95bab8850db8fa7e100a4d5a"
+      }
+    },
+    {
+      "id": "commitment-close",
+      "story": "S3-2",
+      "tier": "unit",
+      "acceptance": [
+        "AC-19"
+      ],
+      "command": [
+        "npx",
+        "tsx",
+        "tests/gates/cos-phase3.ts",
+        "commitment-close"
+      ],
+      "script": "tests/gates/cos-phase3.ts",
+      "assertion_files": [
+        "src/cos/commitments.ts",
+        "src/storage/migrations/006_commitments.ts",
+        "tests/fixtures/cos/commitments-broken.ts"
+      ],
+      "negative": {
+        "env": {
+          "COMMITMENTS_MODULE": "tests/fixtures/cos/commitments-broken.ts"
+        },
+        "reason": "closing without evidence must fail"
+      },
+      "script_sha256": "884ccc75cf4d226035048e8c3f05aa3f9269cb5831d8f0495c308176a2cb0ab0",
+      "assertion_sha256": {
+        "src/cos/commitments.ts": "60e58a521bee70b780748256e1b68cfbcb317e8b2d6140108bf5051c585c1d49",
+        "src/storage/migrations/006_commitments.ts": "7a01686ab169bd54efbf2f7b6455ca17d25b654586a2a2cef705acd85d924f0c",
+        "tests/fixtures/cos/commitments-broken.ts": "f491a223ee022c486ba9216b320d56643fb848997fd0cdb434c8b2a34d388a3a"
+      }
+    },
+    {
+      "id": "dedupe",
+      "story": "S3-3",
+      "tier": "unit",
+      "acceptance": [
+        "AC-20"
+      ],
+      "command": [
+        "npx",
+        "tsx",
+        "tests/gates/cos-phase3.ts",
+        "dedupe"
+      ],
+      "script": "tests/gates/cos-phase3.ts",
+      "assertion_files": [
+        "src/cos/commitments.ts",
+        "tests/fixtures/cos/commitments-broken.ts"
+      ],
+      "negative": {
+        "env": {
+          "COMMITMENTS_MODULE": "tests/fixtures/cos/commitments-broken.ts"
+        },
+        "reason": "a ledger that never merges must fail"
+      },
+      "script_sha256": "884ccc75cf4d226035048e8c3f05aa3f9269cb5831d8f0495c308176a2cb0ab0",
+      "assertion_sha256": {
+        "src/cos/commitments.ts": "60e58a521bee70b780748256e1b68cfbcb317e8b2d6140108bf5051c585c1d49",
+        "tests/fixtures/cos/commitments-broken.ts": "f491a223ee022c486ba9216b320d56643fb848997fd0cdb434c8b2a34d388a3a"
+      }
+    },
+    {
+      "id": "eod-handoff",
+      "story": "S3-4",
+      "tier": "unit",
+      "acceptance": [
+        "AC-21"
+      ],
+      "command": [
+        "npx",
+        "tsx",
+        "tests/gates/cos-phase3.ts",
+        "eod-handoff"
+      ],
+      "script": "tests/gates/cos-phase3.ts",
+      "assertion_files": [
+        "src/cos/eod.ts",
+        "src/cos/morning.ts",
+        "tests/fixtures/cos/eod-broken.ts",
+        "tests/fixtures/cos/inputs.json"
+      ],
+      "negative": {
+        "env": {
+          "EOD_MODULE": "tests/fixtures/cos/eod-broken.ts"
+        },
+        "reason": "an EOD that writes no hand-off must fail"
+      },
+      "script_sha256": "884ccc75cf4d226035048e8c3f05aa3f9269cb5831d8f0495c308176a2cb0ab0",
+      "assertion_sha256": {
+        "src/cos/eod.ts": "d2ad1cab8f0ded1adf3afe3d4688ef3fb802d17f50fd06c69e5806ac8d8b319c",
+        "src/cos/morning.ts": "a96305e4ae7b75c246f0c5f60db7a335d80d63131f0e24f850aa520c8c40ca52",
+        "tests/fixtures/cos/eod-broken.ts": "a40b33838218379ca557dd3b121ab6fa484cc6049f05ea124f79083cce43859b",
+        "tests/fixtures/cos/inputs.json": "5b674a883c0222c72c675d10efc7edc123ff52843923e089d8448b1eda60f84f"
+      }
+    },
+    {
+      "id": "weekly-shape",
+      "story": "S3-5",
+      "tier": "unit",
+      "acceptance": [
+        "AC-22"
+      ],
+      "command": [
+        "npx",
+        "tsx",
+        "tests/gates/cos-phase3.ts",
+        "weekly-shape"
+      ],
+      "script": "tests/gates/cos-phase3.ts",
+      "assertion_files": [
+        "src/cos/weekly.ts",
+        "tests/fixtures/cos/weekly-broken.ts"
+      ],
+      "negative": {
+        "env": {
+          "WEEKLY_MODULE": "tests/fixtures/cos/weekly-broken.ts"
+        },
+        "reason": "hiding dropped balls or inventing promotions must fail"
+      },
+      "script_sha256": "884ccc75cf4d226035048e8c3f05aa3f9269cb5831d8f0495c308176a2cb0ab0",
+      "assertion_sha256": {
+        "src/cos/weekly.ts": "b8b4ac1eaf0954a8900fc47084536a7340290588de4d3ad3feff59c212420a0f",
+        "tests/fixtures/cos/weekly-broken.ts": "7e85f495cc8fbaba0d2115f36f35b0d4ff0206f0cb93c4763c09f5254d5895f6"
       }
     }
   ]

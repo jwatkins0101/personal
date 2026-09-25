@@ -1,6 +1,6 @@
 # Feature: AI Chief of Staff (v1)
 
-Revision: 3. Status: in progress. Feature ID: ai-chief-of-staff.
+Revision: 4. Status: in progress. Feature ID: ai-chief-of-staff.
 Source plan: `PLAN.md` (approved 2026-09-24, decisions D1–D8 = recommended). Harness: Ralph 2.0 @ `6d9f21ea27bb41662e1e69dd19ca1c483ad41c44`.
 
 ## Current specification
@@ -116,7 +116,7 @@ Existing prompt-driven lanes emit this record with a wrapper step (the lane writ
   - The inbox lane never gets send capability.
 - **Commitments** live in the SQLite table `cos_commitments` (id, owner me|them, counterparty, what, due_quote, due_at nullable, source_ref, status open|closed, closed_evidence, created_at, updated_at).
   - `due_at` is set only when `due_quote` contains an explicit date or weekday tied to the source message's date. Vague phrases leave `due_at` null and add an open question.
-  - Closing requires evidence: a sent-message ID, event UID or completed task ID.
+  - Closing requires evidence: a sent Gmail message ID, a sent SMS from that day, a past calendar event, or a completed task ID (D14).
 - **EOD (17:30)** writes `eod/YYYY-MM-DD.json` (done, slipped, decisions, carry-forward). `morning` must read the prior EOD, or escalate `missing_eod`.
 - **Weekly (Fri 15:00)** writes the scorecard: dropped balls, caught errors (from `feedback`), approvals per day and unchanged rate, decision latency, cost. It also lists autonomy-promotion candidates. It never promotes automatically.
 

@@ -3,7 +3,7 @@
 # (ai-chief-of-staff AC-07, AC-11). Idempotent. Backs up each plist before changing it.
 #   scripts/deploy-lanes.sh            deploy runtime + all lanes
 #   scripts/deploy-lanes.sh runtime    deploy cos/bin + cos/lib only
-#   scripts/deploy-lanes.sh <lane>     deploy runtime + one lane (inbox|deals|yt|tasks|cos-morning)
+#   scripts/deploy-lanes.sh <lane>     deploy runtime + one lane (inbox|deals|yt|tasks|cos-morning|cos-eod|cos-weekly)
 set -euo pipefail
 REPO_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 case "$REPO_DIR" in */.claude/worktrees/*)
@@ -18,9 +18,9 @@ WRAP="$COS/bin/lane-run.sh"
 BACKUP="$AS/plist-backups/$(date +%Y%m%d-%H%M%S)"
 
 mkdir -p "$COS/bin" "$COS/lib" "$LOGS" "$AS/ledger"
-cp "$REPO_DIR/cos/bin/lane-run.sh" "$REPO_DIR/cos/bin/record-run.mjs" "$COS/bin/"
+cp "$REPO_DIR/cos/bin/lane-run.sh" "$REPO_DIR/cos/bin/record-run.mjs" "$REPO_DIR/cos/bin/with-sms-snapshot.sh" "$COS/bin/"
 cp "$REPO_DIR/cos/lib/ledger.mjs" "$COS/lib/"
-chmod +x "$COS/bin/lane-run.sh" "$COS/bin/record-run.mjs"
+chmod +x "$COS/bin/lane-run.sh" "$COS/bin/record-run.mjs" "$COS/bin/with-sms-snapshot.sh"
 echo "runtime deployed to $COS"
 [ "$ONLY" = "runtime" ] && exit 0
 
@@ -51,6 +51,15 @@ set_lane yt com.jermaine.yt-daily-brief yt-launchd.log "$AS" -- \
 CREATE=1 set_lane cos-morning com.assistance.cos-morning cos-morning-launchd.log "$AS" --time 07:30 --weekdays 1-5 -- \
   /bin/bash "$WRAP" cos-morning --attempts 2 --artifact "$AS/briefs/{date}.html" -- \
   /bin/bash -c 'cd "$HOME/Code/assistance" && npm run -s cos -- morning'
+
+# End-of-day wrap: 17:30 Mon-Fri (AC-21), with SMS snapshots for commitments.
+CREATE=1 set_lane cos-eod com.assistance.cos-eod cos-eod-launchd.log "$AS" --time 17:30 --weekdays 1-5 -- \
+  /bin/bash "$WRAP" cos-eod --attempts 2 --artifact "$AS/eod/{date}.json" -- \
+  /bin/bash "$COS/bin/with-sms-snapshot.sh" /bin/bash -c 'cd "$HOME/Code/assistance" && COS_EOD_PING=1 npm run -s cos -- eod'
+
+# Weekly review: Friday 15:00 (AC-22).
+CREATE=1 set_lane cos-weekly com.assistance.cos-weekly cos-weekly-launchd.log "$AS" --time 15:00 --weekdays 5-5 -- \
+  /bin/bash "$WRAP" cos-weekly --attempts 2 -- /bin/bash -c 'cd "$HOME/Code/assistance" && npm run -s cos -- weekly'
 
 # task-capture wraps each of its two steps itself (see deploy-task-capture-launchd.sh).
 if [ "$ONLY" = "all" ] || [ "$ONLY" = "tasks" ]; then bash "$REPO_DIR/scripts/deploy-task-capture-launchd.sh"; fi
