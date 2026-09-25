@@ -788,9 +788,9 @@
         },
         "reason": "an agent path that trusts the agent's recipient or drafts placeholders must fail"
       },
-      "script_sha256": "22679474f0a7cbd7c2a179598432ba9bfd87ce27b8cd91e66c7b0a56f7ebc3bf",
+      "script_sha256": "995a390172a706715d3429b7ea549be75a80d28872b3a908ba0260630266eb0a",
       "assertion_sha256": {
-        "src/cos/agent.ts": "9a5ec59b13230fdfeceb1d9ed7f30037659f745bba32838ee75cb73ed26db26e",
+        "src/cos/agent.ts": "45dcd200ac98fd7d2e1315b6a714baa98cb1cd357435c66e7df0af9bdc1d7441",
         "src/cos/board.ts": "035f4a87f1bf68d6b20a9f30bfe7285dcc209f8b7bf861128ac88ce4ab4be4bf",
         "src/storage/migrations/007_agent_jobs.ts": "4dd4dc3e0fc7362def9abbd3badb39569fab64dad039aca50c0320690ae18f17",
         "tests/fixtures/cos/agent/aacsb.json": "184ec053cc73ca7fcf3c4641e82a95905e73dd0ea94edcfcef62dac3e6e01d9f",
@@ -822,10 +822,10 @@
         },
         "reason": "a no-op guard must fail"
       },
-      "script_sha256": "22679474f0a7cbd7c2a179598432ba9bfd87ce27b8cd91e66c7b0a56f7ebc3bf",
+      "script_sha256": "995a390172a706715d3429b7ea549be75a80d28872b3a908ba0260630266eb0a",
       "assertion_sha256": {
         "cos/hooks/agent-guard.sh": "d14f623a7e68ca20e6077b558f6713c61be0356391a7f52ab5886d570998884d",
-        "src/cos/agent.ts": "9a5ec59b13230fdfeceb1d9ed7f30037659f745bba32838ee75cb73ed26db26e"
+        "src/cos/agent.ts": "45dcd200ac98fd7d2e1315b6a714baa98cb1cd357435c66e7df0af9bdc1d7441"
       }
     }
   ]

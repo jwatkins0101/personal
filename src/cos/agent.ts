@@ -206,7 +206,9 @@ export function cancelJob(db: Database.Database, jobId: number, now = new Date()
 /** A job stuck in running past the timeout (runner crashed) is marked failed. */
 export function reapStaleJobs(db: Database.Database, now = new Date()): number {
   const cutoff = new Date(now.getTime() - AGENT_TIMEOUT_MS - 60_000).toISOString();
-  return db.prepare("UPDATE cos_agent_jobs SET status='failed', finished_at=?, error='runner stopped without finishing' WHERE status IN ('running','queued') AND COALESCE(started_at, created_at) < ?")
+  // julianday() parses both SQLite's "YYYY-MM-DD HH:MM:SS" (created_at) and ISO strings (started_at);
+  // comparing them as text treated every new job as stale.
+  return db.prepare("UPDATE cos_agent_jobs SET status='failed', finished_at=?, error='runner stopped without finishing' WHERE status IN ('running','queued') AND julianday(COALESCE(started_at, created_at)) < julianday(?)")
     .run(now.toISOString(), cutoff).changes;
 }
 

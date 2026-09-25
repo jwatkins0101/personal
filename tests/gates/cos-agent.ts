@@ -32,6 +32,11 @@ try {
     });
     const j1 = agent.createJob(db, d, 1, "use last year's form", now);
     check(j1.status === "queued", "hand-off creates a queued job");
+    check(agent.reapStaleJobs(db, now) === 0 && agent.getJob(db, j1.id)!.status === "queued", "a fresh job is not reaped as stale");
+    const later = new Date(now.getTime() + agent.AGENT_TIMEOUT_MS + 5 * 60_000);
+    const probe = db.prepare("INSERT INTO cos_agent_jobs (brief_date, day_index, status) VALUES (?, 99, 'running')").run(d);
+    check(agent.reapStaleJobs(db, later) >= 1 && agent.getJob(db, Number(probe.lastInsertRowid))!.status === "failed", "a job stuck past the timeout is reaped");
+    db.prepare("UPDATE cos_agent_jobs SET status='queued', finished_at=NULL, error=NULL WHERE id=?").run(j1.id);
     let threw = ""; try { agent.createJob(db, d, 1, "", now); } catch (e) { threw = (e as Error).message; }
     check(/already working/.test(threw), "second hand-off of the same item refused while one is active");
     const r1 = await agent.runJob(db, j1.id, deps("aacsb"));
