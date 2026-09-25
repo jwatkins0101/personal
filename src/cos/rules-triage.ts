@@ -43,6 +43,8 @@ export function decide(m: GmailMeta, cfg: AccountRules, youWriteTo: Set<string>)
   const r = cfg.rules.find((x) => ruleMatches(m, x));
   // Protective rules (keep/keep_star) always apply; otherwise people you write to stay.
   if (r && r.action !== "archive") return { action: r.action, rule: r.name };
+  // A rule naming exact sender addresses (e.g. website@owlthat.com CI alerts) beats "you write to this domain".
+  if (r && r.from?.length) return { action: "archive", label: r.label ? cfg.labels[r.label] : undefined, rule: r.name };
   if (sender && youWriteTo.has(sender)) return { action: "keep", rule: "you write to this sender" };
   if (r) return { action: "archive", label: r.label ? cfg.labels[r.label] : undefined, rule: r.name };
   return { action: "keep", rule: "no rule matched" };
@@ -59,7 +61,7 @@ export interface TriageDeps {
 export interface TriageResult { account: string; query: string; scanned: number; kept: number; starred: number; archived: Record<string, number>; byRule: Record<string, number>; dryRun: boolean; logPath: string }
 
 /** Classifies messages from `query` and (unless dryRun) applies the decisions, logging every change for undo. */
-export async function runRulesTriage(account: string, cfg: AccountRules, query: string, deps: TriageDeps, opts: { dryRun?: boolean; max?: number; now?: Date; tag?: string } = {}): Promise<TriageResult> {
+export async function runRulesTriage(account: string, cfg: AccountRules, query: string, deps: TriageDeps, opts: { dryRun?: boolean; max?: number; now?: Date; tag?: string; noStar?: boolean } = {}): Promise<TriageResult> {
   const now = opts.now ?? new Date();
   const ids = await deps.listIds(query, opts.max ?? 500);
   const metas = ids.length ? await deps.getMetas(ids) : [];
@@ -71,7 +73,7 @@ export async function runRulesTriage(account: string, cfg: AccountRules, query: 
     const d = decide(m, cfg, writeTo);
     byRule[d.rule] = (byRule[d.rule] ?? 0) + 1;
     if (d.action === "archive") { const k = d.label ?? ""; toArchive.set(k, [...(toArchive.get(k) ?? []), m.id]); }
-    else { kept++; if (d.action === "keep_star" && !m.labelIds.includes("STARRED")) toStar.push(m.id); }
+    else { kept++; if (d.action === "keep_star" && !opts.noStar && !m.labelIds.includes("STARRED")) toStar.push(m.id); }
   }
   mkdirSync(UNDO_DIR, { recursive: true });
   const logPath = join(UNDO_DIR, `${account}.jsonl`);
@@ -89,6 +91,17 @@ export async function runRulesTriage(account: string, cfg: AccountRules, query: 
     }
   }
   return { account, query, scanned: metas.length, kept, starred: toStar.length, archived, byRule, dryRun: !!opts.dryRun, logPath };
+}
+
+/** Removes stars this system added (logged "star" actions) at/after `sinceIso`. */
+export async function unstarTriage(account: string, sinceIso: string, deps: Pick<TriageDeps, "batchModify">, opts: { tag?: string } = {}): Promise<number> {
+  const logPath = join(UNDO_DIR, `${account}.jsonl`);
+  if (!existsSync(logPath)) return 0;
+  const ids = readFileSync(logPath, "utf8").split("\n").filter(Boolean).map((l) => JSON.parse(l) as { at: string; id: string; action: string; tag?: string })
+    .filter((e) => e.action === "star" && e.at >= sinceIso && (!opts.tag || e.tag === opts.tag)).map((e) => e.id);
+  if (ids.length) await deps.batchModify(ids, [], ["STARRED"]);
+  appendFileSync(logPath, JSON.stringify({ at: new Date().toISOString(), account, action: "unstar", since: sinceIso, tag: opts.tag ?? null, count: ids.length }) + "\n");
+  return ids.length;
 }
 
 /** Puts archived messages back in the inbox (and removes the CoS label) for changes at/after `sinceIso`. */

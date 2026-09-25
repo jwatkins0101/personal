@@ -68,6 +68,10 @@ try {
     check(n === 2 && calls.every((c) => c.add.includes("INBOX")) && calls.flatMap((c) => c.ids).sort().join() === "1,2" && calls.some((c) => c.remove.join() === "L-CoS/CI"), "undo puts both back in the inbox and removes the CoS labels");
     const wrote = await t.runRulesTriage("owlthat", owl, "in:inbox", { ...deps, sentDomains: async () => new Set(["newco.io", "pitchbook.com"]) }, { dryRun: true });
     check(!wrote.archived["CoS/Newsletters"] && wrote.byRule["you write to this sender"] >= 1, "a sender you write to is kept even when a rule would archive it");
+    const owlWrites = await t.runRulesTriage("owlthat", owl, "in:inbox", { ...deps, sentDomains: async () => new Set(["owlthat.com"]) }, { dryRun: true });
+    check(owlWrites.archived["CoS/CI"] === 1, "CI alerts from website@owlthat.com are archived even though you write to owlthat.com");
+    const bk = await t.runRulesTriage("owlthat", owl, "in:inbox", { ...deps, batchModify: async (_ids: string[], add: string[]) => { if (add.includes("STARRED")) throw new Error("starred in backlog"); } }, { tag: "backlog", noStar: true });
+    check(bk.starred === 0, "backlog cleanups keep billing mail without starring it");
     const cli = readFileSync("src/cos/rules-triage-run.ts", "utf8");
     check(/in:inbox after:\$\{since\}/.test(cli) && !/newer_than:\d+m/.test(cli), "hourly window is an epoch (never newer_than minutes)");
   } else if (which === "ci-status") {

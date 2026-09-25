@@ -2,7 +2,7 @@
 import { withAccount } from "../google/auth.js";
 import { listMessageIds, getMessagesMeta, batchModify, ensureLabel } from "../mail/gmail-api.js";
 import { baseDomain } from "./analyze.js";
-import { loadRules, runRulesTriage, undoTriage, type TriageDeps, type TriageResult } from "./rules-triage.js";
+import { loadRules, runRulesTriage, undoTriage, unstarTriage, type TriageDeps, type TriageResult } from "./rules-triage.js";
 import { writeLaneSummary } from "./summary.js";
 
 export function realDeps(account: string): TriageDeps {
@@ -38,7 +38,8 @@ export async function backlog(account: string, dryRun: boolean, max: number): Pr
   const cfg = all.accounts[account] ?? all.backlog_only[account];
   if (!cfg) throw new Error(`No backlog rules for "${account}".`);
   const days = cfg.backlog?.older_than_days ?? cfg.older_than_days ?? 30;
-  return runRulesTriage(account, cfg, days > 0 ? `in:inbox older_than:${days}d` : "in:inbox", realDeps(account), { dryRun, max, tag: "backlog" });
+  return runRulesTriage(account, cfg, days > 0 ? `in:inbox older_than:${days}d` : "in:inbox", realDeps(account), { dryRun, max, tag: "backlog", noStar: true });
 }
 
 export const undo = (account: string, since: string, tag?: string) => undoTriage(account, since, realDeps(account), { tag });
+export const unstar = (account: string, since: string, tag?: string) => unstarTriage(account, since, realDeps(account), { tag });

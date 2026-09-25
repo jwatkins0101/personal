@@ -327,7 +327,7 @@
       "assertion_sha256": {
         "cos/lib/ledger.mjs": "68fd202a0ffc62fa677055db0c98b8603940af45f688374286df6a9737c6baa7",
         "tests/fixtures/ledger/lib-no-heartbeat.mjs": "cb962b43b4b42c096c721134f73792011b7efdb798d7e21186a03074786a89dd",
-        "src/cos/cli.ts": "6c2bcb1f09c7ee9f8824b20f81b2d097524c3028fc3ddc610b9e7fd0aa6c520f"
+        "src/cos/cli.ts": "56abc48930643c0b676cf396ce63ad8e24e427d01004063f485e644729d24cd4"
       }
     },
     {
@@ -724,7 +724,7 @@
       "script_sha256": "de50517550b579ca32f72b6bd1a4f12bf356563d92ddf033c47d77cf7e74c138",
       "assertion_sha256": {
         "src/cos/board.ts": "6b1ab81070f96097df95a884b6a196fdcb827d0992abcfc0375e9ae8aabb4e35",
-        "src/cos/cli.ts": "6c2bcb1f09c7ee9f8824b20f81b2d097524c3028fc3ddc610b9e7fd0aa6c520f",
+        "src/cos/cli.ts": "56abc48930643c0b676cf396ce63ad8e24e427d01004063f485e644729d24cd4",
         "tests/fixtures/cos/board-open.ts": "de4387422ab139538a82376a793cede0ce9a6d70d9a76041cafa08055f1bcc08"
       }
     },
@@ -938,10 +938,10 @@
         },
         "reason": "a rule set that archives everything must fail"
       },
-      "script_sha256": "5f10512576539b71a723cceb07f84f70a8539b764686c826bf08979e28ed64b8",
+      "script_sha256": "5a0d470114d4f351236241e6c50a012658467a0a73310f4c5893b0270f179896",
       "assertion_sha256": {
         "cos/triage-rules.json": "80558f426d3184fe83f7673ff61958c325a3d301c7b4f462c23a0ee245644fd7",
-        "src/cos/rules-triage.ts": "c7cfc870e6193e9bf7be2c5169251a2b1fb9974fdd533dadd14bb1ad8d8b3c94",
+        "src/cos/rules-triage.ts": "89ac96b79aaf8cf82e5ee5a1c542530fa2e1f8bb65057f78b34926f12e924e66",
         "tests/fixtures/cos/triage-rules-broken.json": "865fbafc83167e03f37929b28f7c088fad03036dee454ce65fc4fab168d7f796"
       }
     },
@@ -970,10 +970,10 @@
         },
         "reason": "archiving unknown senders or protected mail must fail"
       },
-      "script_sha256": "5f10512576539b71a723cceb07f84f70a8539b764686c826bf08979e28ed64b8",
+      "script_sha256": "5a0d470114d4f351236241e6c50a012658467a0a73310f4c5893b0270f179896",
       "assertion_sha256": {
-        "src/cos/rules-triage.ts": "c7cfc870e6193e9bf7be2c5169251a2b1fb9974fdd533dadd14bb1ad8d8b3c94",
-        "src/cos/rules-triage-run.ts": "12dcc6eede3e1b5390bde9a92db45c7ea7e9212a5b03f9b0f4013e91a35b704b",
+        "src/cos/rules-triage.ts": "89ac96b79aaf8cf82e5ee5a1c542530fa2e1f8bb65057f78b34926f12e924e66",
+        "src/cos/rules-triage-run.ts": "92df9daa0e2db81de198dd21bdf134ae5bd68ef982f597177199479124a94b44",
         "tests/fixtures/cos/triage-rules-broken.json": "865fbafc83167e03f37929b28f7c088fad03036dee454ce65fc4fab168d7f796"
       }
     },
@@ -1004,7 +1004,7 @@
         },
         "reason": "without the CI source the brief cannot track RED builds"
       },
-      "script_sha256": "5f10512576539b71a723cceb07f84f70a8539b764686c826bf08979e28ed64b8",
+      "script_sha256": "5a0d470114d4f351236241e6c50a012658467a0a73310f4c5893b0270f179896",
       "assertion_sha256": {
         "src/cos/ci-status.ts": "6d4aa5c5a3115f1b442047a648f3022b0dd181f5556aa9af2c836db86a4e21eb",
         "src/cos/gather.ts": "b6b7dc00898cd2be95a8c7984f462e5bae4cc6388b2c604b92a2f2d9bab8d9f4",
