@@ -1,0 +1,35 @@
+{
+  "gate": "launchd-lint",
+  "story": "S1-6",
+  "tier": "deploy",
+  "acceptance": [
+    "AC-11"
+  ],
+  "passed": true,
+  "problems": [],
+  "tested_commit": "c1fc07f4ccb6017fddd2f8948110a0c522254915",
+  "worktree_dirty": false,
+  "prd_revision": 3,
+  "gate_sha256": "ec0e6ff749a3d6c4d6fcdb5653395ce278c5d455c972bae1e8bd5577b031afce",
+  "assertion_sha256": {
+    "cos/bin/lane-run.sh": "16193c3810c5a75ec28e7d633705da0e80a78cf4fb4f092bd6488c7842c14631",
+    "cos/bin/record-run.mjs": "0f4bfbbde771e1458a83ed129dcf4b53659fd78e77a212b43ad83a4f76d405c6",
+    "cos/lib/ledger.mjs": "68fd202a0ffc62fa677055db0c98b8603940af45f688374286df6a9737c6baa7",
+    "cos/lanes.json": "249113c83af0f40f1a78e4938ac5b6b49a9cea1680db39c8ecd0a81135aa19b6",
+    "scripts/deploy-lanes.sh": "ea08253de3438b73819cc1d6ceeeace91455c3bc5cc76e01b96c4e15f4692dfe",
+    "scripts/set-launchd-lane.py": "28613227e58eb8d6113b2f2f53e17085957eff24811314c9e617a0bfdeeb9d60",
+    "tests/fixtures/launchd/com.jermaine.yt-daily-brief.plist": "9311a7dbd4c82b256d938ac8e0a8b4366925e1c3836861cf687d2f9c845fa1f5"
+  },
+  "command": "python3 tests/gates/launchd-lint.py",
+  "exit_code": 0,
+  "output": "PASS fails twice, succeeds on attempt 3: ok record\nPASS always failing: failed record with exit gap\nPASS {date} artifact expanded; missing file fails the run\nPASS lane summary is recorded\nPASS unreconciled lane summary fails the run\nPASS com.assistance.flight-check: removed (D10)\nPASS com.assistance.gmail-triage: StandardOutPath absolute and outside ~/Documents\nPASS com.assistance.gmail-triage: StandardErrorPath absolute and outside ~/Documents\nPASS com.assistance.gmail-triage: WorkingDirectory absolute and outside ~/Documents\nPASS com.assistance.gmail-triage: runs via /bin/bash (Full Disk Access)\nPASS com.assistance.gmail-triage: no program argument points into ~/Documents (D11)\nPASS com.assistance.gmail-triage: wrapped by lane-run.sh as lane 'inbox'\nPASS com.assistance.task-capture: StandardOutPath absolute and outside ~/Documents\nPASS com.assistance.task-capture: StandardErrorPath absolute and outside ~/Documents\nPASS com.assistance.task-capture: WorkingDirectory absolute and outside ~/Documents\nPASS com.assistance.task-capture: runs via /bin/bash (Full Disk Access)\nPASS com.assistance.task-capture: no program argument points into ~/Documents (D11)\nPASS com.assistance.task-capture: runner wraps tasks-email and tasks-sms\nPASS com.jermaine.deal-watch: StandardOutPath absolute and outside ~/Documents\nPASS com.jermaine.deal-watch: StandardErrorPath absolute and outside ~/Documents\nPASS com.jermaine.deal-watch: WorkingDirectory absolute and outside ~/Documents\nPASS com.jermaine.deal-watch: runs via /bin/bash (Full Disk Access)\nPASS com.jermaine.deal-watch: no program argument points into ~/Documents (D11)\nPASS com.jermaine.deal-watch: wrapped by lane-run.sh as lane 'deals'\nPASS com.jermaine.yt-daily-brief: StandardOutPath absolute and outside ~/Documents\nPASS com.jermaine.yt-daily-brief: StandardErrorPath absolute and outside ~/Documents\nPASS com.jermaine.yt-daily-brief: WorkingDirectory absolute and outside ~/Documents\nPASS com.jermaine.yt-daily-brief: runs via /bin/bash (Full Disk Access)\nPASS com.jermaine.yt-daily-brief: no program argument points into ~/Documents (D11)\nPASS com.jermaine.yt-daily-brief: wrapped by lane-run.sh as lane 'yt'\nPASS com.assistance.cos-morning: StandardOutPath absolute and outside ~/Documents\nPASS com.assistance.cos-morning: StandardErrorPath absolute and outside ~/Documents\nPASS com.assistance.cos-morning: WorkingDirectory absolute and outside ~/Documents\nPASS com.assistance.cos-morning: runs via /bin/bash (Full Disk Access)\nPASS com.assistance.cos-morning: no program argument points into ~/Documents (D11)\nPASS com.assistance.cos-morning: 07:30 Mon-Fri (AC-17)\nPASS com.assistance.cos-morning: wrapped by lane-run.sh as lane 'cos-morning'",
+  "negative_validation": {
+    "env": {
+      "PLIST_DIR": "tests/fixtures/launchd"
+    },
+    "reason": "the pre-fix yt plist (zsh, logs in ~/Documents) must fail",
+    "exit_code": 1,
+    "output": "PASS fails twice, succeeds on attempt 3: ok record\nPASS always failing: failed record with exit gap\nPASS {date} artifact expanded; missing file fails the run\nPASS lane summary is recorded\nPASS unreconciled lane summary fails the run\nPASS com.assistance.flight-check: removed (D10)\nFAIL com.jermaine.yt-daily-brief: StandardOutPath absolute and outside ~/Documents\nFAIL com.jermaine.yt-daily-brief: StandardErrorPath absolute and outside ~/Documents\nFAIL com.jermaine.yt-daily-brief: WorkingDirectory absolute and outside ~/Documents\nFAIL com.jermaine.yt-daily-brief: runs via /bin/bash (Full Disk Access)\nFAIL com.jermaine.yt-daily-brief: no program argument points into ~/Documents (D11)\nFAIL com.jermaine.yt-daily-brief: wrapped by lane-run.sh as lane 'yt'"
+  },
+  "timestamp": "2026-09-25T04:28:36.505Z"
+}

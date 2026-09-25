@@ -1,0 +1,66 @@
+{
+  "gate": "live-morning-brief",
+  "story": "S2-1",
+  "acceptance": [
+    "AC-12",
+    "AC-14",
+    "AC-15",
+    "AC-17"
+  ],
+  "tested_commit": "c1fc07f4ccb6017fddd2f8948110a0c522254915",
+  "command": "launchctl kickstart gui/$UID/com.assistance.cos-morning (deployed from ~/Code/assistance @ c1fc07f)",
+  "run_record": {
+    "lane": "cos-morning",
+    "run_id": "cos-morning-20260925T002848-12898",
+    "status": "ok",
+    "started_at": "2026-09-25T04:28:48Z",
+    "finished_at": "2026-09-25T04:30:11.521Z",
+    "items_in": 5,
+    "items_out": {
+      "queued": 5,
+      "not_verified": 0,
+      "already_queued": 0,
+      "draft_failed": 0
+    },
+    "artifacts": [
+      "/Users/jermainewatkins/Library/Application Support/assistance/briefs/2026-09-25.md",
+      "/Users/jermainewatkins/Library/Application Support/assistance/briefs/2026-09-25.html",
+      "/Users/jermainewatkins/Library/Application Support/assistance/briefs/2026-09-25.mp3",
+      "/Users/jermainewatkins/Library/Application Support/assistance/briefs/2026-09-25.html"
+    ],
+    "findings": [],
+    "proposed_actions": [],
+    "open_questions": [],
+    "gaps": [
+      "ping: iMessage failed (osascript: spawnSync osascript ETIMEDOUT); emailed instead"
+    ],
+    "cost_usd": 0.3857378
+  },
+  "log": [
+    "=== lane cos-morning run cos-morning-20260925T002848-12898 Fri Sep 25 00:28:48 EDT 2026 ===",
+    "Running migration 5...",
+    "Migration 5 complete.",
+    "brief: /Users/jermainewatkins/Library/Application Support/assistance/briefs/2026-09-25.html",
+    "status: WATCH \u00b7 decide: 5 \u00b7 escalations: 2 \u00b7 ping: email (iMessage failed (osascript: spawnSync osascript ETIMEDOUT); emailed instead)",
+    "{\"lane\":\"cos-morning\",\"run_id\":\"cos-morning-20260925T002848-12898\",\"status\":\"ok\",\"started_at\":\"2026-09-25T04:28:48Z\",\"finished_at\":\"2026-09-25T04:30:11.521Z\",\"items_in\":5,\"items_out\":{\"queued\":5,\"not_verified\":0,\"already_queued\":0,\"draft_failed\":0},\"artifacts\":[\"/Users/jermainewatkins/Library/Application Support/assistance/briefs/2026-09-25.md\",\"/Users/jermainewatkins/Library/Application Support/assistance/briefs/2026-09-25.html\",\"/Users/jermainewatkins/Library/Application Support/assistance/briefs/2026-09-25.mp3\",\"/Users/jermainewatkins/Library/Application Support/assistance/briefs/2026-09-25.html\"],\"findings\":[],\"proposed_actions\":[],\"open_questions\":[],\"gaps\":[\"ping: iMessage failed (osascript: spawnSync osascript ETIMEDOUT); emailed instead\"],\"cost_usd\":0.3857378}",
+    "=== lane cos-morning done Fri Sep 25 00:30:11 EDT 2026 exit=0 record=0 ==="
+  ],
+  "queue": [
+    "1 decide: spouse pay stubs (AKF)",
+    "2 decide: resend Mamata meeting link",
+    "3 reply draft to jenna@guardianowldigital.com (plain text, no placeholder)",
+    "4 decide: AACSB status",
+    "5 decide: Jason N lunch 11:30"
+  ],
+  "ping": {
+    "channel": "email",
+    "note": "iMessage osascript timed out at 20s under launchd (likely pending Automation prompt bash->Messages); email-to-self fallback delivered"
+  },
+  "passed": true,
+  "remaining": [
+    "AC-15 iMessage path after Automation grant",
+    "AC-17: 5 consecutive weekday 07:30 runs + wake schedule",
+    "AC-14 live send (principal's choice)"
+  ],
+  "timestamp": "2026-09-25T04:30:38.604542+00:00"
+}
