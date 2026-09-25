@@ -1,0 +1,30 @@
+{
+  "gate": "brief-audio",
+  "story": "S2-6",
+  "tier": "unit",
+  "acceptance": [
+    "AC-35"
+  ],
+  "passed": true,
+  "problems": [],
+  "tested_commit": "5523230622d920aded9611b42535d1f06459719e",
+  "worktree_dirty": true,
+  "prd_revision": 12,
+  "gate_sha256": "49686679ba5b19ec62d16f6b0403bb80c69b002ba1fac1f661438562067ee080",
+  "assertion_sha256": {
+    "src/cos/notify.ts": "951f5c0265494b7cfcacd64c354fdd66ea76f2e9c3d229feda1f8d5e4546e94a",
+    "src/cos/morning.ts": "0f38d94706e28e15e97857f5c253e1284905e456c3b2ede8527d84838a40aa0e"
+  },
+  "command": "npx tsx tests/gates/cos-audio.ts",
+  "exit_code": 0,
+  "output": "PASS audio is staged outside ~/Library/Application Support (Messages can't send from there)\nPASS keeps only the newest 14 audio copies\nPASS the staged file is the brief's audio\nPASS the morning ping is followed by the audio attachment\nPASS a failed attachment is reported, not silent",
+  "negative_validation": {
+    "env": {
+      "COS_AUDIO_STAGE_DIR": "/Users/jermainewatkins/Library/Application Support/assistance/audio-stage"
+    },
+    "reason": "staging in Application Support (Messages transfer error 25) must fail",
+    "exit_code": 1,
+    "output": "FAIL audio is staged outside ~/Library/Application Support (Messages can't send from there)\nPASS keeps only the newest 14 audio copies\nPASS the staged file is the brief's audio\nPASS the morning ping is followed by the audio attachment\nPASS a failed attachment is reported, not silent"
+  },
+  "timestamp": "2026-09-25T11:44:44.697Z"
+}

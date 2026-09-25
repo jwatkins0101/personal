@@ -7,9 +7,9 @@
   ],
   "passed": true,
   "problems": [],
-  "tested_commit": "3df590cbc3af1ffa92d34efd18e10877cfb9ac11",
+  "tested_commit": "5523230622d920aded9611b42535d1f06459719e",
   "worktree_dirty": true,
-  "prd_revision": 10,
+  "prd_revision": 12,
   "gate_sha256": "884ccc75cf4d226035048e8c3f05aa3f9269cb5831d8f0495c308176a2cb0ab0",
   "assertion_sha256": {
     "src/cos/dates.ts": "b3e2aad0815d84525b4571926ea6d24f1f9a3d8ad09b18d93114b02548e65cb7",
@@ -29,5 +29,5 @@
     "exit_code": 1,
     "output": "Running migration 1...\nMigration 1 complete.\nRunning migration 2...\nMigration 2 complete.\nRunning migration 3...\nMigration 3 complete.\nRunning migration 4...\nMigration 4 complete.\nRunning migration 5...\nMigration 5 complete.\nRunning migration 6...\nMigration 6 complete.\nRunning migration 7...\nMigration 7 complete.\nFAIL \"by Friday\" from a Thursday source -> 2026-09-25\nFAIL \"10/2\" from a Thursday source -> 2026-10-02\nFAIL \"Oct 2\" from a Thursday source -> 2026-10-02\nFAIL \"tomorrow\" from a Thursday source -> 2026-09-25\nFAIL \"next next week\" from a Thursday source -> undated\nFAIL \"soon\" from a Thursday source -> undated\nFAIL \"next week\" from a Thursday source -> undated\nFAIL \"next Friday\" from a Thursday source -> undated\nFAIL \"ASAP\" from a Thursday source -> undated\nPASS vague 'next next week' stored undated with an open question\nPASS a due quote not in the source is not used\nPASS every commitment keeps its source_ref"
   },
-  "timestamp": "2026-09-25T07:59:42.427Z"
+  "timestamp": "2026-09-25T11:44:29.609Z"
 }

@@ -7,9 +7,9 @@
   ],
   "passed": true,
   "problems": [],
-  "tested_commit": "3df590cbc3af1ffa92d34efd18e10877cfb9ac11",
+  "tested_commit": "5523230622d920aded9611b42535d1f06459719e",
   "worktree_dirty": true,
-  "prd_revision": 10,
+  "prd_revision": 12,
   "gate_sha256": "db5cdb9ecd53b4445ae1830594200f351ed79b39abdcb271d620d27f529cff95",
   "assertion_sha256": {
     "src/claude/result.ts": "9afc8f479d77cf0941e2eddf5f4dacd4cfa68c45c4cc3da8858ed1ace46f0201",
@@ -29,5 +29,5 @@
     "exit_code": 1,
     "output": "FAIL current CLI event-array output parses to the final result\nFAIL cost is read from the result event\nPASS legacy single-object output still parses\nPASS output without a result event is rejected\nPASS classifier uses the shared parser"
   },
-  "timestamp": "2026-09-25T07:58:13.926Z"
+  "timestamp": "2026-09-25T11:43:01.798Z"
 }

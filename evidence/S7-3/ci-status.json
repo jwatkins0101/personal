@@ -7,14 +7,14 @@
   ],
   "passed": true,
   "problems": [],
-  "tested_commit": "3df590cbc3af1ffa92d34efd18e10877cfb9ac11",
+  "tested_commit": "5523230622d920aded9611b42535d1f06459719e",
   "worktree_dirty": true,
-  "prd_revision": 10,
+  "prd_revision": 12,
   "gate_sha256": "44271b20ff1fc2b7417ba5bc2d627475c37bc01045fb3b00175cf4667b1c8964",
   "assertion_sha256": {
     "src/cos/ci-status.ts": "6d4aa5c5a3115f1b442047a648f3022b0dd181f5556aa9af2c836db86a4e21eb",
     "src/cos/gather.ts": "b6b7dc00898cd2be95a8c7984f462e5bae4cc6388b2c604b92a2f2d9bab8d9f4",
-    "src/cos/morning.ts": "0aebb34ab44ced2018df24097cf945397c494e00f425f418fb91428ee5d3c085",
+    "src/cos/morning.ts": "0f38d94706e28e15e97857f5c253e1284905e456c3b2ede8527d84838a40aa0e",
     "cos/triage-rules.json": "80558f426d3184fe83f7673ff61958c325a3d301c7b4f462c23a0ee245644fd7",
     "tests/fixtures/cos/triage-rules-broken.json": "865fbafc83167e03f37929b28f7c088fad03036dee454ce65fc4fab168d7f796"
   },
@@ -29,5 +29,5 @@
     "exit_code": 1,
     "output": "FAIL CI status source is configured (owlthat CI alerts)\nFAIL latest result per workflow wins (checks.yml recovered; build-images still RED)\nFAIL only the still-RED workflow escalates, linking its alert\nPASS the brief reads CI status and escalates RED builds"
   },
-  "timestamp": "2026-09-25T07:59:56.090Z"
+  "timestamp": "2026-09-25T11:44:43.386Z"
 }
