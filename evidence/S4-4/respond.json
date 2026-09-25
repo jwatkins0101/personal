@@ -7,28 +7,28 @@
   ],
   "passed": true,
   "problems": [],
-  "tested_commit": "e821d0f76b09e0a3c1c6bfbeec5521cf300c2039",
+  "tested_commit": "a3ab23f7758499bf6dec9ce25e3353bca4231914",
   "worktree_dirty": true,
-  "prd_revision": 13,
+  "prd_revision": 14,
   "gate_sha256": "36ba55c7cd56f4224895af545f201ac4cac237bc7876aac5495b9de70127fdc6",
   "assertion_sha256": {
     "src/cos/approvals.ts": "53259f6b9c77f03d4bc1c01088e1c607105d59a9a6dc9d0dba2b610e602e34d4",
     "src/storage/migrations/008_approvals_hold.ts": "ac7f74b7d6bc5e4bd55e14ac04995ff3ec7be27817f070b394d12c7d65849917",
     "src/cos/render.ts": "aa71f5591bf2e12739380e38d7555b5d3a6a94d7d45e3acced05fa47af797755",
-    "src/cos/board.ts": "a551166773c9f6eadfd859bb4abef539cf746f79c3bc24fd8b819f3477170ffd",
+    "src/cos/board.ts": "4abfd1b142be05c00aeb2c06650194e4050f770cee96974547576831584c0476",
     "src/cos/executors.ts": "136d6195edbb5e4983b955ef92440d3f61740e2fcb1f964d0333cb95217ad48c",
     "tests/fixtures/cos/respond-broken.ts": "71ba797e75c037d1f673627fd6b1f20c7f8c2843389047d0cb8526ed6d22a8e4"
   },
   "command": "npx tsx tests/gates/cos-respond.ts",
   "exit_code": 0,
-  "output": "Running migration 1...\nMigration 1 complete.\nRunning migration 2...\nMigration 2 complete.\nRunning migration 3...\nMigration 3 complete.\nRunning migration 4...\nMigration 4 complete.\nRunning migration 5...\nMigration 5 complete.\nRunning migration 6...\nMigration 6 complete.\nRunning migration 7...\nMigration 7 complete.\nRunning migration 8...\nMigration 8 complete.\nPASS Done records it as handled, with your note\nPASS Spam moves the email to Spam in the right account and closes the item\nPASS Dismiss closes the item\nPASS Hold without a note is refused\nPASS Hold parks it with your note\nPASS Accept never sends an email (replies still need Review & send)\nPASS Spam is only offered for emails\nPASS held items don't expire at midnight\nPASS Resume brings a held item back\nPASS brief shows answer buttons per item (no Accept on replies, Spam only on emails)\nPASS brief page script parses and posts answers to the board\nPASS picking an answer only fills the cart; nothing is saved until Place order\nPASS reply items have a Send button in the brief; other items don't\nPASS the order summary shows each Gmail draft before sending; only Place order sends, and it is blocked while drafts load or have problems\nPASS draft preview reads from the draft's own mailbox\nPASS the morning brief lists items on hold",
+  "output": "Running migration 1...\nMigration 1 complete.\nRunning migration 2...\nMigration 2 complete.\nRunning migration 3...\nMigration 3 complete.\nRunning migration 4...\nMigration 4 complete.\nRunning migration 5...\nMigration 5 complete.\nRunning migration 6...\nMigration 6 complete.\nRunning migration 7...\nMigration 7 complete.\nRunning migration 8...\nMigration 8 complete.\nRunning migration 9...\nMigration 9 complete.\nPASS Done records it as handled, with your note\nPASS Spam moves the email to Spam in the right account and closes the item\nPASS Dismiss closes the item\nPASS Hold without a note is refused\nPASS Hold parks it with your note\nPASS Accept never sends an email (replies still need Review & send)\nPASS Spam is only offered for emails\nPASS held items don't expire at midnight\nPASS Resume brings a held item back\nPASS brief shows answer buttons per item (no Accept on replies, Spam only on emails)\nPASS brief page script parses and posts answers to the board\nPASS picking an answer only fills the cart; nothing is saved until Place order\nPASS reply items have a Send button in the brief; other items don't\nPASS the order summary shows each Gmail draft before sending; only Place order sends, and it is blocked while drafts load or have problems\nPASS draft preview reads from the draft's own mailbox\nPASS the morning brief lists items on hold",
   "negative_validation": {
     "env": {
       "APPROVALS_MODULE": "tests/fixtures/cos/respond-broken.ts"
     },
     "reason": "answers that don't move spam or park holds must fail",
     "exit_code": 1,
-    "output": "Running migration 1...\nMigration 1 complete.\nRunning migration 2...\nMigration 2 complete.\nRunning migration 3...\nMigration 3 complete.\nRunning migration 4...\nMigration 4 complete.\nRunning migration 5...\nMigration 5 complete.\nRunning migration 6...\nMigration 6 complete.\nRunning migration 7...\nMigration 7 complete.\nRunning migration 8...\nMigration 8 complete.\nFAIL Done records it as handled, with your note\nFAIL Spam moves the email to Spam in the right account and closes the item\nFAIL Dismiss closes the item\nFAIL Hold without a note is refused\nFAIL threw: Item 4 is approved; nothing done."
+    "output": "Running migration 1...\nMigration 1 complete.\nRunning migration 2...\nMigration 2 complete.\nRunning migration 3...\nMigration 3 complete.\nRunning migration 4...\nMigration 4 complete.\nRunning migration 5...\nMigration 5 complete.\nRunning migration 6...\nMigration 6 complete.\nRunning migration 7...\nMigration 7 complete.\nRunning migration 8...\nMigration 8 complete.\nRunning migration 9...\nMigration 9 complete.\nFAIL Done records it as handled, with your note\nFAIL Spam moves the email to Spam in the right account and closes the item\nFAIL Dismiss closes the item\nFAIL Hold without a note is refused\nFAIL threw: Item 4 is approved; nothing done."
   },
-  "timestamp": "2026-09-25T15:07:42.505Z"
+  "timestamp": "2026-09-25T15:15:24.352Z"
 }

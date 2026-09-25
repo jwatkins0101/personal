@@ -120,6 +120,17 @@ async function main(): Promise<number> {
       console.log(rerenderHtml(arg && /^\d{4}-/.test(arg) ? arg : localDate(), BRIEF_DIR));
       return 0;
     }
+    case "work": {
+      const { addWork, updateWork, listWork } = await import("./work.js");
+      const [sub, ...rest] = argv.slice(1); const db = getDb();
+      const show = (w: { id: number; status: string; agent: string; title: string; goal: string; result: string | null }) => console.log(`#${w.id} [${w.status}] ${w.agent}: ${w.title}  (goal: ${w.goal})${w.result ? `  -> ${w.result}` : ""}`);
+      try {
+        if (sub === "add") { const [goal, title, agent] = rest; show(addWork(db, goal ?? "", title ?? "", agent)); return 0; }
+        if (sub === "update") { const [id, status, ...res] = rest; show(updateWork(db, Number(id), status as never, res.join(" ") || undefined)); return 0; }
+      } catch (e) { console.error((e as Error).message); return 1; }
+      if (!sub || sub === "list") { const ws = listWork(db, new Date(Date.now() - 24 * 3600_000).toISOString()); ws.forEach(show); if (!ws.length) console.log("No open work."); return 0; }
+      console.error('usage: npm run cos -- work [list] | work add "<goal>" "<task>" [agent] | work update ID queued|running|review|done|failed|cancelled [result]'); return 2;
+    }
     case "respond": {
       const { respond } = await import("./approvals.js");
       const v = argv[2] as "done" | "accept" | "dismiss" | "spam" | "hold"; const note = argv.slice(3).filter((x, i, all) => x !== "--date" && all[i - 1] !== "--date").join(" ");

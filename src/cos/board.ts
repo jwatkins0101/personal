@@ -18,6 +18,7 @@ import { approve, send, skip, markDone, respond, resume, heldItems, expireApprov
 import type { RepliedFn } from "./replied.js";
 import { gmailWebLink, parseGmailRef } from "./refs.js";
 import { emailForAccount } from "./accounts.js";
+import { listWork } from "./work.js";
 import { createJob, cancelJob, jobsForItem, reapStaleJobs, type Job } from "./agent.js";
 import { listCommitments, closeCommitment, type EvidenceChecker } from "./commitments.js";
 import { spentToday, DAILY_BUDGET_USD } from "./budget.js";
@@ -43,6 +44,7 @@ export interface BoardState {
     elsewhere: { app: string; link: string; mailbox: string; suggested: string | null } | null;
     agent: { id: number; status: string; started_at: string | null; finished_at: string | null; summary: string | null; needs_from_you: string[]; findings: { claim: string; source_ref: string }[]; gaps: string[]; drafted: boolean; cost_usd: number | null; error: string | null } | null }[];
   completed: { today: CompletedItem[]; week: CompletedItem[] };
+  work: { id: number; goal: string; title: string; agent: string; status: string; result: string | null; updated_at: string }[];
   held: { id: number; date: string; n: number; title: string; note: string; since: string; source_ref: string; link?: string }[];
   commitments: { id: number; owner: string; counterparty: string; what: string; due_at: string | null; overdue: boolean; open_question: string | null; sources: string[] }[];
   lanes: { lane: string; state: string; last_started_at: string | null; gaps: string[] }[];
@@ -144,11 +146,12 @@ export async function buildState(deps: BoardDeps): Promise<BoardState> {
 
   const lanes = laneHealth({ lanes: deps.lanes }, now).map((l) => ({ lane: l.lane, state: l.state, last_started_at: l.last_started_at, gaps: l.gaps }));
   const held = heldItems(db).map((h) => ({ id: h.id, date: h.brief_date, n: h.day_index, title: h.title, note: h.hold_note ?? "", since: h.decided_at ?? "", source_ref: h.source_ref, link: gmailLink(h.source_ref) }));
+  const work = listWork(db, todayStart.toISOString()).map((w) => ({ id: w.id, goal: w.goal, title: w.title, agent: w.agent, status: w.status, result: w.result, updated_at: w.updated_at }));
   const briefDir = deps.briefDir ?? BRIEF_DIR;
   return {
     generated_at: now.toISOString(), date, decide,
     completed: { today: completed.filter((c) => new Date(c.at) >= todayStart), week: completed.filter((c) => new Date(c.at) < todayStart) },
-    held, commitments, lanes,
+    work, held, commitments, lanes,
     brief: { date, exists: existsSync(join(briefDir, `${date}.html`)), has_audio: existsSync(join(briefDir, `${date}.mp3`)) },
     cost_today: Math.round(spentToday(now) * 100) / 100, budget: DAILY_BUDGET_USD, warnings,
   };
@@ -280,6 +283,7 @@ input{border:1px solid var(--line);background:var(--bg);color:var(--ink);border-
 <div id="warn"></div>
 <div class="grid">
 <section><h2>Decide <span id="nd"></span></h2><div id="decide"></div></section>
+<section><h2>Work in progress <span id="nw"></span></h2><div id="work"></div></section>
 <section><h2>Completed</h2><h3>Today</h3><div id="done-today"></div><h3>Earlier this week</h3><div id="done-week"></div></section>
 <section><h2>Commitments <span id="nc"></span></h2><div id="commit"></div><h3>On hold</h3><div id="held"></div></section>
 <section><h2>Lanes</h2><div class="lanes" id="lanes"></div></section>
@@ -308,6 +312,8 @@ function render(s){window.__s=s;
  if(!busy) $('commit').innerHTML=s.commitments.length?s.commitments.map(c=>'<div class="item">'+(c.overdue?'<span class="pill overdue">overdue</span>':'')+'<span class="t">'+(c.owner==='me'?'You → '+esc(c.counterparty):esc(c.counterparty)+' → you')+'</span>: '+esc(c.what)+
   '<div class="m">due '+esc(c.due_at||'no date given')+(c.open_question?' · '+esc(c.open_question):'')+' · '+esc(c.sources.join(', '))+'</div>'+
   '<div class="btns"><input id="ev-'+c.id+'" placeholder="gmail:<sent id> / task:<id>"><button onclick="closeC('+c.id+')">Mark kept</button></div></div>').join(''):'<div class="empty">No open commitments.</div>';
+ const open=s.work.filter(w=>['queued','running','review'].includes(w.status));$('nw').textContent=open.length?'('+open.length+')':'';
+ $('work').innerHTML=s.work.length?s.work.map(w=>'<div class="item"><span class="pill '+esc(w.status)+'">'+esc(w.status)+'</span>'+esc(w.title)+'<div class="m">'+esc(w.agent)+' · '+esc(w.goal)+(w.result?' · '+esc(w.result):'')+'</div></div>').join(''):'<div class="empty">Nothing in progress. Start with /cos in Claude Code.</div>';
  $('held').innerHTML=s.held.length?s.held.map(h=>'<div class="item"><span class="pill">hold</span>'+esc(h.title)+'<div class="m">'+esc(h.note)+(h.link?' · <a href="'+esc(h.link)+'" target="_blank" rel="noreferrer">source</a>':'')+'</div><div class="btns"><button data-resume="'+h.id+'">Resume</button></div></div>').join(''):'<div class="empty">Nothing on hold.</div>';
  $('lanes').innerHTML=s.lanes.map(l=>'<span class="pill '+l.state+'" title="'+esc((l.last_started_at||'never')+' '+l.gaps.join('; '))+'">'+esc(l.lane)+' '+(l.state==='ok'?'✓':l.state)+'</span>').join('');
 }

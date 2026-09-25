@@ -7,9 +7,9 @@
   ],
   "passed": true,
   "problems": [],
-  "tested_commit": "e821d0f76b09e0a3c1c6bfbeec5521cf300c2039",
+  "tested_commit": "a3ab23f7758499bf6dec9ce25e3353bca4231914",
   "worktree_dirty": true,
-  "prd_revision": 13,
+  "prd_revision": 14,
   "gate_sha256": "1d44c64def143f74f8a25eada7777e6618b3519236a7b91cf59caf3a6e17ecb0",
   "assertion_sha256": {
     "src/cos/approvals.ts": "53259f6b9c77f03d4bc1c01088e1c607105d59a9a6dc9d0dba2b610e602e34d4",
@@ -18,14 +18,14 @@
   },
   "command": "npx tsx tests/gates/cos-phase2.ts approvals",
   "exit_code": 0,
-  "output": "Running migration 1...\nMigration 1 complete.\nRunning migration 2...\nMigration 2 complete.\nRunning migration 3...\nMigration 3 complete.\nRunning migration 4...\nMigration 4 complete.\nRunning migration 5...\nMigration 5 complete.\nRunning migration 6...\nMigration 6 complete.\nRunning migration 7...\nMigration 7 complete.\nRunning migration 8...\nMigration 8 complete.\nPASS send 1 sends exactly that draft\nPASS send shows final recipient and body first\nPASS approve records a decision\nPASS approve creates the task\nPASS recipient swap refused, nothing sent\nPASS placeholder draft refused, nothing sent\nPASS skip closes the item\nPASS after 23:59 the item is expired and nothing is sent\nPASS expired status recorded",
+  "output": "Running migration 1...\nMigration 1 complete.\nRunning migration 2...\nMigration 2 complete.\nRunning migration 3...\nMigration 3 complete.\nRunning migration 4...\nMigration 4 complete.\nRunning migration 5...\nMigration 5 complete.\nRunning migration 6...\nMigration 6 complete.\nRunning migration 7...\nMigration 7 complete.\nRunning migration 8...\nMigration 8 complete.\nRunning migration 9...\nMigration 9 complete.\nPASS send 1 sends exactly that draft\nPASS send shows final recipient and body first\nPASS approve records a decision\nPASS approve creates the task\nPASS recipient swap refused, nothing sent\nPASS placeholder draft refused, nothing sent\nPASS skip closes the item\nPASS after 23:59 the item is expired and nothing is sent\nPASS expired status recorded",
   "negative_validation": {
     "env": {
       "APPROVALS_MODULE": "tests/fixtures/cos/approvals-broken.ts"
     },
     "reason": "a send without expiry/recipient/placeholder checks must fail",
     "exit_code": 1,
-    "output": "Running migration 1...\nMigration 1 complete.\nRunning migration 2...\nMigration 2 complete.\nRunning migration 3...\nMigration 3 complete.\nRunning migration 4...\nMigration 4 complete.\nRunning migration 5...\nMigration 5 complete.\nRunning migration 6...\nMigration 6 complete.\nRunning migration 7...\nMigration 7 complete.\nRunning migration 8...\nMigration 8 complete.\nFAIL send 1 sends exactly that draft\nFAIL send shows final recipient and body first\nPASS approve records a decision\nPASS approve creates the task\nFAIL recipient swap refused\nFAIL placeholder refused\nPASS skip closes the item\nFAIL expired item refused\nFAIL expired status recorded"
+    "output": "Running migration 1...\nMigration 1 complete.\nRunning migration 2...\nMigration 2 complete.\nRunning migration 3...\nMigration 3 complete.\nRunning migration 4...\nMigration 4 complete.\nRunning migration 5...\nMigration 5 complete.\nRunning migration 6...\nMigration 6 complete.\nRunning migration 7...\nMigration 7 complete.\nRunning migration 8...\nMigration 8 complete.\nRunning migration 9...\nMigration 9 complete.\nFAIL send 1 sends exactly that draft\nFAIL send shows final recipient and body first\nPASS approve records a decision\nPASS approve creates the task\nFAIL recipient swap refused\nFAIL placeholder refused\nPASS skip closes the item\nFAIL expired item refused\nFAIL expired status recorded"
   },
-  "timestamp": "2026-09-25T15:07:23.099Z"
+  "timestamp": "2026-09-25T15:15:05.363Z"
 }

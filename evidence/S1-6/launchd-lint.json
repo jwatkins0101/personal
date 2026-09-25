@@ -7,9 +7,9 @@
   ],
   "passed": true,
   "problems": [],
-  "tested_commit": "e821d0f76b09e0a3c1c6bfbeec5521cf300c2039",
+  "tested_commit": "a3ab23f7758499bf6dec9ce25e3353bca4231914",
   "worktree_dirty": true,
-  "prd_revision": 13,
+  "prd_revision": 14,
   "gate_sha256": "d319568baac0f3e62c11ad4633c6997c0dfb60097aaa2516728d4fbf96e2debe",
   "assertion_sha256": {
     "cos/bin/lane-run.sh": "16193c3810c5a75ec28e7d633705da0e80a78cf4fb4f092bd6488c7842c14631",
@@ -32,5 +32,5 @@
     "exit_code": 1,
     "output": "PASS fails twice, succeeds on attempt 3: ok record\nPASS always failing: failed record with exit gap\nPASS {date} artifact expanded; missing file fails the run\nPASS lane summary is recorded\nPASS unreconciled lane summary fails the run\nPASS com.assistance.flight-check: removed (D10)\nFAIL com.jermaine.yt-daily-brief: StandardOutPath absolute and outside ~/Documents\nFAIL com.jermaine.yt-daily-brief: StandardErrorPath absolute and outside ~/Documents\nFAIL com.jermaine.yt-daily-brief: WorkingDirectory absolute and outside ~/Documents\nFAIL com.jermaine.yt-daily-brief: runs via /bin/bash (Full Disk Access)\nFAIL com.jermaine.yt-daily-brief: no program argument points into ~/Documents (D11)\nFAIL com.jermaine.yt-daily-brief: wrapped by lane-run.sh as lane 'yt'"
   },
-  "timestamp": "2026-09-25T15:07:20.063Z"
+  "timestamp": "2026-09-25T15:15:02.499Z"
 }

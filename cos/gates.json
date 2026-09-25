@@ -327,7 +327,7 @@
       "assertion_sha256": {
         "cos/lib/ledger.mjs": "68fd202a0ffc62fa677055db0c98b8603940af45f688374286df6a9737c6baa7",
         "tests/fixtures/ledger/lib-no-heartbeat.mjs": "cb962b43b4b42c096c721134f73792011b7efdb798d7e21186a03074786a89dd",
-        "src/cos/cli.ts": "e82cce9d842f87168a544691cb25af1a4233d448c0c7508c80765ff64eee8c96"
+        "src/cos/cli.ts": "393cbc0eae55451866c10f1dcd912e330dd8bdaeb538ad1a165e4d1bafd1f275"
       }
     },
     {
@@ -691,7 +691,7 @@
       },
       "script_sha256": "de50517550b579ca32f72b6bd1a4f12bf356563d92ddf033c47d77cf7e74c138",
       "assertion_sha256": {
-        "src/cos/board.ts": "a551166773c9f6eadfd859bb4abef539cf746f79c3bc24fd8b819f3477170ffd",
+        "src/cos/board.ts": "4abfd1b142be05c00aeb2c06650194e4050f770cee96974547576831584c0476",
         "tests/fixtures/cos/board-frozen.ts": "7544e49410333ea6cdc198d57d511c3e364bd616ccab5815d809e6f6ee25149c",
         "src/cos/replied.ts": "9ece76d093cade89b3b25e12886e961e192636316d158a03e601f0e942e442d5"
       }
@@ -723,8 +723,8 @@
       },
       "script_sha256": "de50517550b579ca32f72b6bd1a4f12bf356563d92ddf033c47d77cf7e74c138",
       "assertion_sha256": {
-        "src/cos/board.ts": "a551166773c9f6eadfd859bb4abef539cf746f79c3bc24fd8b819f3477170ffd",
-        "src/cos/cli.ts": "e82cce9d842f87168a544691cb25af1a4233d448c0c7508c80765ff64eee8c96",
+        "src/cos/board.ts": "4abfd1b142be05c00aeb2c06650194e4050f770cee96974547576831584c0476",
+        "src/cos/cli.ts": "393cbc0eae55451866c10f1dcd912e330dd8bdaeb538ad1a165e4d1bafd1f275",
         "tests/fixtures/cos/board-open.ts": "de4387422ab139538a82376a793cede0ce9a6d70d9a76041cafa08055f1bcc08"
       }
     },
@@ -791,7 +791,7 @@
       "script_sha256": "596f1a1db53f9cf36d22c4b11c030ee218e438e684651de8e7e77784999190ad",
       "assertion_sha256": {
         "src/cos/agent.ts": "34afc640c7b4b98904ea0ce38cc2013ef208c80da86b1d0bd92d0f1c090923d0",
-        "src/cos/board.ts": "a551166773c9f6eadfd859bb4abef539cf746f79c3bc24fd8b819f3477170ffd",
+        "src/cos/board.ts": "4abfd1b142be05c00aeb2c06650194e4050f770cee96974547576831584c0476",
         "src/storage/migrations/007_agent_jobs.ts": "4dd4dc3e0fc7362def9abbd3badb39569fab64dad039aca50c0320690ae18f17",
         "tests/fixtures/cos/agent/aacsb.json": "184ec053cc73ca7fcf3c4641e82a95905e73dd0ea94edcfcef62dac3e6e01d9f",
         "tests/fixtures/cos/agent/placeholder.json": "503c1900857e8f42573b180db88074682163e00707ec1e7de86495214bf47107",
@@ -1112,9 +1112,44 @@
         "src/cos/approvals.ts": "53259f6b9c77f03d4bc1c01088e1c607105d59a9a6dc9d0dba2b610e602e34d4",
         "src/storage/migrations/008_approvals_hold.ts": "ac7f74b7d6bc5e4bd55e14ac04995ff3ec7be27817f070b394d12c7d65849917",
         "src/cos/render.ts": "aa71f5591bf2e12739380e38d7555b5d3a6a94d7d45e3acced05fa47af797755",
-        "src/cos/board.ts": "a551166773c9f6eadfd859bb4abef539cf746f79c3bc24fd8b819f3477170ffd",
+        "src/cos/board.ts": "4abfd1b142be05c00aeb2c06650194e4050f770cee96974547576831584c0476",
         "src/cos/executors.ts": "136d6195edbb5e4983b955ef92440d3f61740e2fcb1f964d0333cb95217ad48c",
         "tests/fixtures/cos/respond-broken.ts": "71ba797e75c037d1f673627fd6b1f20c7f8c2843389047d0cb8526ed6d22a8e4"
+      }
+    },
+    {
+      "id": "work",
+      "story": "S4-5",
+      "tier": "unit",
+      "acceptance": [
+        "AC-37"
+      ],
+      "command": [
+        "npx",
+        "tsx",
+        "tests/gates/cos-work.ts"
+      ],
+      "script": "tests/gates/cos-work.ts",
+      "assertion_files": [
+        "src/cos/work.ts",
+        "src/storage/migrations/009_work.ts",
+        "src/cos/board.ts",
+        "cos/skills/cos/SKILL.md",
+        "tests/fixtures/cos/work-broken.ts"
+      ],
+      "negative": {
+        "env": {
+          "WORK_MODULE": "../../tests/fixtures/cos/work-broken.ts"
+        },
+        "reason": "work closed without a result, or old work never leaving the list, must fail"
+      },
+      "script_sha256": "4b9e05a9aafdf52e417aa5c4589757a12054a043fd5bd8030f39787e6281d80a",
+      "assertion_sha256": {
+        "src/cos/work.ts": "3fc3fa84636854bd5d91c18ef66269c5bf9cde0baf7f3937007c0c1f70b1bfb9",
+        "src/storage/migrations/009_work.ts": "423bad39e3fcdb0ee7b41557da3703f44394bc4376c08c75037ca32f60a5fad8",
+        "src/cos/board.ts": "4abfd1b142be05c00aeb2c06650194e4050f770cee96974547576831584c0476",
+        "cos/skills/cos/SKILL.md": "27024775e71eab41b237854357bd82409a1d2864f04e7c1b01ceb3d51c2ad35c",
+        "tests/fixtures/cos/work-broken.ts": "ffc19d48ced52082cd31289b9f1c49ac9d73d84bf5590af28f128be38eff524c"
       }
     }
   ]

@@ -7,9 +7,9 @@
   ],
   "passed": true,
   "problems": [],
-  "tested_commit": "e821d0f76b09e0a3c1c6bfbeec5521cf300c2039",
+  "tested_commit": "a3ab23f7758499bf6dec9ce25e3353bca4231914",
   "worktree_dirty": true,
-  "prd_revision": 13,
+  "prd_revision": 14,
   "gate_sha256": "884ccc75cf4d226035048e8c3f05aa3f9269cb5831d8f0495c308176a2cb0ab0",
   "assertion_sha256": {
     "src/cos/commitments.ts": "60e58a521bee70b780748256e1b68cfbcb317e8b2d6140108bf5051c585c1d49",
@@ -17,14 +17,14 @@
   },
   "command": "npx tsx tests/gates/cos-phase3.ts dedupe",
   "exit_code": 0,
-  "output": "Running migration 1...\nMigration 1 complete.\nRunning migration 2...\nMigration 2 complete.\nRunning migration 3...\nMigration 3 complete.\nRunning migration 4...\nMigration 4 complete.\nRunning migration 5...\nMigration 5 complete.\nRunning migration 6...\nMigration 6 complete.\nRunning migration 7...\nMigration 7 complete.\nRunning migration 8...\nMigration 8 complete.\nPASS same promise by SMS merges into the email one\nPASS one commitment, both sources kept\nPASS different promise, or the other direction, stays separate",
+  "output": "Running migration 1...\nMigration 1 complete.\nRunning migration 2...\nMigration 2 complete.\nRunning migration 3...\nMigration 3 complete.\nRunning migration 4...\nMigration 4 complete.\nRunning migration 5...\nMigration 5 complete.\nRunning migration 6...\nMigration 6 complete.\nRunning migration 7...\nMigration 7 complete.\nRunning migration 8...\nMigration 8 complete.\nRunning migration 9...\nMigration 9 complete.\nPASS same promise by SMS merges into the email one\nPASS one commitment, both sources kept\nPASS different promise, or the other direction, stays separate",
   "negative_validation": {
     "env": {
       "COMMITMENTS_MODULE": "tests/fixtures/cos/commitments-broken.ts"
     },
     "reason": "a ledger that never merges must fail",
     "exit_code": 1,
-    "output": "Running migration 1...\nMigration 1 complete.\nRunning migration 2...\nMigration 2 complete.\nRunning migration 3...\nMigration 3 complete.\nRunning migration 4...\nMigration 4 complete.\nRunning migration 5...\nMigration 5 complete.\nRunning migration 6...\nMigration 6 complete.\nRunning migration 7...\nMigration 7 complete.\nRunning migration 8...\nMigration 8 complete.\nFAIL same promise by SMS merges into the email one\nFAIL one commitment, both sources kept\nFAIL different promise, or the other direction, stays separate"
+    "output": "Running migration 1...\nMigration 1 complete.\nRunning migration 2...\nMigration 2 complete.\nRunning migration 3...\nMigration 3 complete.\nRunning migration 4...\nMigration 4 complete.\nRunning migration 5...\nMigration 5 complete.\nRunning migration 6...\nMigration 6 complete.\nRunning migration 7...\nMigration 7 complete.\nRunning migration 8...\nMigration 8 complete.\nRunning migration 9...\nMigration 9 complete.\nFAIL same promise by SMS merges into the email one\nFAIL one commitment, both sources kept\nFAIL different promise, or the other direction, stays separate"
   },
-  "timestamp": "2026-09-25T15:07:27.255Z"
+  "timestamp": "2026-09-25T15:15:09.605Z"
 }
