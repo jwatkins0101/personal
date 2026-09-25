@@ -1,6 +1,6 @@
 # Feature: AI Chief of Staff (v1)
 
-Revision: 1. Status: planned. Feature ID: ai-chief-of-staff.
+Revision: 2. Status: in progress. Feature ID: ai-chief-of-staff.
 Source plan: `PLAN.md` (approved 2026-09-24, decisions D1–D8 = recommended). Harness: Ralph 2.0 @ `6d9f21ea27bb41662e1e69dd19ca1c483ad41c44`.
 
 ## Current specification
@@ -32,6 +32,7 @@ It never sends, pays or signs up on its own.
 | Apple Notes pipeline last ran 2026-02-25 | `pipeline_runs` table |
 | No test framework and no CI in the repo. `npm run build` = `tsc --noEmit` | `package.json`; no `.github/` |
 | No wake schedule is configured for mornings | `pmset -g sched` |
+| Task-capture failed every run from 2026-09-02 18:00 to 2026-09-24 (`tsx: command not found`: no `node_modules` in the main checkout; `better-sqlite3` 12.6.2 does not build on Node 26). After the fix, SMS classification failed because the current `claude` CLI prints an event array | `~/Library/Logs/assistance/task-capture.log` |
 
 **External claims** (from `Sites/ai-chief-of-staff-report/research.md`, retrieved 2026-09-24):
 
@@ -143,6 +144,7 @@ Existing prompt-driven lanes emit this record with a wrapper step (the lane writ
 | AC-09 | A missing or empty claimed artifact marks the run `failed` | `gate:artifacts` with an injected missing path | not_run |
 | AC-10 | `cos health` lists lanes past their window + grace period | `gate:heartbeat` with fixture ledgers; **live:** it flags the current `yt` staleness until that's fixed | not_run |
 | AC-11 | Launchd wrappers use absolute paths and retry 3× with backoff; the YT `maxfiles` failure is fixed or escalated | `gate:launchd-lint` over the plists/scripts; live yt record `ok` | not_run |
+| AC-23 | Every `claude -p --output-format json` consumer parses both the current event-array output and the legacy single object, through the shared `src/claude/result.ts`; output without a result event is an error | `gate:claude-json-parse` (negative: the legacy parser); live task-capture SMS step completes | not_run |
 | **Phase 2: orchestrator and brief** |||
 | AC-12 | `cos morning` writes md, html and mp3 briefs with the sections in the specified order; every Decide item has a `source_ref` | `gate:brief-shape` over fixture ledgers | not_run |
 | AC-13 | A proposed action whose date doesn't match its re-fetched source goes to Escalations, not Decide | `gate:verify-source` with a mismatched fixture (stubbed fetcher) | not_run |

@@ -138,6 +138,41 @@
         "cos/CLAUDE.md": "aa2fa40e2fdd4868ce8f82fa3c44055fa943b9d0664796d882f084a39e1f56bf",
         "src/cos/claude.ts": "316c9dd2299d338d7eed72bde58e979a5598ff5fe10904224b609027be21dc67"
       }
+    },
+    {
+      "id": "claude-json-parse",
+      "story": "S1-0",
+      "tier": "unit",
+      "acceptance": [
+        "AC-23"
+      ],
+      "command": [
+        "npx",
+        "tsx",
+        "tests/gates/claude-json-parse.ts"
+      ],
+      "script": "tests/gates/claude-json-parse.ts",
+      "assertion_files": [
+        "src/claude/result.ts",
+        "tests/fixtures/claude-cli/array-output.json",
+        "tests/fixtures/claude-cli/object-output.json",
+        "tests/fixtures/claude-cli/no-result-output.json",
+        "tests/fixtures/claude-cli/legacy-parser.ts"
+      ],
+      "negative": {
+        "env": {
+          "PARSER_MODULE": "tests/fixtures/claude-cli/legacy-parser.ts"
+        },
+        "reason": "the pre-fix object-only parser must fail on current CLI output"
+      },
+      "script_sha256": "db5cdb9ecd53b4445ae1830594200f351ed79b39abdcb271d620d27f529cff95",
+      "assertion_sha256": {
+        "src/claude/result.ts": "9afc8f479d77cf0941e2eddf5f4dacd4cfa68c45c4cc3da8858ed1ace46f0201",
+        "tests/fixtures/claude-cli/array-output.json": "b27c745c8445a50081e5259613ac98b77db8526bff808a376661bf085407dfb2",
+        "tests/fixtures/claude-cli/object-output.json": "7c98cebd2b8ac4a830deb3324f055a59e62ddd4c523c9265156bf9c13bc8a57a",
+        "tests/fixtures/claude-cli/no-result-output.json": "87dfa9ce3a51490e24a98baa6af08672b93acdc13de2fb94dba298619708db47",
+        "tests/fixtures/claude-cli/legacy-parser.ts": "aa8d9c521719113e2a284a40a45d07326aef4bf1e7593b001895c4b2acd50418"
+      }
     }
   ]
 }

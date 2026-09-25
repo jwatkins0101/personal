@@ -11,3 +11,4 @@
 | D7 | 2026-09-24 | $5/day cost ceiling for CoS headless calls | Cost control; the brief shows spend | — |
 | D8 | 2026-09-24 | No Cortex fleet lane in v1 | Scope | — |
 | OD-1 | 2026-09-24 | Gates run locally via `npm run gates`; no CI in v1 | Repo has no CI; local-only personal automation. Revisit if the repo gains a CI workflow | — |
+| D9 | 2026-09-24 | Add AC-23 (shared Claude CLI JSON parser) to Phase 1 and ship it as a hotfix ahead of the rest of Phase 1 | The task-capture SMS step was failing live on the CLI's new array output | PRD revision 1 → 2 |

@@ -1,4 +1,5 @@
 import { spawn } from "child_process";
+import { parseClaudeJsonOutput } from "../claude/result.js";
 import type {
   ClassifiableItem,
   ClassificationResult,
@@ -95,19 +96,9 @@ async function invokeClaudeClassifier(
       }
 
       try {
-        const response = JSON.parse(stdout);
-
-        // Handle different response formats from Claude CLI
-        let content: string;
-        if (response.result) {
-          content = response.result;
-        } else if (response.content) {
-          content = response.content;
-        } else if (typeof response === "string") {
-          content = response;
-        } else {
-          content = stdout;
-        }
+        const run = parseClaudeJsonOutput(stdout);
+        if (run.isError) throw new Error(`Claude CLI returned an error result: ${run.text}`);
+        const content = run.text;
 
         // Extract JSON from potential markdown code blocks
         let jsonStr = content;

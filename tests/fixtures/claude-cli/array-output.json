@@ -1,0 +1,51 @@
+[
+ {
+  "type": "system",
+  "subtype": "init",
+  "session_id": "fixture"
+ },
+ {
+  "type": "assistant",
+  "message": {
+   "role": "assistant",
+   "content": [
+    {
+     "type": "text",
+     "text": "(trimmed)"
+    }
+   ]
+  }
+ },
+ {
+  "type": "user",
+  "message": {
+   "role": "user",
+   "content": [
+    {
+     "type": "text",
+     "text": "(trimmed)"
+    }
+   ]
+  }
+ },
+ {
+  "type": "assistant",
+  "message": {
+   "role": "assistant",
+   "content": [
+    {
+     "type": "text",
+     "text": "(trimmed)"
+    }
+   ]
+  }
+ },
+ {
+  "type": "result",
+  "subtype": "success",
+  "is_error": false,
+  "result": "{\"classifications\":[{\"id\":\"sms:1\",\"category\":\"personal\"}]}",
+  "total_cost_usd": 0.0122916,
+  "num_turns": 2
+ }
+]
