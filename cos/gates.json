@@ -327,7 +327,7 @@
       "assertion_sha256": {
         "cos/lib/ledger.mjs": "68fd202a0ffc62fa677055db0c98b8603940af45f688374286df6a9737c6baa7",
         "tests/fixtures/ledger/lib-no-heartbeat.mjs": "cb962b43b4b42c096c721134f73792011b7efdb798d7e21186a03074786a89dd",
-        "src/cos/cli.ts": "56abc48930643c0b676cf396ce63ad8e24e427d01004063f485e644729d24cd4"
+        "src/cos/cli.ts": "573574766acd56aaf5b1f7b7650c2e67ab783bf4bca018b0eb6b71a403cbd3de"
       }
     },
     {
@@ -724,7 +724,7 @@
       "script_sha256": "de50517550b579ca32f72b6bd1a4f12bf356563d92ddf033c47d77cf7e74c138",
       "assertion_sha256": {
         "src/cos/board.ts": "6b1ab81070f96097df95a884b6a196fdcb827d0992abcfc0375e9ae8aabb4e35",
-        "src/cos/cli.ts": "56abc48930643c0b676cf396ce63ad8e24e427d01004063f485e644729d24cd4",
+        "src/cos/cli.ts": "573574766acd56aaf5b1f7b7650c2e67ab783bf4bca018b0eb6b71a403cbd3de",
         "tests/fixtures/cos/board-open.ts": "de4387422ab139538a82376a793cede0ce9a6d70d9a76041cafa08055f1bcc08"
       }
     },
@@ -788,9 +788,9 @@
         },
         "reason": "an agent path that trusts the agent's recipient or drafts placeholders must fail"
       },
-      "script_sha256": "6b34718d2ad7a96db3711f039a1da84ac93662ab6516f584eac169c853b66949",
+      "script_sha256": "716cf1d44dd88e0afd9b74eac106a7b276c85014d8f589bd8b932546f9233c14",
       "assertion_sha256": {
-        "src/cos/agent.ts": "ffa659bd295bb43fa71e479d9fa745f10718fdbf8add8331ca669d1c8831eb9b",
+        "src/cos/agent.ts": "34afc640c7b4b98904ea0ce38cc2013ef208c80da86b1d0bd92d0f1c090923d0",
         "src/cos/board.ts": "6b1ab81070f96097df95a884b6a196fdcb827d0992abcfc0375e9ae8aabb4e35",
         "src/storage/migrations/007_agent_jobs.ts": "4dd4dc3e0fc7362def9abbd3badb39569fab64dad039aca50c0320690ae18f17",
         "tests/fixtures/cos/agent/aacsb.json": "184ec053cc73ca7fcf3c4641e82a95905e73dd0ea94edcfcef62dac3e6e01d9f",
@@ -822,10 +822,10 @@
         },
         "reason": "a no-op guard must fail"
       },
-      "script_sha256": "6b34718d2ad7a96db3711f039a1da84ac93662ab6516f584eac169c853b66949",
+      "script_sha256": "716cf1d44dd88e0afd9b74eac106a7b276c85014d8f589bd8b932546f9233c14",
       "assertion_sha256": {
         "cos/hooks/agent-guard.sh": "d14f623a7e68ca20e6077b558f6713c61be0356391a7f52ab5886d570998884d",
-        "src/cos/agent.ts": "ffa659bd295bb43fa71e479d9fa745f10718fdbf8add8331ca669d1c8831eb9b"
+        "src/cos/agent.ts": "34afc640c7b4b98904ea0ce38cc2013ef208c80da86b1d0bd92d0f1c090923d0"
       }
     },
     {
@@ -856,11 +856,11 @@
         },
         "reason": "without the reply-elsewhere rule UofL mail would get Gmail drafts"
       },
-      "script_sha256": "6b34718d2ad7a96db3711f039a1da84ac93662ab6516f584eac169c853b66949",
+      "script_sha256": "716cf1d44dd88e0afd9b74eac106a7b276c85014d8f589bd8b932546f9233c14",
       "assertion_sha256": {
         "src/cos/mailboxes.ts": "9e1d74e72431c5bdf0ca7cc270e6be7c0d654a6797f70ff2a7bfeb840c25ae96",
         "src/cos/morning.ts": "0aebb34ab44ced2018df24097cf945397c494e00f425f418fb91428ee5d3c085",
-        "src/cos/agent.ts": "ffa659bd295bb43fa71e479d9fa745f10718fdbf8add8331ca669d1c8831eb9b",
+        "src/cos/agent.ts": "34afc640c7b4b98904ea0ce38cc2013ef208c80da86b1d0bd92d0f1c090923d0",
         "cos/accounts.json": "6455bbbd41555764ebd1ebc4c883c5c2a1c5f085a2ff6b3f77665ceba8c6091d",
         "tests/fixtures/cos/synthesis-uofl.json": "4377a6db05ccd0450ab308f22f5f2ef8f8630743f6d621cbe0f61848a29362be",
         "tests/fixtures/cos/accounts-no-elsewhere.json": "57cebd7937aa4c9bf8ce7e4b3cec8e8ae53cd66636bfa66c028e6ee5538eb206"
@@ -906,7 +906,7 @@
         "src/cos/morning.ts": "0aebb34ab44ced2018df24097cf945397c494e00f425f418fb91428ee5d3c085",
         "src/cos/approvals.ts": "3db73aa35c2a8737107d28f2d7fc8bc4ef870729b1debc3634e56ffa72057b4b",
         "src/cos/executors.ts": "9dafdf611825911eef62a9047dc67e8fbc762788479efcc7d62e249ef1b8ba68",
-        "src/cos/agent.ts": "ffa659bd295bb43fa71e479d9fa745f10718fdbf8add8331ca669d1c8831eb9b",
+        "src/cos/agent.ts": "34afc640c7b4b98904ea0ce38cc2013ef208c80da86b1d0bd92d0f1c090923d0",
         "src/cos/eod.ts": "4de2cb3397fb47eca2b67de73c121c3385e64e7fa22f55e3e8cb7843b5041b33",
         "cos/accounts.json": "6455bbbd41555764ebd1ebc4c883c5c2a1c5f085a2ff6b3f77665ceba8c6091d",
         "tests/fixtures/cos/synthesis-multi.json": "6cdbf05f86a76a13d2024f2aeeb805dc70df5c832572d788381a8ae6b5bf6711",
@@ -1011,6 +1011,44 @@
         "src/cos/morning.ts": "0aebb34ab44ced2018df24097cf945397c494e00f425f418fb91428ee5d3c085",
         "cos/triage-rules.json": "80558f426d3184fe83f7673ff61958c325a3d301c7b4f462c23a0ee245644fd7",
         "tests/fixtures/cos/triage-rules-broken.json": "865fbafc83167e03f37929b28f7c088fad03036dee454ce65fc4fab168d7f796"
+      }
+    },
+    {
+      "id": "agent-attachments",
+      "story": "S5-4",
+      "tier": "unit",
+      "acceptance": [
+        "AC-34"
+      ],
+      "command": [
+        "npx",
+        "tsx",
+        "tests/gates/cos-agent.ts",
+        "agent-attachments"
+      ],
+      "script": "tests/gates/cos-agent.ts",
+      "assertion_files": [
+        "src/cos/attachments.ts",
+        "src/cos/agent.ts",
+        "tests/fixtures/cos/attachments/definitions.docx",
+        "tests/fixtures/cos/attachments/definitions.pdf",
+        "tests/fixtures/cos/attachments/photo.png",
+        "tests/fixtures/cos/attachments-broken.ts"
+      ],
+      "negative": {
+        "env": {
+          "ATTACH_MODULE": "tests/fixtures/cos/attachments-broken.ts"
+        },
+        "reason": "dumping raw file bytes instead of extracting text must fail"
+      },
+      "script_sha256": "716cf1d44dd88e0afd9b74eac106a7b276c85014d8f589bd8b932546f9233c14",
+      "assertion_sha256": {
+        "src/cos/attachments.ts": "212135e187c3734ef50cd5c140290b2971483ccbf7c0838c2c55b1ada88ab7fb",
+        "src/cos/agent.ts": "34afc640c7b4b98904ea0ce38cc2013ef208c80da86b1d0bd92d0f1c090923d0",
+        "tests/fixtures/cos/attachments/definitions.docx": "d9c26766ef487a6d93da76068bb94cbebabedc2715f6283cbef631641189f920",
+        "tests/fixtures/cos/attachments/definitions.pdf": "b7de53ec5f2c3e9342517ce9c8add4fe2c5a5b7c7805ed2dea092bf7f5c84eef",
+        "tests/fixtures/cos/attachments/photo.png": "6b7fa434f92a8b80aab02d9bf1a12e49ffcae424e4013a1c4f68b67e3d2bbcd0",
+        "tests/fixtures/cos/attachments-broken.ts": "9f74096fa2bd4d7486997f96a19faedf20414677d97482bb2ee76d6eecd22cd5"
       }
     }
   ]

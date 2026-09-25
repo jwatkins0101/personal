@@ -125,6 +125,12 @@ async function main(): Promise<number> {
         fetchSource: async (ref) => { const g = parseGmailRef(ref); if (!g) return null; const m = await withAccount(g.account, () => getMessageMeta(g.id)); return { from: m.from, subject: m.subject, threadId: m.threadId, to: m.to, cc: m.cc }; },
         messageIdHeader: async (ref) => { const g = parseGmailRef(ref); return g ? withAccount(g.account, () => getMessageIdHeader(g.id)) : ""; },
         createReplyDraft: (o) => withAccount(o.account, () => createReplyDraft(o)),
+        attachments: async (ref) => {
+          const g = parseGmailRef(ref); if (!g) return [];
+          const { messageAttachments } = await import("./attachments.js");
+          const { authedFetch } = await import("../google/auth.js");
+          return withAccount(g.account, () => messageAttachments(g.id, async (p) => (await authedFetch(`https://gmail.googleapis.com/gmail/v1/users/me${p}`)).json()));
+        },
       });
       console.log(`agent job ${j.id}: ${j.status}${j.error ? ` - ${j.error}` : ""}`);
       return j.status === "ready" ? 0 : 1;
