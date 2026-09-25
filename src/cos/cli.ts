@@ -51,6 +51,12 @@ async function main(): Promise<number> {
       console.log(`brief: ${r.files.html}\nstatus: ${r.brief.status} · decide: ${r.brief.decide.length} · escalations: ${r.brief.escalations.length} · ping: ${r.ping}`);
       return 0;
     }
+    case "ping-test": {
+      const { sendIMessageToSelf } = await import("./notify.js");
+      const r = sendIMessageToSelf(`Chief of Staff test ping ${new Date().toLocaleTimeString()}`);
+      console.log(r.ok ? "iMessage sent to self" : `iMessage failed: ${r.error}`);
+      return r.ok ? 0 : 1;
+    }
     case "queue": {
       const db = getDb(); expireApprovals(db);
       const rows = listApprovals(db, arg && /^\d{4}-/.test(arg) ? arg : date);

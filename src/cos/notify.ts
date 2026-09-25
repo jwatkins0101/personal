@@ -10,9 +10,20 @@ export const SELF_HANDLE = "jermainewatkins@gmail.com";
 
 const asString = (s: string) => `"${s.replace(/\\/g, "\\\\").replace(/"/g, '\\"')}"`;
 
-export function sendIMessageToSelf(text: string, timeoutMs = 20_000): { ok: boolean; error?: string } {
+export function sendIMessageToSelf(text: string, timeoutMs = 60_000): { ok: boolean; error?: string } {
+  // Some Messages accounts error when asked for their service type, which breaks a `whose` filter,
+  // so check each account on its own and use the first iMessage one.
   const script = `tell application "Messages"
-  set svc to 1st account whose service type = iMessage
+  set svc to missing value
+  repeat with a in accounts
+    try
+      if ((service type of a) as text) is "iMessage" and (enabled of a) then
+        set svc to a
+        exit repeat
+      end if
+    end try
+  end repeat
+  if svc is missing value then error "no enabled iMessage account"
   send ${asString(text)} to participant ${asString(SELF_HANDLE)} of svc
 end tell`;
   const r = spawnSync("osascript", ["-e", script], { encoding: "utf8", timeout: timeoutMs });

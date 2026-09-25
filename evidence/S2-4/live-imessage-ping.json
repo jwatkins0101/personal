@@ -1,0 +1,23 @@
+{
+  "gate": "live-imessage-ping",
+  "story": "S2-4",
+  "acceptance": [
+    "AC-15"
+  ],
+  "tested_commit": "303f5759962ae43f7fb8adf97ee06c01a25acdac + notify.ts fix (this commit)",
+  "command": "temporary LaunchAgent (same gui/$UID launchd context as cos-morning): npm run cos -- ping-test",
+  "output": [
+    "iMessage sent to self",
+    "exit=0"
+  ],
+  "chat_db": {
+    "sent_at": "2026-09-25 00:51:56",
+    "is_from_me": 1,
+    "service": "iMessage",
+    "handle": "jermainewatkins@gmail.com",
+    "error": 0
+  },
+  "root_cause": "`1st account whose service type = iMessage` fails (-1728) because two Messages accounts error on `service type`; no Automation prompt was involved. Fixed by checking accounts one by one; timeout raised to 60s.",
+  "passed": true,
+  "timestamp": "2026-09-25T04:52:15.921992+00:00"
+}
