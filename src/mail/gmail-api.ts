@@ -128,3 +128,66 @@ export async function batchModify(
     if (!res.ok) throw new Error(`Gmail batchModify failed (${res.status}): ${await res.text()}`);
   }
 }
+
+// ---- Drafts (ai-chief-of-staff: reply drafts are A2; sending is A3 and happens only via `cos send N`) ----
+
+/** Reads the RFC 822 Message-ID header of a message (for reply threading). */
+export async function getMessageIdHeader(id: string): Promise<string> {
+  const params = new URLSearchParams({ format: "metadata" });
+  params.append("metadataHeaders", "Message-ID");
+  const res = await gapi(`/messages/${id}?${params}`);
+  if (!res.ok) throw new Error(`Gmail get failed (${res.status}): ${await res.text()}`);
+  const json = (await res.json()) as { payload?: { headers?: { name: string; value: string }[] } };
+  return json.payload?.headers?.find((h) => h.name.toLowerCase() === "message-id")?.value ?? "";
+}
+
+const b64url = (s: string) => Buffer.from(s, "utf8").toString("base64").replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+
+/** Creates a draft (in a thread when threadId is given). Returns the draft id. */
+export async function createDraft(opts: { to: string; subject: string; body: string; threadId?: string; inReplyTo?: string }): Promise<string> {
+  const headers = [`To: ${opts.to}`, `Subject: ${opts.subject}`, "Content-Type: text/plain; charset=UTF-8", "MIME-Version: 1.0"];
+  if (opts.inReplyTo) headers.push(`In-Reply-To: ${opts.inReplyTo}`, `References: ${opts.inReplyTo}`);
+  const raw = b64url(`${headers.join("\r\n")}\r\n\r\n${opts.body}`);
+  const message: Record<string, string> = { raw };
+  if (opts.threadId) message.threadId = opts.threadId;
+  const res = await gapi(`/drafts`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ message }),
+  });
+  if (!res.ok) throw new Error(`Gmail draft create failed (${res.status}): ${await res.text()}`);
+  return ((await res.json()) as { id: string }).id;
+}
+
+/** Creates a reply draft in the original thread. Returns the draft id. */
+export async function createReplyDraft(opts: { to: string; subject: string; body: string; threadId: string; inReplyTo?: string }): Promise<string> {
+  const subject = /^re:/i.test(opts.subject) ? opts.subject : `Re: ${opts.subject}`;
+  return createDraft({ ...opts, subject });
+}
+
+/** Reads a draft's recipients, subject and plain-text body. */
+export async function readDraft(draftId: string): Promise<{ to: string; subject: string; body: string }> {
+  const res = await gapi(`/drafts/${draftId}?format=full`);
+  if (!res.ok) throw new Error(`Gmail draft get failed (${res.status}): ${await res.text()}`);
+  type Part = { mimeType?: string; body?: { data?: string }; parts?: Part[]; headers?: { name: string; value: string }[] };
+  const json = (await res.json()) as { message: { payload: Part } };
+  const p = json.message.payload;
+  const hdr = (n: string) => p.headers?.find((h) => h.name.toLowerCase() === n)?.value ?? "";
+  const findText = (part: Part): string => {
+    if (part.mimeType === "text/plain" && part.body?.data) return Buffer.from(part.body.data, "base64url").toString("utf8");
+    for (const c of part.parts ?? []) { const t = findText(c); if (t) return t; }
+    return part.body?.data ? Buffer.from(part.body.data, "base64url").toString("utf8") : "";
+  };
+  return { to: hdr("to"), subject: hdr("subject"), body: findText(p) };
+}
+
+/** Sends an existing draft. Returns the sent message id. */
+export async function sendDraft(draftId: string): Promise<string> {
+  const res = await gapi(`/drafts/send`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ id: draftId }),
+  });
+  if (!res.ok) throw new Error(`Gmail draft send failed (${res.status}): ${await res.text()}`);
+  return ((await res.json()) as { id: string }).id;
+}

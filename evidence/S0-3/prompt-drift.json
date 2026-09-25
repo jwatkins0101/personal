@@ -7,9 +7,9 @@
   ],
   "passed": true,
   "problems": [],
-  "tested_commit": "91a2a17039c7ab89183ff1723156d45cdba82792",
-  "worktree_dirty": false,
-  "prd_revision": 2,
+  "tested_commit": "29a4a03731b397882e1f3af0dd510db8413b49e5",
+  "worktree_dirty": true,
+  "prd_revision": 3,
   "gate_sha256": "d144fd73d3221530b88072470808d33e662948bf81af8568593904111bc57dc0",
   "assertion_sha256": {
     "tests/fixtures/gates/drifted-prompt.md": "8108d7f79edce01907c0b8fbd03091fb24e026fe5e7b090a294e6d84ef638510"
@@ -25,5 +25,5 @@
     "exit_code": 1,
     "output": "FAIL drift: repo=5910c19c445d1c7dfc95a8c127581fe2476471a4b3b331ba1111af9b046c5440 deployed=8108d7f79edce01907c0b8fbd03091fb24e026fe5e7b090a294e6d84ef638510. Run scripts/deploy-triage-launchd.sh (or reconcile edits back into the repo first)."
   },
-  "timestamp": "2026-09-25T02:49:52.544Z"
+  "timestamp": "2026-09-25T04:25:14.401Z"
 }

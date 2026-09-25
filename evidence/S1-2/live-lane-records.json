@@ -1,0 +1,86 @@
+{
+  "gate": "live-lane-records",
+  "story": "S1-2",
+  "acceptance": [
+    "AC-07",
+    "AC-08",
+    "AC-11"
+  ],
+  "tested_commit": "29a4a03731b397882e1f3af0dd510db8413b49e5",
+  "command": "launchctl kickstart gui/$UID/{com.assistance.gmail-triage,com.assistance.task-capture} after scripts/deploy-lanes.sh from ~/Code/assistance",
+  "records": {
+    "inbox": {
+      "lane": "inbox",
+      "run_id": "inbox-20260925T000054-99593",
+      "status": "ok",
+      "started_at": "2026-09-25T04:00:54Z",
+      "finished_at": "2026-09-25T04:01:30.672Z",
+      "items_in": 2,
+      "items_out": {
+        "action": 0,
+        "school": 0,
+        "receipts": 0,
+        "shipping": 0,
+        "finance": 0,
+        "newsletters": 2,
+        "notifications": 0
+      },
+      "artifacts": [],
+      "findings": [],
+      "proposed_actions": [],
+      "open_questions": [],
+      "gaps": [],
+      "cost_usd": null
+    },
+    "tasks-email": {
+      "lane": "tasks-email",
+      "run_id": "tasks-email-20260925T000054-99612",
+      "status": "ok",
+      "started_at": "2026-09-25T04:00:54Z",
+      "finished_at": "2026-09-25T04:01:00.576Z",
+      "items_in": 164,
+      "items_out": {
+        "not_actionable": 143,
+        "tasks_created": 0,
+        "already_captured": 21
+      },
+      "artifacts": [],
+      "findings": [],
+      "proposed_actions": [],
+      "open_questions": [],
+      "gaps": [],
+      "cost_usd": null
+    },
+    "tasks-sms": {
+      "lane": "tasks-sms",
+      "run_id": "tasks-sms-20260925T000104-99869",
+      "status": "ok",
+      "started_at": "2026-09-25T04:01:04Z",
+      "finished_at": "2026-09-25T04:01:40.538Z",
+      "items_in": 22,
+      "items_out": {
+        "no_action": 20,
+        "tasks_created": 0,
+        "already_captured": 2,
+        "merged_same_sender": 0
+      },
+      "artifacts": [],
+      "findings": [],
+      "proposed_actions": [],
+      "open_questions": [],
+      "gaps": [],
+      "cost_usd": null
+    }
+  },
+  "reconciled": {
+    "inbox": true,
+    "tasks-email": true,
+    "tasks-sms": true
+  },
+  "pending": {
+    "yt": "running (catching up 8 days of videos)",
+    "deals": "next scheduled run Sun 07:18; not kicked (drives Chrome)"
+  },
+  "passed": true,
+  "timestamp": "2026-09-25T04:02:13.614781+00:00"
+}

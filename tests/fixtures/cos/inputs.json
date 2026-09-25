@@ -1,0 +1,12 @@
+{
+  "date": "2026-09-25", "generated_at": "2026-09-25T11:30:00.000Z",
+  "inbox": [
+    {"id":"m1","from":"Dana Client <dana@clientco.com>","subject":"SOW revisions - review by Friday 10/2","snippet":"Can you review and sign off by Friday 10/2?","date":"Thu, 24 Sep 2026 16:00:00 -0400","starred":true},
+    {"id":"m2","from":"Andrew Wright <andrew.wright@louisville.edu>","subject":"AACSB Faculty Qualifications","snippet":"Please reply with your status.","date":"Thu, 24 Sep 2026 10:00:00 -0400","starred":false}
+  ],
+  "tasks": [{"id":"t1","title":"Renew car registration","due":"2026-09-30T00:00:00.000Z","list":"📥 Inbox"}],
+  "calendar": [{"day":"today","title":"Copilot Hackathon","start":"2026-09-25 10:30:00","end":"2026-09-25 11:00:00","all_day":false,"ref":"cal:Copilot Hackathon@2026-09-25 10:30:00"}],
+  "lanes": [{"lane":"inbox","state":"ok","last_started_at":"2026-09-25T11:00:00Z","last_status":"ok","expected_since":null,"gaps":[]},
+            {"lane":"yt","state":"stale","last_started_at":null,"last_status":null,"expected_since":"2026-09-25T11:03:00Z","gaps":[]}],
+  "lane_gaps": [], "fyi_sources": {}, "gaps": ["Google Tasks unavailable: test gap"]
+}

@@ -7,9 +7,9 @@
   ],
   "passed": true,
   "problems": [],
-  "tested_commit": "91a2a17039c7ab89183ff1723156d45cdba82792",
-  "worktree_dirty": false,
-  "prd_revision": 2,
+  "tested_commit": "29a4a03731b397882e1f3af0dd510db8413b49e5",
+  "worktree_dirty": true,
+  "prd_revision": 3,
   "gate_sha256": "9a7f1e3c3bb84c96583aa4d7e1c88c86f13b6302be65dda257cd92ab1bd8e696",
   "assertion_sha256": {
     "tests/fixtures/gates/bad-gmail-query.txt": "5c8d3404aba7ca4c59049c3eb22f80dfbd96f73c79395a90ed426332d2852815"
@@ -25,5 +25,5 @@
     "exit_code": 1,
     "output": "FAIL minute-looking Gmail windows (m = months):\ntests/fixtures/gates/bad-gmail-query.txt:1:q: \"in:inbox newer_than:90m\"\nPASS triage prompt uses after:{{SINCE_EPOCH}}\nPASS runner computes a 90-minute epoch\nPASS runner aborts on unrendered placeholder"
   },
-  "timestamp": "2026-09-25T02:49:52.464Z"
+  "timestamp": "2026-09-25T04:25:14.323Z"
 }

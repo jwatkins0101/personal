@@ -7,9 +7,9 @@
   ],
   "passed": true,
   "problems": [],
-  "tested_commit": "91a2a17039c7ab89183ff1723156d45cdba82792",
-  "worktree_dirty": false,
-  "prd_revision": 2,
+  "tested_commit": "29a4a03731b397882e1f3af0dd510db8413b49e5",
+  "worktree_dirty": true,
+  "prd_revision": 3,
   "gate_sha256": "2ab62c645ac7ce3b4a7d0600705e89a7e094f65a13156e33df475494edb0274a",
   "assertion_sha256": {
     "cos/lib/ledger.mjs": "68fd202a0ffc62fa677055db0c98b8603940af45f688374286df6a9737c6baa7",
@@ -26,5 +26,5 @@
     "exit_code": 1,
     "output": "FAIL 17 in vs 16 out marks the run failed\nFAIL gap names both counts\nPASS reconciled run stays ok\nPASS non-counting lane is not reconciled"
   },
-  "timestamp": "2026-09-25T02:51:12.210Z"
+  "timestamp": "2026-09-25T04:26:31.431Z"
 }

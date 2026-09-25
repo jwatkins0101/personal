@@ -1,0 +1,14 @@
+{
+  "status": "WATCH", "status_line": "One client deadline and one reply owed.",
+  "decide": [
+    {"kind":"reply","title":"Confirm SOW review","detail":"Dana needs sign-off","source_ref":"gmail:m1","claimed_from":"Dana Client","due_quote":"Friday 10/2","draft_body":"Hi Dana,\n\nI'll review and sign off by Friday.\n\nJermaine"},
+    {"kind":"reply","title":"AACSB status","source_ref":"gmail:m2","claimed_from":"Andrew Wright","draft_body":"Hi Andrew,\n\nMy status is [SA/PA].\n\nJermaine"},
+    {"kind":"decide","title":"Wrong date claim","source_ref":"gmail:m1","claimed_from":"Dana Client","due_quote":"Monday 10/5"},
+    {"kind":"task","title":"Invented source","source_ref":"gmail:nope"}
+  ],
+  "critical_path": [{"text":"SOW sign-off by Friday","source_ref":"gmail:m1"},{"text":"Made-up item","source_ref":"gmail:ghost"}],
+  "meetings_prep": [{"text":"Hackathon 10:30","source_ref":"cal:Copilot Hackathon@2026-09-25 10:30:00"}],
+  "replies_owed": [{"text":"Andrew Wright","source_ref":"gmail:m2"}],
+  "waiting_on": [], "deadlines": [{"text":"Car registration","date_quote":"2026-09-30","source_ref":"task:t1"}],
+  "fyi": [], "one_first_move": "Review the SOW."
+}

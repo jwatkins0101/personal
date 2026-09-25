@@ -110,6 +110,24 @@
       },
       "grace_minutes": 90,
       "counts": false
+    },
+    {
+      "lane": "cos-morning",
+      "label": "com.assistance.cos-morning",
+      "schedule": {
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "times": [
+          "07:30"
+        ]
+      },
+      "grace_minutes": 45,
+      "counts": true
     }
   ]
 }

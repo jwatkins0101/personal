@@ -3,7 +3,7 @@
 # (ai-chief-of-staff AC-07, AC-11). Idempotent. Backs up each plist before changing it.
 #   scripts/deploy-lanes.sh            deploy runtime + all lanes
 #   scripts/deploy-lanes.sh runtime    deploy cos/bin + cos/lib only
-#   scripts/deploy-lanes.sh <lane>     deploy runtime + one lane (inbox|deals|yt|tasks)
+#   scripts/deploy-lanes.sh <lane>     deploy runtime + one lane (inbox|deals|yt|tasks|cos-morning)
 set -euo pipefail
 REPO_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 case "$REPO_DIR" in */.claude/worktrees/*)
@@ -29,8 +29,8 @@ set_lane() {
   local lane="$1" label="$2" log="$3" wd="$4"; shift 4
   [ "$ONLY" = "all" ] || [ "$ONLY" = "$lane" ] || return 0
   local plist="$LA/$label.plist"
-  [ -f "$plist" ] || { echo "WARN: $plist missing; skipped" >&2; return; }
-  mkdir -p "$BACKUP"; cp "$plist" "$BACKUP/"
+  if [ -f "$plist" ]; then mkdir -p "$BACKUP"; cp "$plist" "$BACKUP/"
+  elif [ "${CREATE:-0}" != "1" ]; then echo "WARN: $plist missing; skipped" >&2; return; fi
   python3 "$REPO_DIR/scripts/set-launchd-lane.py" "$plist" "$LOGS/$log" "$wd" "$@"
   plutil -lint "$plist" >/dev/null
   launchctl bootout "gui/$(id -u)/$label" 2>/dev/null || true
@@ -46,6 +46,11 @@ set_lane deals com.jermaine.deal-watch deals-launchd.log "$AS" -- \
 set_lane yt com.jermaine.yt-daily-brief yt-launchd.log "$AS" -- \
   /bin/bash "$WRAP" yt --attempts 2 --artifact "$CODE/youtube-knowledge/briefs/{date}.md" -- \
   /bin/zsh -lc 'cd "$HOME/Code" && "$HOME/.local/bin/claude" -p "Follow the instructions in youtube-knowledge/daily-brief.md exactly." --dangerously-skip-permissions'
+
+# Chief of Staff morning brief: 07:30 Mon-Fri (AC-17). Weekday 1-5 = Mon-Fri in launchd.
+CREATE=1 set_lane cos-morning com.assistance.cos-morning cos-morning-launchd.log "$AS" --time 07:30 --weekdays 1-5 -- \
+  /bin/bash "$WRAP" cos-morning --attempts 2 --artifact "$AS/briefs/{date}.html" -- \
+  /bin/bash -c 'cd "$HOME/Code/assistance" && npm run -s cos -- morning'
 
 # task-capture wraps each of its two steps itself (see deploy-task-capture-launchd.sh).
 if [ "$ONLY" = "all" ] || [ "$ONLY" = "tasks" ]; then bash "$REPO_DIR/scripts/deploy-task-capture-launchd.sh"; fi

@@ -1,0 +1,21 @@
+{
+  "gate": "live-health",
+  "story": "S1-5",
+  "acceptance": [
+    "AC-10"
+  ],
+  "tested_commit": "29a4a03731b397882e1f3af0dd510db8413b49e5",
+  "command": "npm run cos -- health",
+  "output": [
+    "OK    inbox        last=2026-09-25T04:00:54Z (ok)",
+    "OK    tasks-email  last=2026-09-25T04:00:54Z (ok)",
+    "OK    tasks-sms    last=2026-09-25T04:01:04Z (ok)",
+    "STALE deals        last=never expected by 2026-09-23T11:18:00.000Z",
+    "STALE yt           last=never expected by 2026-09-24T11:03:00.000Z",
+    "",
+    "2 lane(s) need attention"
+  ],
+  "passed": true,
+  "note": "health correctly reports stale lanes that have not run since the fix",
+  "timestamp": "2026-09-25T04:02:13.614781+00:00"
+}

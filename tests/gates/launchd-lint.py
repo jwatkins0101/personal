@@ -57,6 +57,10 @@ for l in lanes:
         check(bool(v) and v.startswith("/") and not v.startswith(docs), f"{label}: {k} absolute and outside ~/Documents")
     check(bool(args) and args[0] == "/bin/bash", f"{label}: runs via /bin/bash (Full Disk Access)")
     check(not any("/Documents/" in a for a in args), f"{label}: no program argument points into ~/Documents (D11)")
+    if label == "com.assistance.cos-morning":
+        sci = p.get("StartCalendarInterval")
+        days = sorted(x.get("Weekday") for x in sci) if isinstance(sci, list) else []
+        check(days == [1, 2, 3, 4, 5] and all((x.get("Hour"), x.get("Minute")) == (7, 30) for x in sci), f"{label}: 07:30 Mon-Fri (AC-17)")
     if label == "com.assistance.task-capture":
         runner = args[1] if len(args) > 1 else ""
         txt = open(runner).read() if os.path.exists(runner) else ""
