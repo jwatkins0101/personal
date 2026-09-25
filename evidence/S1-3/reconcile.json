@@ -7,7 +7,7 @@
   ],
   "passed": true,
   "problems": [],
-  "tested_commit": "40c93182108bfa1d2fbc6da21d940d9360aeb2b2",
+  "tested_commit": "e821d0f76b09e0a3c1c6bfbeec5521cf300c2039",
   "worktree_dirty": true,
   "prd_revision": 13,
   "gate_sha256": "2ab62c645ac7ce3b4a7d0600705e89a7e094f65a13156e33df475494edb0274a",
@@ -26,5 +26,5 @@
     "exit_code": 1,
     "output": "FAIL 17 in vs 16 out marks the run failed\nFAIL gap names both counts\nPASS reconciled run stays ok\nPASS non-counting lane is not reconciled"
   },
-  "timestamp": "2026-09-25T14:52:05.610Z"
+  "timestamp": "2026-09-25T15:07:18.211Z"
 }

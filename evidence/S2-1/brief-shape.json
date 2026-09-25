@@ -7,12 +7,12 @@
   ],
   "passed": true,
   "problems": [],
-  "tested_commit": "40c93182108bfa1d2fbc6da21d940d9360aeb2b2",
+  "tested_commit": "e821d0f76b09e0a3c1c6bfbeec5521cf300c2039",
   "worktree_dirty": true,
   "prd_revision": 13,
   "gate_sha256": "1d44c64def143f74f8a25eada7777e6618b3519236a7b91cf59caf3a6e17ecb0",
   "assertion_sha256": {
-    "src/cos/render.ts": "b2f789a66e94d918ee94c0ffc7bb6e7025f05951d8f62af4346c7f753acd228b",
+    "src/cos/render.ts": "aa71f5591bf2e12739380e38d7555b5d3a6a94d7d45e3acced05fa47af797755",
     "src/cos/synth.ts": "eb4f928f03eb1b1e392b9f6a3b34b45d68bc73ffa8809d94fb8d9d5b5dd9581d",
     "tests/fixtures/cos/synthesis.json": "1e5b96673754f9a84665a86e79be75bd0ad31b5026a8c51799bae23d39458ed5",
     "tests/fixtures/cos/inputs.json": "5b674a883c0222c72c675d10efc7edc123ff52843923e089d8448b1eda60f84f",
@@ -29,5 +29,5 @@
     "exit_code": 1,
     "output": "PASS items citing sources not in the inputs are dropped\nPASS markdown sections in charter order\nPASS html sections in charter order\nFAIL escalations rendered\nPASS every Decide item carries its source_ref\nFAIL mp3 generated and embedded\nFAIL speed control 0.75x-2x with pitch preserved"
   },
-  "timestamp": "2026-09-25T14:52:09.249Z"
+  "timestamp": "2026-09-25T15:07:21.833Z"
 }

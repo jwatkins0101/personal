@@ -7,7 +7,7 @@
   ],
   "passed": true,
   "problems": [],
-  "tested_commit": "40c93182108bfa1d2fbc6da21d940d9360aeb2b2",
+  "tested_commit": "e821d0f76b09e0a3c1c6bfbeec5521cf300c2039",
   "worktree_dirty": true,
   "prd_revision": 13,
   "gate_sha256": "db5cdb9ecd53b4445ae1830594200f351ed79b39abdcb271d620d27f529cff95",
@@ -29,5 +29,5 @@
     "exit_code": 1,
     "output": "FAIL current CLI event-array output parses to the final result\nFAIL cost is read from the result event\nPASS legacy single-object output still parses\nPASS output without a result event is rejected\nPASS classifier uses the shared parser"
   },
-  "timestamp": "2026-09-25T14:50:43.405Z"
+  "timestamp": "2026-09-25T15:05:51.289Z"
 }

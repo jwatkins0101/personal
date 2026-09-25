@@ -7,7 +7,7 @@
   ],
   "passed": true,
   "problems": [],
-  "tested_commit": "40c93182108bfa1d2fbc6da21d940d9360aeb2b2",
+  "tested_commit": "e821d0f76b09e0a3c1c6bfbeec5521cf300c2039",
   "worktree_dirty": true,
   "prd_revision": 13,
   "gate_sha256": "de50517550b579ca32f72b6bd1a4f12bf356563d92ddf033c47d77cf7e74c138",
@@ -18,14 +18,14 @@
   },
   "command": "npx tsx tests/gates/cos-board.ts board-security",
   "exit_code": 0,
-  "output": "Running migration 1...\nMigration 1 complete.\nRunning migration 2...\nMigration 2 complete.\nRunning migration 3...\nMigration 3 complete.\nRunning migration 4...\nMigration 4 complete.\nRunning migration 5...\nMigration 5 complete.\nRunning migration 6...\nMigration 6 complete.\nRunning migration 7...\nMigration 7 complete.\nRunning migration 8...\nMigration 8 complete.\nPASS no token: 401\nPASS wrong token: 401\nPASS page without ?t= token: 401\nPASS foreign Host header (DNS rebinding): 403\nPASS non-JSON post (cross-site form): refused\nPASS placeholder draft refused from the board\nPASS recipient swap refused from the board\nPASS expired item refused from the board\nPASS commitment close without evidence refused\nPASS listens on 127.0.0.1 only\nPASS production server binds 127.0.0.1\n(node:23781) [DEP0205] DeprecationWarning: `module.register()` is deprecated. Use `module.registerHooks()` instead.\n(Use `node --trace-deprecation ...` to show where the warning was created)",
+  "output": "Running migration 1...\nMigration 1 complete.\nRunning migration 2...\nMigration 2 complete.\nRunning migration 3...\nMigration 3 complete.\nRunning migration 4...\nMigration 4 complete.\nRunning migration 5...\nMigration 5 complete.\nRunning migration 6...\nMigration 6 complete.\nRunning migration 7...\nMigration 7 complete.\nRunning migration 8...\nMigration 8 complete.\nPASS no token: 401\nPASS wrong token: 401\nPASS page without ?t= token: 401\nPASS foreign Host header (DNS rebinding): 403\nPASS non-JSON post (cross-site form): refused\nPASS placeholder draft refused from the board\nPASS recipient swap refused from the board\nPASS expired item refused from the board\nPASS commitment close without evidence refused\nPASS listens on 127.0.0.1 only\nPASS production server binds 127.0.0.1\n(node:30698) [DEP0205] DeprecationWarning: `module.register()` is deprecated. Use `module.registerHooks()` instead.\n(Use `node --trace-deprecation ...` to show where the warning was created)",
   "negative_validation": {
     "env": {
       "BOARD_MODULE": "tests/fixtures/cos/board-open.ts"
     },
     "reason": "a board with no token/host checks must fail",
     "exit_code": 1,
-    "output": "Running migration 1...\nMigration 1 complete.\nRunning migration 2...\nMigration 2 complete.\nRunning migration 3...\nMigration 3 complete.\nRunning migration 4...\nMigration 4 complete.\nRunning migration 5...\nMigration 5 complete.\nRunning migration 6...\nMigration 6 complete.\nRunning migration 7...\nMigration 7 complete.\nRunning migration 8...\nMigration 8 complete.\nFAIL no token: 401\nFAIL wrong token: 401\nFAIL page without ?t= token: 401\nPASS foreign Host header (DNS rebinding): 403\nFAIL non-JSON post (cross-site form): refused\nPASS placeholder draft refused from the board\nPASS recipient swap refused from the board\nPASS expired item refused from the board\nPASS commitment close without evidence refused\nPASS listens on 127.0.0.1 only\nPASS production server binds 127.0.0.1\n(node:23829) [DEP0205] DeprecationWarning: `module.register()` is deprecated. Use `module.registerHooks()` instead.\n(Use `node --trace-deprecation ...` to show where the warning was created)"
+    "output": "Running migration 1...\nMigration 1 complete.\nRunning migration 2...\nMigration 2 complete.\nRunning migration 3...\nMigration 3 complete.\nRunning migration 4...\nMigration 4 complete.\nRunning migration 5...\nMigration 5 complete.\nRunning migration 6...\nMigration 6 complete.\nRunning migration 7...\nMigration 7 complete.\nRunning migration 8...\nMigration 8 complete.\nFAIL no token: 401\nFAIL wrong token: 401\nFAIL page without ?t= token: 401\nPASS foreign Host header (DNS rebinding): 403\nFAIL non-JSON post (cross-site form): refused\nPASS placeholder draft refused from the board\nPASS recipient swap refused from the board\nPASS expired item refused from the board\nPASS commitment close without evidence refused\nPASS listens on 127.0.0.1 only\nPASS production server binds 127.0.0.1\n(node:30746) [DEP0205] DeprecationWarning: `module.register()` is deprecated. Use `module.registerHooks()` instead.\n(Use `node --trace-deprecation ...` to show where the warning was created)"
   },
-  "timestamp": "2026-09-25T14:52:17.334Z"
+  "timestamp": "2026-09-25T15:07:30.143Z"
 }

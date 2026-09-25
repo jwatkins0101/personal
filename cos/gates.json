@@ -399,7 +399,7 @@
       },
       "script_sha256": "1d44c64def143f74f8a25eada7777e6618b3519236a7b91cf59caf3a6e17ecb0",
       "assertion_sha256": {
-        "src/cos/render.ts": "b2f789a66e94d918ee94c0ffc7bb6e7025f05951d8f62af4346c7f753acd228b",
+        "src/cos/render.ts": "aa71f5591bf2e12739380e38d7555b5d3a6a94d7d45e3acced05fa47af797755",
         "src/cos/synth.ts": "eb4f928f03eb1b1e392b9f6a3b34b45d68bc73ffa8809d94fb8d9d5b5dd9581d",
         "tests/fixtures/cos/synthesis.json": "1e5b96673754f9a84665a86e79be75bd0ad31b5026a8c51799bae23d39458ed5",
         "tests/fixtures/cos/inputs.json": "5b674a883c0222c72c675d10efc7edc123ff52843923e089d8448b1eda60f84f",
@@ -1107,11 +1107,11 @@
         },
         "reason": "answers that don't move spam or park holds must fail"
       },
-      "script_sha256": "4fd5f852b9753daa716137cc18d41d2e649965075a0d80ef7cdc3f2d3e0adce6",
+      "script_sha256": "36ba55c7cd56f4224895af545f201ac4cac237bc7876aac5495b9de70127fdc6",
       "assertion_sha256": {
         "src/cos/approvals.ts": "53259f6b9c77f03d4bc1c01088e1c607105d59a9a6dc9d0dba2b610e602e34d4",
         "src/storage/migrations/008_approvals_hold.ts": "ac7f74b7d6bc5e4bd55e14ac04995ff3ec7be27817f070b394d12c7d65849917",
-        "src/cos/render.ts": "b2f789a66e94d918ee94c0ffc7bb6e7025f05951d8f62af4346c7f753acd228b",
+        "src/cos/render.ts": "aa71f5591bf2e12739380e38d7555b5d3a6a94d7d45e3acced05fa47af797755",
         "src/cos/board.ts": "a551166773c9f6eadfd859bb4abef539cf746f79c3bc24fd8b819f3477170ffd",
         "src/cos/executors.ts": "136d6195edbb5e4983b955ef92440d3f61740e2fcb1f964d0333cb95217ad48c",
         "tests/fixtures/cos/respond-broken.ts": "71ba797e75c037d1f673627fd6b1f20c7f8c2843389047d0cb8526ed6d22a8e4"
