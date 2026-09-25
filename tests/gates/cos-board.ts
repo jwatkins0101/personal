@@ -40,7 +40,7 @@ const deps = {
   executors: { readDraft: async () => draft, sendDraft: async (id: string) => { sent.push(id); return `sent-${id}`; }, createTask: async () => "t" },
   checker: async (ev: string) => ev === "gmail:sent-deck",
   tasksCompletedSince: async () => [{ id: "gt1", title: "Renew car registration", completed: new Date().toISOString(), list: "📥 Inbox" }],
-  replied: async (id: string) => (id === "m5ans" ? { sentId: "sent-yesterday", at: new Date(now.getTime() - 3600_000).toISOString() } : null),
+  replied: async (ref: string) => (ref === "gmail:m5ans" ? { sentId: "gmail:sent-yesterday", at: new Date(now.getTime() - 3600_000).toISOString() } : null),
 };
 const server = board.createBoardServer(deps as never, token, 0);
 await new Promise<void>((r) => server.listen(0, "127.0.0.1", r));
@@ -99,9 +99,9 @@ try {
   } else if (which === "answered-mail") {
     const r = await import(pathToFileURL(resolve(process.env.REPLIED_MODULE ?? "src/cos/replied.ts")).href) as typeof import("../../src/cos/replied.ts");
     const inbox = [{ id: "a1", subject: "you answered" }, { id: "a2", subject: "still owed" }, { id: "a3", subject: "check failed" }];
-    const out = await r.dropAnswered(inbox, async (id) => { if (id === "a3") throw new Error("gmail down"); return id === "a1" ? { sentId: "s1", at: "2026-09-24T22:16:57Z" } : null; });
+    const out = await r.dropAnswered(inbox, async (ref) => { if (ref === "gmail:a3") throw new Error("gmail down"); return ref === "gmail:a1" ? { sentId: "gmail:s1", at: "2026-09-24T22:16:57Z" } : null; });
     check(out.kept.map((x) => x.id).join() === "a2,a3", "answered mail dropped before the brief; unanswered kept");
-    check(out.answered.length === 1 && out.answered[0].reply.sentId === "s1", "answered item records your sent message");
+    check(out.answered.length === 1 && out.answered[0].reply.sentId === "gmail:s1", "answered item records your sent message");
     check(out.kept.some((x) => x.id === "a3"), "a failed check keeps the mail (never hides on error)");
     const g = (await import("node:fs")).readFileSync("src/cos/gather.ts", "utf8");
     check(/getCachedEvents\(3, now, -1\)/.test(g) && /=== yesterday \? "yesterday"/.test(g) && /already happened/.test((await import("node:fs")).readFileSync("src/cos/synth.ts", "utf8")), "brief reads yesterday's calendar and treats it as already happened (D18)");

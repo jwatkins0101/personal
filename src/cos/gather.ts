@@ -12,6 +12,9 @@ import { listOpenGtdTasks } from "../tasks/google-tasks.js";
 import { getCachedEvents } from "../calendar/cache.js";
 import { localDate } from "./approvals.js";
 import { dropAnswered, repliedAfter, type RepliedFn } from "./replied.js";
+import { withAccount } from "../google/auth.js";
+import { activeAccounts } from "./accounts.js";
+import { gmailRef } from "./refs.js";
 
 const REPO_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "../..");
 const CODE = join(homedir(), "Code");
@@ -19,7 +22,7 @@ const CODE = join(homedir(), "Code");
 export interface BriefInputs {
   date: string;
   generated_at: string;
-  inbox: { id: string; from: string; subject: string; snippet: string; date: string; starred: boolean }[];
+  inbox: { id: string; ref: string; account: string; from: string; to?: string; subject: string; snippet: string; date: string; starred: boolean }[];
   tasks: { id: string; title: string; due?: string; list?: string; notes?: string }[];
   calendar: { day: "yesterday" | "today" | "tomorrow"; title: string; start: string; end: string; location?: string; all_day: boolean; ref: string }[];
   lanes: LaneHealth[];
@@ -40,14 +43,17 @@ export async function gatherInputs(now = new Date(), replied: RepliedFn = replie
   const gaps: string[] = [];
   const date = localDate(now);
 
-  // Inbox: what triage left in the inbox over the last 3 days (triage archives the rest).
-  const inbox: BriefInputs["inbox"] = await attempt("Gmail inbox", gaps, async () => {
-    const ids = await listMessageIds("in:inbox newer_than:3d", 40);
-    const metas = await getMessagesMeta(ids);
-    return metas.filter((m) => !m.listUnsub).map((m) => ({
-      id: m.id, from: m.from, subject: m.subject, snippet: m.snippet, date: m.date, starred: m.labelIds.includes("STARRED"),
-    }));
-  }, []);
+  // Inbox across every signed-in account (D23): what's in each inbox over the last 3 days.
+  const inbox: BriefInputs["inbox"] = [];
+  for (const acct of activeAccounts()) {
+    inbox.push(...await attempt(`Gmail inbox (${acct.id})`, gaps, () => withAccount(acct.id, async () => {
+      const ids = await listMessageIds("in:inbox newer_than:3d", 40);
+      const metas = await getMessagesMeta(ids);
+      return metas.filter((m) => !m.listUnsub).map((m) => ({
+        id: m.id, ref: gmailRef(acct.id, m.id), account: acct.id, from: m.from, to: m.to, subject: m.subject, snippet: m.snippet, date: m.date, starred: m.labelIds.includes("STARRED"),
+      }));
+    }), []));
+  }
 
   // Mail you already answered is handled: it never becomes a Decide item or a reply owed (D17).
   const answered = await dropAnswered(inbox, replied);

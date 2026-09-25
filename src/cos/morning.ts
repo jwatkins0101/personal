@@ -16,6 +16,8 @@ import { pingSelf } from "./notify.js";
 import { writeLaneSummary } from "./summary.js";
 import { getMessageMeta, getMessageIdHeader, createReplyDraft } from "../mail/gmail-api.js";
 import { previousWorkday, readEod } from "./eod.js";
+import { withAccount } from "../google/auth.js";
+import { parseGmailRef } from "./refs.js";
 import { replyElsewhere, elsewhereDetail } from "./mailboxes.js";
 import { listCommitments, overdue } from "./commitments.js";
 
@@ -27,8 +29,9 @@ export const emailAddress = (from: string) => (from.match(/<([^>]+)>/)?.[1] ?? f
 
 export function makeFetcher(inputs: BriefInputs): Fetcher {
   return async (ref) => {
-    if (ref.startsWith("gmail:")) {
-      const m = await getMessageMeta(ref.slice(6));
+    const g = parseGmailRef(ref);
+    if (g) {
+      const m = await withAccount(g.account, () => getMessageMeta(g.id));
       return { from: m.from, subject: m.subject, snippet: m.snippet, threadId: m.threadId, to: m.to, cc: m.cc };
     }
     if (ref.startsWith("task:")) {
@@ -101,9 +104,9 @@ export async function runMorning(now = new Date(), deps: { gather?: (now: Date) 
       continue;
     }
     if (p.kind === "reply") {
-      if (!p.source_ref.startsWith("gmail:") || !p.draft_body) { escalations.push(`reply "${p.title}" had no email source or draft text`); draftFailed++; continue; }
+      if (!parseGmailRef(p.source_ref) || !p.draft_body) { escalations.push(`reply "${p.title}" had no email source or draft text`); draftFailed++; continue; }
       try {
-        const id = p.source_ref.slice(6);
+        const g = parseGmailRef(p.source_ref)!;
         const src = await fetcher(p.source_ref);
         const elsewhere = replyElsewhere(`${src?.to ?? ""} ${src?.cc ?? ""}`);
         if (elsewhere) {
@@ -113,9 +116,10 @@ export async function runMorning(now = new Date(), deps: { gather?: (now: Date) 
           continue;
         }
         const to = emailAddress(src?.from ?? "");
-        const inReplyTo = await getMessageIdHeader(id).catch(() => "");
-        const draftId = await draft({ to, subject: src?.subject ?? p.title, body: p.draft_body, threadId: src?.threadId ?? "", inReplyTo });
-        toQueue.push({ kind: "reply", title: p.title, detail: p.detail, risk_tier: "A3", source_ref: p.source_ref, payload: { draft_id: draftId, to, draft_body: p.draft_body } });
+        // The draft lives in the account the email came to, so the reply goes out from that address (D23).
+        const inReplyTo = await withAccount(g.account, () => getMessageIdHeader(g.id)).catch(() => "");
+        const draftId = await withAccount(g.account, () => draft({ to, subject: src?.subject ?? p.title, body: p.draft_body!, threadId: src?.threadId ?? "", inReplyTo }));
+        toQueue.push({ kind: "reply", title: p.title, detail: p.detail, risk_tier: "A3", source_ref: p.source_ref, payload: { draft_id: draftId, to, draft_body: p.draft_body, account: g.account } });
       } catch (e) {
         escalations.push(`draft for "${p.title}" failed: ${(e as Error).message.slice(0, 120)}`); draftFailed++;
       }

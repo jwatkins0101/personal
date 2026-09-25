@@ -113,12 +113,14 @@ async function main(): Promise<number> {
     }
     case "agent-run": {
       const a = await import("./agent.js");
+      const { withAccount } = await import("../google/auth.js");
+      const { parseGmailRef } = await import("./refs.js");
       const { getMessageMeta, getMessageIdHeader, createReplyDraft } = await import("../mail/gmail-api.js");
       const j = await a.runJob(getDb(), n, {
         runClaude: process.env.COS_AGENT_FIXTURE ? () => a.readFixtureResult() : a.realRunClaude,
-        fetchSource: async (ref) => { const m = await getMessageMeta(ref.slice(6)); return { from: m.from, subject: m.subject, threadId: m.threadId, to: m.to, cc: m.cc }; },
-        messageIdHeader: getMessageIdHeader,
-        createReplyDraft,
+        fetchSource: async (ref) => { const g = parseGmailRef(ref); if (!g) return null; const m = await withAccount(g.account, () => getMessageMeta(g.id)); return { from: m.from, subject: m.subject, threadId: m.threadId, to: m.to, cc: m.cc }; },
+        messageIdHeader: async (ref) => { const g = parseGmailRef(ref); return g ? withAccount(g.account, () => getMessageIdHeader(g.id)) : ""; },
+        createReplyDraft: (o) => withAccount(o.account, () => createReplyDraft(o)),
       });
       console.log(`agent job ${j.id}: ${j.status}${j.error ? ` - ${j.error}` : ""}`);
       return j.status === "ready" ? 0 : 1;

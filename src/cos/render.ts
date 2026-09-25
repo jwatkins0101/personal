@@ -7,6 +7,8 @@ import { existsSync, mkdirSync, statSync, writeFileSync, rmSync } from "node:fs"
 import { join } from "node:path";
 import type { Approval } from "./approvals.js";
 import type { Line } from "./synth.js";
+import { gmailWebLink } from "./refs.js";
+import { emailForAccount } from "./accounts.js";
 
 export const SECTION_ORDER = [
   "Status", "Decide", "Critical path", "Meetings needing prep", "Replies owed",
@@ -32,7 +34,8 @@ export interface Brief {
 
 const refLink = (ref?: string): string => {
   if (!ref) return "";
-  if (ref.startsWith("gmail:")) return `https://mail.google.com/mail/u/0/#all/${ref.slice(6)}`;
+  const link = gmailWebLink(ref, emailForAccount);
+  if (link) return link;
   return "";
 };
 const esc = (s: string) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");

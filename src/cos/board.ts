@@ -16,6 +16,8 @@ import type Database from "better-sqlite3";
 import { laneHealth, type LaneConfig } from "../../cos/lib/ledger.mjs";
 import { approve, send, skip, markDone, expireApprovals, localDate, PLACEHOLDER, type Executors } from "./approvals.js";
 import type { RepliedFn } from "./replied.js";
+import { gmailWebLink, parseGmailRef } from "./refs.js";
+import { emailForAccount } from "./accounts.js";
 import { createJob, cancelJob, jobsForItem, reapStaleJobs, type Job } from "./agent.js";
 import { listCommitments, closeCommitment, type EvidenceChecker } from "./commitments.js";
 import { spentToday, DAILY_BUDGET_USD } from "./budget.js";
@@ -37,7 +39,7 @@ export function loadOrCreateToken(path = TOKEN_PATH): string {
 export interface CompletedItem { at: string; kind: "sent" | "approved" | "skipped" | "closed" | "task" | "done"; text: string; detail?: string; ref?: string }
 export interface BoardState {
   generated_at: string; date: string;
-  decide: { date: string; n: number; kind: string; title: string; detail: string; source_ref: string; link?: string; to?: string; draft_body?: string; has_placeholder: boolean; expires_at: string;
+  decide: { date: string; n: number; kind: string; title: string; account: string | null; detail: string; source_ref: string; link?: string; to?: string; draft_body?: string; has_placeholder: boolean; expires_at: string;
     elsewhere: { app: string; link: string; mailbox: string; suggested: string | null } | null;
     agent: { id: number; status: string; started_at: string | null; finished_at: string | null; summary: string | null; needs_from_you: string[]; findings: { claim: string; source_ref: string }[]; gaps: string[]; drafted: boolean; cost_usd: number | null; error: string | null } | null }[];
   completed: { today: CompletedItem[]; week: CompletedItem[] };
@@ -64,7 +66,7 @@ export interface BoardDeps {
   eodDir?: string;
 }
 
-const gmailLink = (ref: string) => (ref.startsWith("gmail:") ? `https://mail.google.com/mail/u/0/#all/${ref.slice(6)}` : undefined);
+const gmailLink = (ref: string) => gmailWebLink(ref, emailForAccount);
 
 let replyCheckedAt = 0;
 /** Auto-completes pending gmail-sourced items you already replied to (at most once a minute). */
@@ -73,7 +75,7 @@ async function reconcileReplies(deps: BoardDeps, now: Date): Promise<void> {
   replyCheckedAt = Date.now();
   const rows = deps.db.prepare("SELECT brief_date, day_index, source_ref FROM cos_approvals WHERE status='pending' AND source_ref LIKE 'gmail:%'").all() as { brief_date: string; day_index: number; source_ref: string }[];
   for (const r of rows) {
-    try { const rep = await deps.replied(r.source_ref.slice(6)); if (rep) markDone(deps.db, r.brief_date, r.day_index, `gmail:${rep.sentId} (you replied ${rep.at})`, now); }
+    try { const rep = await deps.replied(r.source_ref); if (rep) markDone(deps.db, r.brief_date, r.day_index, `${rep.sentId} (you replied ${rep.at})`, now); }
     catch { /* leave pending; never auto-complete on an error */ }
   }
 }
@@ -98,7 +100,7 @@ export async function buildState(deps: BoardDeps): Promise<BoardState> {
     const j: Job | undefined = jobsForItem(db, r.brief_date, r.day_index).at(-1);
     const agent = j ? { id: j.id, status: j.status, started_at: j.started_at, finished_at: j.finished_at, summary: j.summary, needs_from_you: j.result?.needs_from_you ?? [],
       findings: j.result?.findings ?? [], gaps: j.result?.gaps ?? [], drafted: !!j.draft_id, cost_usd: j.cost_usd, error: j.error } : null;
-    return { date: r.brief_date, n: r.day_index, kind: r.kind, title: r.title, detail: r.detail, source_ref: r.source_ref, link: gmailLink(r.source_ref),
+    return { date: r.brief_date, n: r.day_index, kind: r.kind, title: r.title, detail: r.detail, source_ref: r.source_ref, link: gmailLink(r.source_ref), account: parseGmailRef(r.source_ref)?.account ?? null,
       to: p.to, draft_body: p.draft_body, has_placeholder: !!p.draft_body && PLACEHOLDER.test(p.draft_body), expires_at: r.expires_at, agent,
       elsewhere: p.reply_via ? { app: p.reply_via, link: p.reply_link ?? "", mailbox: p.reply_mailbox ?? "", suggested: p.suggested_reply ?? null } : null };
   });
@@ -280,7 +282,7 @@ function render(s){window.__s=s;
  $('brief').href=s.brief.exists?'/brief/'+s.date+'.html?t='+T:'#';$('brief').style.display=s.brief.exists?'':'none';
  $('warn').innerHTML=s.warnings.map(w=>'<div class="warn">'+esc(w)+'</div>').join('');
  $('nd').textContent=s.decide.length?'('+s.decide.length+')':'';
- if(!(busy||openPreview||openAgent)) $('decide').innerHTML=s.decide.length?s.decide.map(d=>{const id=d.date+'/'+d.n;return '<div class="item" data-id="'+id+'"><div class="t">'+d.n+'. '+esc(d.title)+'</div>'+
+ if(!(busy||openPreview||openAgent)) $('decide').innerHTML=s.decide.length?s.decide.map(d=>{const id=d.date+'/'+d.n;return '<div class="item" data-id="'+id+'"><div class="t">'+d.n+'. '+(d.account&&d.account!=='personal'?'<span class="pill">'+esc(d.account)+'</span>':'')+esc(d.title)+'</div>'+
   (d.detail?'<div class="m">'+esc(d.detail)+'</div>':'')+'<div class="m">'+esc(d.source_ref)+(d.link?' · <a href="'+esc(d.link)+'" target="_blank" rel="noreferrer">source</a>':'')+(d.date!==s.date?' · from '+esc(d.date):'')+'</div>'+
   (d.kind==='reply'&&d.draft_body?'<div class="preview"><div class="m">Draft to '+esc(d.to)+'</div><pre>'+esc(d.draft_body)+'</pre>'+(d.has_placeholder?'<div class="warn">Has placeholder text: edit it in Gmail before sending.</div>':'')+'</div>':'')+
   elsewhereBlock(d)+agentBlock(d)+'<div class="btns">'+(d.kind==='reply'?'<button class="primary" onclick="preview(\\''+id+'\\')">Review &amp; send…</button>':'<button class="primary" onclick="act(\\''+id+'\\',\\'approve\\')">Approve</button>')+

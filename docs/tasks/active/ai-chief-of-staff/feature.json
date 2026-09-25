@@ -1,7 +1,7 @@
 {
   "schema_version": "feature.v1",
   "feature": "ai-chief-of-staff",
-  "prd_revision": 8,
+  "prd_revision": 9,
   "harness_commit": "6d9f21ea27bb41662e1e69dd19ca1c483ad41c44",
   "repositories": {
     "jwatkins0101/personal": {
@@ -247,6 +247,13 @@
       "deployed": true,
       "live_verified": true,
       "live_note": "real AACSB item (To: *@louisville.edu) marked reply-from-Outlook on the live board"
+    },
+    {
+      "id": "AC-30",
+      "implemented": true,
+      "verified": false,
+      "deployed": false,
+      "live_verified": false
     }
   ],
   "release_record": null,
@@ -285,7 +292,8 @@
     "D19",
     "D20",
     "D21",
-    "D22"
+    "D22",
+    "D23"
   ],
   "metrics": {
     "started_at": "2026-09-24T22:30:00-04:00",

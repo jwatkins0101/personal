@@ -48,7 +48,8 @@ Return ONLY a JSON object with exactly these keys:
 }
 
 Rules:
-- Every item must carry a source_ref that appears in the inputs (gmail:<inbox id>, task:<task id>, cal:<calendar ref>, lane:<lane>, yt:brief, deals:brief, eod:<date>#<n>, commitment:<id>).
+- Inbox items come from several accounts (field "account"); use each item's "ref" exactly as its source_ref.
+- Every item must carry a source_ref that appears in the inputs (the inbox item's ref, task:<task id>, cal:<calendar ref>, lane:<lane>, yt:brief, deals:brief, eod:<date>#<n>, commitment:<id>).
 - Items in eod.carry_forward are unfinished from yesterday: rank them with today's work.
 - "reply" only for a real person's email you can answer completely in plain text right now. NEVER use placeholders like [link], [date] or [status]: if the answer needs information, a file, an attachment, money, or personal/financial/health documents, make it a "decide" item describing what is needed instead.
 - "reply" only for a real person's email that needs an answer. Never propose sending anything else; never propose payments, purchases, sign-ups or calendar changes as actions (surface them as "decide").
@@ -62,7 +63,7 @@ ${JSON.stringify(inputs, null, 1)}`;
 
 function knownRefs(inputs: BriefInputs): Set<string> {
   const s = new Set<string>(["yt:brief", "deals:brief"]);
-  inputs.inbox.forEach((m) => s.add(`gmail:${m.id}`));
+  inputs.inbox.forEach((m) => s.add(m.ref ?? `gmail:${m.id}`));
   inputs.tasks.forEach((t) => s.add(`task:${t.id}`));
   inputs.calendar.forEach((c) => s.add(c.ref));
   inputs.lanes.forEach((l) => s.add(`lane:${l.lane}`));
@@ -102,9 +103,9 @@ export function fallbackSynthesis(inputs: BriefInputs, why: string): Synthesis {
   return {
     status: "WATCH", status_line: `Ranking skipped: ${why}. Showing raw inputs.`,
     decide: [],
-    critical_path: inputs.inbox.filter((m) => m.starred).slice(0, 5).map((m) => ({ text: `${m.subject} (${m.from})`, source_ref: `gmail:${m.id}` })),
+    critical_path: inputs.inbox.filter((m) => m.starred).slice(0, 5).map((m) => ({ text: `${m.subject} (${m.from})`, source_ref: m.ref ?? `gmail:${m.id}` })),
     meetings_prep: inputs.calendar.filter((c) => c.day === "today" && !c.all_day).map((c) => ({ text: `${c.start} ${c.title}`, source_ref: c.ref })),
-    replies_owed: inputs.inbox.slice(0, 8).map((m) => ({ text: `${m.subject} (${m.from})`, source_ref: `gmail:${m.id}` })),
+    replies_owed: inputs.inbox.slice(0, 8).map((m) => ({ text: `${m.subject} (${m.from})`, source_ref: m.ref ?? `gmail:${m.id}` })),
     waiting_on: [], deadlines: [], fyi: [], one_first_move: "Read the inbox list below.",
   };
 }

@@ -4,6 +4,7 @@
  * no side effect (fail closed). Side effects go through injected executors so they can be stubbed.
  */
 import type Database from "better-sqlite3";
+import { gmailRef } from "./refs.js";
 
 export type ApprovalKind = "reply" | "decide" | "task";
 export type ApprovalStatus = "pending" | "approved" | "sent" | "skipped" | "expired" | "failed";
@@ -34,10 +35,10 @@ export interface NewApproval {
 }
 
 export interface Executors {
-  /** Sends an existing Gmail draft; returns the sent message id. */
-  sendDraft(draftId: string): Promise<string>;
+  /** Sends an existing Gmail draft in the given account; returns the sent message id. */
+  sendDraft(draftId: string, account?: string): Promise<string>;
   /** Reads a draft's final recipients and body for the pre-send preview. */
-  readDraft(draftId: string): Promise<{ to: string; subject: string; body: string }>;
+  readDraft(draftId: string, account?: string): Promise<{ to: string; subject: string; body: string }>;
   /** Creates a task; returns its id. */
   createTask(title: string, notes: string): Promise<string>;
 }
@@ -116,7 +117,8 @@ export async function send(db: Database.Database, ex: Executors, briefDate: stri
   const draftId = String(a.payload.draft_id ?? "");
   const expectTo = String(a.payload.to ?? "").toLowerCase();
   if (!draftId) throw new Error(`Item ${n} has no draft id; nothing sent.`);
-  const d = await ex.readDraft(draftId);
+  const account = typeof a.payload.account === "string" ? a.payload.account : undefined;
+  const d = await ex.readDraft(draftId, account);
   print(`To: ${d.to}\nSubject: ${d.subject}\n\n${d.body}\n`);
   if (!expectTo || !d.to.toLowerCase().includes(expectTo)) {
     finish(db, a.id, "failed", `recipient changed: expected ${expectTo}, draft has ${d.to}`, now);
@@ -125,10 +127,10 @@ export async function send(db: Database.Database, ex: Executors, briefDate: stri
   if (PLACEHOLDER.test(d.body) || PLACEHOLDER.test(d.subject)) {
     throw new Error(`Refused: the draft still contains placeholder text (${(d.body.match(PLACEHOLDER) ?? d.subject.match(PLACEHOLDER))?.[0]}). Edit it in Gmail, then run send ${n} again.`);
   }
-  const sentId = await ex.sendDraft(draftId);
+  const sentId = await ex.sendDraft(draftId, account);
   const flat = (x: string) => x.replace(/\s+/g, " ").trim();
   const edited = typeof a.payload.draft_body === "string" && flat(String(a.payload.draft_body)) !== flat(d.body);
-  finish(db, a.id, "sent", `gmail:${sentId}${edited ? ";edited" : ""}`, now);
+  finish(db, a.id, "sent", `${gmailRef(account, sentId)}${edited ? ";edited" : ""}`, now);
   return `Sent to ${d.to} (message ${sentId}).`;
 }
 

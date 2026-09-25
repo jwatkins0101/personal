@@ -20,6 +20,9 @@ import { localDate } from "./approvals.js";
 import { upsertCommitment, closeCommitment, listCommitments, type EvidenceChecker } from "./commitments.js";
 import { writeLaneSummary } from "./summary.js";
 import { pingSelf } from "./notify.js";
+import { withAccount } from "../google/auth.js";
+import { activeAccounts } from "./accounts.js";
+import { gmailRef, parseGmailRef } from "./refs.js";
 
 export const EOD_DIR = process.env.COS_EOD_DIR ?? join(homedir(), "Library/Application Support/assistance/eod");
 
@@ -49,15 +52,17 @@ export async function gatherEod(now = new Date()): Promise<EodInputs> {
   const gaps: string[] = [];
   const since = Math.floor(midnight(now).getTime() / 1000);
   const sources: EodSource[] = [];
-  const mail = async (q: string, direction: "sent" | "received") => {
+  const mail = async (account: string, q: string, direction: "sent" | "received") => {
     try {
-      const metas = await getMessagesMeta(await listMessageIds(q, 40));
+      const metas = await withAccount(account, async () => getMessagesMeta(await listMessageIds(q, 40)));
       for (const m of metas) if (direction === "sent" || !m.listUnsub)
-        sources.push({ ref: `gmail:${m.id}`, direction, who: direction === "sent" ? m.to : m.from, subject: m.subject, text: m.snippet, date: m.date });
-    } catch (e) { gaps.push(`Gmail ${direction} unavailable: ${(e as Error).message.slice(0, 120)}`); }
+        sources.push({ ref: gmailRef(account, m.id), direction, who: direction === "sent" ? m.to : m.from, subject: m.subject, text: m.snippet, date: m.date });
+    } catch (e) { gaps.push(`Gmail ${direction} (${account}) unavailable: ${(e as Error).message.slice(0, 120)}`); }
   };
-  await mail(`in:sent after:${since}`, "sent");
-  await mail(`in:inbox after:${since}`, "received");
+  for (const acct of activeAccounts()) {
+    await mail(acct.id, `in:sent after:${since}`, "sent");
+    await mail(acct.id, `in:inbox after:${since}`, "received");
+  }
   try {
     const client = new MessagesClient();
     const [a, b] = await Promise.all([
@@ -113,7 +118,7 @@ export function extractEod(inputs: EodInputs, maxBudgetUsd: number): { extractio
 export function makeEvidenceChecker(inputs: EodInputs, now = new Date()): EvidenceChecker {
   return async (ev) => {
     const [kind, id] = [ev.slice(0, ev.indexOf(":")), ev.slice(ev.indexOf(":") + 1)];
-    if (kind === "gmail") { try { return (await getMessageMeta(id)).labelIds.includes("SENT"); } catch { return false; } }
+    if (kind === "gmail") { const g = parseGmailRef(ev); if (!g) return false; try { return (await withAccount(g.account, () => getMessageMeta(g.id))).labelIds.includes("SENT"); } catch { return false; } }
     if (kind === "sms") return inputs.sources.some((s) => s.ref === ev && s.direction === "sent");
     if (kind === "cal") return getCachedEvents(1, now).some((e) => `cal:${e.title}@${e.start}` === ev && new Date(e.start.replace(" ", "T")) <= now);
     if (kind === "task") {

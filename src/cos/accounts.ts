@@ -18,6 +18,15 @@ export interface AccountsFile { scopes: string[]; accounts: Account[]; not_googl
 export const expandHome = (p: string) => p.replace(/^~(?=\/|$)/, homedir());
 export function loadAccounts(): AccountsFile { return JSON.parse(readFileSync(ACCOUNTS_PATH, "utf8")) as AccountsFile; }
 
+/** Accounts with a saved login (the ones the chief of staff can read). */
+export function activeAccounts(): Account[] {
+  return loadAccounts().accounts.filter((a) => existsSync(`${expandHome(a.config_dir)}/credentials.enc`));
+}
+
+export function emailForAccount(id: string): string | null {
+  try { return loadAccounts().accounts.find((a) => a.id === id)?.email ?? null; } catch { return null; }
+}
+
 /** Environment that points gws at one account's profile. */
 export function gwsEnv(a: Account): NodeJS.ProcessEnv {
   return { ...process.env, GOOGLE_WORKSPACE_CLI_CONFIG_DIR: expandHome(a.config_dir) };

@@ -1,0 +1,4 @@
+{"status":"WATCH","status_line":"Replies owed in two mailboxes.","decide":[
+ {"kind":"reply","title":"Reply to Dana","source_ref":"gmail:m1","claimed_from":"Dana Client","draft_body":"Hi Dana,\n\nSigned off.\n\nJermaine"},
+ {"kind":"reply","title":"Reply to Owl client","source_ref":"gmail:owlthat:o1","claimed_from":"Priya","draft_body":"Hi Priya,\n\nThanks, I'll take a look today.\n\nJermaine"}],
+ "critical_path":[],"meetings_prep":[],"replies_owed":[],"waiting_on":[],"deadlines":[],"fyi":[],"one_first_move":"Reply to Priya."}

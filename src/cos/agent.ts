@@ -16,6 +16,8 @@ import { parseClaudeJsonOutput } from "../claude/result.js";
 import { remainingBudget } from "./budget.js";
 import { PLACEHOLDER } from "./approvals.js";
 import { replyElsewhere, elsewhereDetail } from "./mailboxes.js";
+import { configDirFor } from "../google/auth.js";
+import { gmailRef, parseGmailRef, isGmailRef } from "./refs.js";
 
 const REPO_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "../..");
 export const AGENT_GUARD = process.env.COS_AGENT_GUARD ?? resolve(REPO_ROOT, "cos/hooks/agent-guard.sh");
@@ -62,14 +64,15 @@ export function createJob(db: Database.Database, briefDate: string, n: number, n
 
 export function agentPrompt(item: { title: string; detail: string; source_ref: string }, note: string): string {
   const src = item.source_ref;
+  const g = parseGmailRef(src);
   return `You are preparing work for Jermaine on one item from his morning brief. You PREPARE; he finishes.
 
 ITEM: ${item.title}
 CONTEXT: ${item.detail || "(none)"}
-SOURCE: ${src}${note ? `\nHIS NOTE: ${note}` : ""}
+SOURCE: ${src}${g ? ` (the ${g.account} mailbox; your gws commands already read that mailbox)` : ""}${note ? `\nHIS NOTE: ${note}` : ""}
 
 What you can do: read Gmail with the gws CLI (read-only). Examples:
-- ${src.startsWith("gmail:") ? `gws gmail users messages get --params '{"userId":"me","id":"${src.slice(6)}","format":"full"}' | jq -r '.threadId'` : "gws gmail users messages list --params '{\"userId\":\"me\",\"q\":\"<search>\",\"maxResults\":10}'"}
+- ${g ? `gws gmail users messages get --params '{"userId":"me","id":"${g.id}","format":"full"}' | jq -r '.threadId'` : "gws gmail users messages list --params '{\"userId\":\"me\",\"q\":\"<search>\",\"maxResults\":10}'"}
 - gws gmail users threads get --params '{"userId":"me","id":"<threadId>","format":"full"}'   (bodies are base64url: jq -r '...data' | tr '_-' '/+' | base64 -D)
 - gws gmail users messages list --params '{"userId":"me","q":"<gmail search>","maxResults":10}'
 You cannot send, draft, label, archive, browse the web, or change files. Don't try; a guard blocks it.
@@ -87,10 +90,10 @@ Rules: a draft only if it can be sent as written. NEVER use placeholders like [d
 }
 
 export interface RunDeps {
-  runClaude: (prompt: string, maxBudgetUsd: number) => { text: string; cost_usd: number | null };
+  runClaude: (prompt: string, maxBudgetUsd: number, account?: string) => { text: string; cost_usd: number | null };
   fetchSource: (ref: string) => Promise<{ from: string; subject: string; threadId: string; to?: string; cc?: string } | null>;
   messageIdHeader: (gmailId: string) => Promise<string>;
-  createReplyDraft: (o: { to: string; subject: string; body: string; threadId: string; inReplyTo?: string }) => Promise<string>;
+  createReplyDraft: (o: { to: string; subject: string; body: string; threadId: string; inReplyTo?: string; account?: string }) => Promise<string>;
   ledgerDir?: string;
 }
 
@@ -106,9 +109,17 @@ export function agentSettings(): string {
   return settings;
 }
 
-export function realRunClaude(prompt: string, maxBudgetUsd: number): { text: string; cost_usd: number | null } {
+/** Environment for the agent process: its read-only gws calls go to the item's mailbox (D23). */
+export function agentEnv(account?: string): NodeJS.ProcessEnv {
+  const env: NodeJS.ProcessEnv = { ...process.env }; delete env.CLAUDECODE;
+  const dir = account ? configDirFor(account) : undefined;
+  if (dir) env.GOOGLE_WORKSPACE_CLI_CONFIG_DIR = dir; else delete env.GOOGLE_WORKSPACE_CLI_CONFIG_DIR;
+  return env;
+}
+
+export function realRunClaude(prompt: string, maxBudgetUsd: number, account?: string): { text: string; cost_usd: number | null } {
   const args = buildAgentArgs(maxBudgetUsd, agentSettings());
-  const env = { ...process.env }; delete env.CLAUDECODE;
+  const env = agentEnv(account);
   const r = spawnSync("claude", args, { input: prompt, encoding: "utf8", env, cwd: AGENT_DIR, maxBuffer: 50 * 1024 * 1024, timeout: AGENT_TIMEOUT_MS });
   if (r.error) throw new Error(`agent: ${r.error.message}`);
   if (r.status !== 0) throw new Error(`agent exited ${r.status}: ${(r.stderr ?? "").slice(0, 200)}`);
@@ -126,7 +137,7 @@ export function parseAgentResult(text: string): AgentResult {
   if (typeof r.summary !== "string" || !r.summary.trim()) throw new Error("agent result has no summary");
   return {
     summary: r.summary.slice(0, 1200),
-    findings: (r.findings ?? []).filter((f) => f && typeof f.claim === "string" && typeof f.source_ref === "string" && /^gmail:[\w-]+$/.test(f.source_ref)).slice(0, 12),
+    findings: (r.findings ?? []).filter((f) => f && typeof f.claim === "string" && typeof f.source_ref === "string" && isGmailRef(f.source_ref)).slice(0, 12),
     needs_from_you: (r.needs_from_you ?? []).map(String).slice(0, 10),
     gaps: (r.gaps ?? []).map(String).slice(0, 10),
     draft: r.draft && typeof r.draft.body === "string" && r.draft.body.trim() ? { subject: r.draft.subject, body: r.draft.body } : null,
@@ -151,15 +162,18 @@ export async function runJob(db: Database.Database, jobId: number, deps: RunDeps
     if (!item || item.status !== "pending") return fail("item is no longer pending");
     const budget = Math.min(AGENT_MAX_USD, remainingBudget(started));
     if (budget < 0.5) return fail("daily budget nearly used");
-    const out = deps.runClaude(agentPrompt(item, job.note), budget);
+    const g = parseGmailRef(item.source_ref);
+    const out = deps.runClaude(agentPrompt(item, job.note), budget, g?.account);
     cost = out.cost_usd;
     const result = parseAgentResult(out.text);
+    // The agent reports plain message ids from the mailbox it read; tag them with that account.
+    if (g) result.findings = result.findings.map((f) => ({ ...f, source_ref: gmailRef(g.account, parseGmailRef(f.source_ref)!.id) }));
     let draftId: string | null = null;
     if (result.draft) {
       if (PLACEHOLDER.test(result.draft.body)) {
         result.needs_from_you.push(`The suggested reply had placeholder text (${result.draft.body.match(PLACEHOLDER)?.[0]}), so no draft was made.`);
         result.draft = null;
-      } else if (!item.source_ref.startsWith("gmail:")) {
+      } else if (!g) {
         result.gaps.push("No email thread to reply in, so the suggested text is shown but not drafted.");
       } else {
         const src = await deps.fetchSource(item.source_ref);
@@ -172,10 +186,10 @@ export async function runJob(db: Database.Database, jobId: number, deps: RunDeps
           db.prepare("UPDATE cos_approvals SET payload_json=? WHERE id=?").run(JSON.stringify(payload), item.id);
         } else {
         const to = emailOf(src.from);                          // recipient is always the original sender
-        const inReplyTo = await deps.messageIdHeader(item.source_ref.slice(6)).catch(() => "");
-        draftId = await deps.createReplyDraft({ to, subject: result.draft.subject || src.subject, body: result.draft.body, threadId: src.threadId, inReplyTo });
+        const inReplyTo = await deps.messageIdHeader(item.source_ref).catch(() => "");
+        draftId = await deps.createReplyDraft({ to, subject: result.draft.subject || src.subject, body: result.draft.body, threadId: src.threadId, inReplyTo, account: g.account });
         // The item becomes a reply the principal can Review & send (still A3).
-        const payload = { ...JSON.parse(item.payload_json || "{}"), draft_id: draftId, to, draft_body: result.draft.body, prepared_by_agent: jobId };
+        const payload = { ...JSON.parse(item.payload_json || "{}"), draft_id: draftId, to, draft_body: result.draft.body, account: g.account, prepared_by_agent: jobId };
         db.prepare("UPDATE cos_approvals SET kind='reply', risk_tier='A3', payload_json=? WHERE id=?").run(JSON.stringify(payload), item.id);
         }
       }
