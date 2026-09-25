@@ -7,14 +7,14 @@
   ],
   "passed": true,
   "problems": [],
-  "tested_commit": "2b8bccd9fd1d84b4ccea7b13aee0f67fe4c56822",
+  "tested_commit": "3df590cbc3af1ffa92d34efd18e10877cfb9ac11",
   "worktree_dirty": true,
-  "prd_revision": 9,
+  "prd_revision": 10,
   "gate_sha256": "2ab62c645ac7ce3b4a7d0600705e89a7e094f65a13156e33df475494edb0274a",
   "assertion_sha256": {
     "cos/lib/ledger.mjs": "68fd202a0ffc62fa677055db0c98b8603940af45f688374286df6a9737c6baa7",
     "tests/fixtures/ledger/lib-no-heartbeat.mjs": "cb962b43b4b42c096c721134f73792011b7efdb798d7e21186a03074786a89dd",
-    "src/cos/cli.ts": "ddc989dc4d803ff2b3baacbfc7a6c4bafe55756f1c70aab58858f8894a689304"
+    "src/cos/cli.ts": "56abc48930643c0b676cf396ce63ad8e24e427d01004063f485e644729d24cd4"
   },
   "command": "npx tsx tests/gates/ledger.ts heartbeat",
   "exit_code": 0,
@@ -27,5 +27,5 @@
     "exit_code": 1,
     "output": "PASS inbox ran at 08:00, healthy at 09:00\nFAIL yt last ran 09-16: stale\nPASS deals last run failed: failing\nPASS within grace period nothing is stale\nPASS no 09:00 slot configured: still ok at 10:00"
   },
-  "timestamp": "2026-09-25T06:50:00.630Z"
+  "timestamp": "2026-09-25T07:59:36.493Z"
 }

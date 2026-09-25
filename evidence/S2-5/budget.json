@@ -7,13 +7,13 @@
   ],
   "passed": true,
   "problems": [],
-  "tested_commit": "2b8bccd9fd1d84b4ccea7b13aee0f67fe4c56822",
+  "tested_commit": "3df590cbc3af1ffa92d34efd18e10877cfb9ac11",
   "worktree_dirty": true,
-  "prd_revision": 9,
+  "prd_revision": 10,
   "gate_sha256": "1d44c64def143f74f8a25eada7777e6618b3519236a7b91cf59caf3a6e17ecb0",
   "assertion_sha256": {
     "src/cos/budget.ts": "a7984b495c5da7359dc2b94999919beebd7ae89e9d722417bfabdf7252c6386a",
-    "src/cos/morning.ts": "1756950c3a1923a799981272089f951af2ff01010ffaaeecf6fa38ea26f38695",
+    "src/cos/morning.ts": "0aebb34ab44ced2018df24097cf945397c494e00f425f418fb91428ee5d3c085",
     "tests/fixtures/cos/inputs.json": "5b674a883c0222c72c675d10efc7edc123ff52843923e089d8448b1eda60f84f",
     "tests/fixtures/cos/synthesis.json": "1e5b96673754f9a84665a86e79be75bd0ad31b5026a8c51799bae23d39458ed5"
   },
@@ -26,7 +26,7 @@
     },
     "reason": "with no effective ceiling the over-budget path must not trigger, failing the gate",
     "exit_code": 1,
-    "output": "PASS only today's spend counts ($4.90, not yesterday's $3)\nRunning migration 1...\nMigration 1 complete.\nRunning migration 2...\nMigration 2 complete.\nRunning migration 3...\nMigration 3 complete.\nRunning migration 4...\nMigration 4 complete.\nRunning migration 5...\nMigration 5 complete.\nRunning migration 6...\nMigration 6 complete.\nRunning migration 7...\nMigration 7 complete.\nFAIL over budget: model skipped and escalated\nFAIL no actions proposed without the model\nPASS stale lanes and input gaps still escalate\n(node:71510) [DEP0205] DeprecationWarning: `module.register()` is deprecated. Use `module.registerHooks()` instead.\n(Use `node --trace-deprecation ...` to show where the warning was created)"
+    "output": "PASS only today's spend counts ($4.90, not yesterday's $3)\nRunning migration 1...\nMigration 1 complete.\nRunning migration 2...\nMigration 2 complete.\nRunning migration 3...\nMigration 3 complete.\nRunning migration 4...\nMigration 4 complete.\nRunning migration 5...\nMigration 5 complete.\nRunning migration 6...\nMigration 6 complete.\nRunning migration 7...\nMigration 7 complete.\nFAIL over budget: model skipped and escalated\nFAIL no actions proposed without the model\nPASS stale lanes and input gaps still escalate\n(node:87838) [DEP0205] DeprecationWarning: `module.register()` is deprecated. Use `module.registerHooks()` instead.\n(Use `node --trace-deprecation ...` to show where the warning was created)"
   },
-  "timestamp": "2026-09-25T06:50:05.914Z"
+  "timestamp": "2026-09-25T07:59:41.761Z"
 }

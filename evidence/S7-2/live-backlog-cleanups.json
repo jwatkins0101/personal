@@ -1,0 +1,36 @@
+{
+  "gate": "live-backlog-cleanups",
+  "story": "S7-2",
+  "acceptance": [
+    "AC-31",
+    "AC-32"
+  ],
+  "tested_commit": "3df590cbc3af1ffa92d34efd18e10877cfb9ac11",
+  "owlthat": {
+    "inbox_before": 5201,
+    "inbox_after": 1615,
+    "archived": {
+      "CoS/Newsletters": 2415,
+      "CoS/Notifications": 792,
+      "CoS/CI": 379
+    },
+    "stars_added_then_removed": 176
+  },
+  "personal": {
+    "scanned_older_than_30d": 13116,
+    "archived": {
+      "CoS/Backlog archived": 2626
+    },
+    "kept": 10490
+  },
+  "techunify": "running at commit time (see triage-log/techunify.jsonl)",
+  "spot_check_fixes": [
+    "Brex limit reached/pay your balance",
+    "PitchBook collections",
+    "AWS instance retirement",
+    "Workspace security-risk/password/account-deletion/new-account",
+    "OAuth action advised"
+  ],
+  "undo": "npm run cos -- triage-undo <account> 2026-09-25T07:17:47Z --tag backlog",
+  "timestamp": "2026-09-25T07:59:56.154666+00:00"
+}

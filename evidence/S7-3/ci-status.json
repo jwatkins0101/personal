@@ -7,10 +7,10 @@
   ],
   "passed": true,
   "problems": [],
-  "tested_commit": "757eec3c0ee067aa0e048bae51b02631e60fc122",
+  "tested_commit": "3df590cbc3af1ffa92d34efd18e10877cfb9ac11",
   "worktree_dirty": true,
   "prd_revision": 10,
-  "gate_sha256": "5f10512576539b71a723cceb07f84f70a8539b764686c826bf08979e28ed64b8",
+  "gate_sha256": "44271b20ff1fc2b7417ba5bc2d627475c37bc01045fb3b00175cf4667b1c8964",
   "assertion_sha256": {
     "src/cos/ci-status.ts": "6d4aa5c5a3115f1b442047a648f3022b0dd181f5556aa9af2c836db86a4e21eb",
     "src/cos/gather.ts": "b6b7dc00898cd2be95a8c7984f462e5bae4cc6388b2c604b92a2f2d9bab8d9f4",
@@ -29,5 +29,5 @@
     "exit_code": 1,
     "output": "FAIL CI status source is configured (owlthat CI alerts)\nFAIL latest result per workflow wins (checks.yml recovered; build-images still RED)\nFAIL only the still-RED workflow escalates, linking its alert\nPASS the brief reads CI status and escalates RED builds"
   },
-  "timestamp": "2026-09-25T07:17:35.705Z"
+  "timestamp": "2026-09-25T07:59:56.090Z"
 }

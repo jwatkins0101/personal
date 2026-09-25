@@ -258,22 +258,22 @@
     {
       "id": "AC-31",
       "implemented": true,
-      "verified": false,
-      "deployed": false,
-      "live_verified": false
+      "verified": true,
+      "deployed": true,
+      "live_verified": true
     },
     {
       "id": "AC-32",
       "implemented": true,
-      "verified": false,
-      "deployed": false,
-      "live_verified": false
+      "verified": true,
+      "deployed": true,
+      "live_verified": true
     },
     {
       "id": "AC-33",
       "implemented": true,
-      "verified": false,
-      "deployed": false,
+      "verified": true,
+      "deployed": true,
       "live_verified": false
     }
   ],
@@ -289,7 +289,8 @@
     "evidence/S3-4/live-eod.json",
     "evidence/S4-1/live-board.json",
     "evidence/S5-1/live-agent.json",
-    "evidence/S6-1/live-multi-account-brief.json"
+    "evidence/S6-1/live-multi-account-brief.json",
+    "evidence/S7-2/live-backlog-cleanups.json"
   ],
   "owner_decisions": [
     "D1",
