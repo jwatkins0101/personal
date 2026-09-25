@@ -1,0 +1,646 @@
+[
+ {
+  "id": "t01",
+  "from": "no-reply@toddleapp.com",
+  "subject": "Evaluation received for Watkins, Jackson Edward's task Math Quiz 4",
+  "snippet": "A new evaluation has been added.",
+  "thread_has_my_reply": false,
+  "received": "2026-10-28T10:15:00-04:00",
+  "expected": {
+   "lane": "school-jackson",
+   "inbox": "archive",
+   "star_required": false
+  },
+  "rule": "Toddle Evaluation received: always archive"
+ },
+ {
+  "id": "t02",
+  "from": "no-reply@toddleapp.com",
+  "subject": "Evaluation received for Watkins, Jackson Edward's task Spelling Unit 3",
+  "snippet": "A new evaluation has been added.",
+  "thread_has_my_reply": false,
+  "received": "2026-10-28T10:15:00-04:00",
+  "expected": {
+   "lane": "school-jackson",
+   "inbox": "archive",
+   "star_required": false
+  },
+  "rule": "Toddle Evaluation received: always archive"
+ },
+ {
+  "id": "t03",
+  "from": "no-reply@toddleapp.com",
+  "subject": "School announcement: Picture retake photos now viewable online",
+  "snippet": "Retake photos from last week are posted in the gallery.",
+  "thread_has_my_reply": false,
+  "received": "2026-10-28T10:15:00-04:00",
+  "expected": {
+   "lane": "school-jackson",
+   "inbox": "archive",
+   "star_required": false
+  },
+  "rule": "Toddle announcement with no ask"
+ },
+ {
+  "id": "t04",
+  "from": "no-reply@toddleapp.com",
+  "subject": "School announcement: Level 4 field trip permission slip due Friday",
+  "snippet": "Please sign and return the Frazier Museum permission slip by Friday.",
+  "thread_has_my_reply": false,
+  "received": "2026-10-28T10:15:00-04:00",
+  "expected": {
+   "lane": "school-jackson",
+   "inbox": "keep",
+   "star_required": false
+  },
+  "rule": "permission slip = ACTION; Level N = Jackson"
+ },
+ {
+  "id": "t05",
+  "from": "accountsetup@mykidsspending.com",
+  "subject": "Your statement via email Jackson Watkins",
+  "snippet": "Your monthly lunch account statement is attached.",
+  "thread_has_my_reply": false,
+  "received": "2026-10-28T10:15:00-04:00",
+  "expected": {
+   "lane": "school-jackson",
+   "inbox": "archive",
+   "star_required": false
+  },
+  "rule": "MyKidsSpending statement routine"
+ },
+ {
+  "id": "t06",
+  "from": "accountsetup@mykidsspending.com",
+  "subject": "Your statement via email Jada Watkins",
+  "snippet": "Your monthly lunch account statement is attached.",
+  "thread_has_my_reply": false,
+  "received": "2026-10-28T10:15:00-04:00",
+  "expected": {
+   "lane": "school-jada",
+   "inbox": "archive",
+   "star_required": false
+  },
+  "rule": "MyKidsSpending statement routine"
+ },
+ {
+  "id": "t07",
+  "from": "accountsetup@mykidsspending.com",
+  "subject": "ACH Transaction - SHSLou",
+  "snippet": "An ACH deposit of $50.00 was processed.",
+  "thread_has_my_reply": false,
+  "received": "2026-10-28T10:15:00-04:00",
+  "expected": {
+   "lane": "school",
+   "inbox": "archive",
+   "star_required": false
+  },
+  "rule": "ACH campus-wide receipt"
+ },
+ {
+  "id": "t08",
+  "from": "accountsetup@mykidsspending.com",
+  "subject": "Low balance alert: Jada Watkins",
+  "snippet": "Jada's lunch account balance is below $5.00.",
+  "thread_has_my_reply": false,
+  "received": "2026-10-28T10:15:00-04:00",
+  "expected": {
+   "lane": "school-jada",
+   "inbox": "keep",
+   "star_required": false
+  },
+  "rule": "low balance = ACTION"
+ },
+ {
+  "id": "t09",
+  "from": "kkramer@shslou.org",
+  "subject": "Model Message - October 26",
+  "snippet": "This week at the Model School: book fair recap, spirit week photos.",
+  "thread_has_my_reply": false,
+  "received": "2026-10-28T10:15:00-04:00",
+  "expected": {
+   "lane": "school-jackson",
+   "inbox": "archive",
+   "star_required": false
+  },
+  "rule": "Model Message newsletter"
+ },
+ {
+  "id": "t10",
+  "from": "tadams@shslou.org",
+  "subject": "Straight From The Heart - Fall Edition",
+  "snippet": "News and highlights from Sacred Heart Academy.",
+  "thread_has_my_reply": false,
+  "received": "2026-10-28T10:15:00-04:00",
+  "expected": {
+   "lane": "school-jada",
+   "inbox": "archive",
+   "star_required": false
+  },
+  "rule": "SHA newsletter"
+ },
+ {
+  "id": "t11",
+  "from": "tadams@shslou.org",
+  "subject": "URGENT - Outstanding SAGE Balance and Final Exams",
+  "snippet": "Students with an outstanding SAGE dining balance may not sit final exams.",
+  "thread_has_my_reply": false,
+  "received": "2026-10-28T10:15:00-04:00",
+  "expected": {
+   "lane": "school-jada",
+   "inbox": "keep",
+   "star_required": true
+  },
+  "rule": "SAGE balance: ACTION + star"
+ },
+ {
+  "id": "t12",
+  "from": "shspresident@shslou.org",
+  "subject": "Heartlights: A note from Dr. McNay",
+  "snippet": "Reflections on community and gratitude this fall.",
+  "thread_has_my_reply": false,
+  "received": "2026-10-28T10:15:00-04:00",
+  "expected": {
+   "lane": "school",
+   "inbox": "archive",
+   "star_required": false
+  },
+  "rule": "Heartlights campus-wide FYI"
+ },
+ {
+  "id": "t13",
+  "from": "katemple@shslou.org",
+  "subject": "26-27 Junior Schedules - course requests due Nov 6",
+  "snippet": "Juniors must submit course requests in the portal by Nov 6.",
+  "thread_has_my_reply": false,
+  "received": "2026-10-28T10:15:00-04:00",
+  "expected": {
+   "lane": "school-jada",
+   "inbox": "keep",
+   "star_required": false
+  },
+  "rule": "course selection = ACTION"
+ },
+ {
+  "id": "t14",
+  "from": "noreply@factsmgt.com",
+  "subject": "FACTS: Payment plan change - action required",
+  "snippet": "Your tuition payment plan has changed. Review and confirm your autopay.",
+  "thread_has_my_reply": false,
+  "received": "2026-10-28T10:15:00-04:00",
+  "expected": {
+   "lane": "school",
+   "inbox": "keep",
+   "star_required": false
+  },
+  "rule": "FACTS tuition = ACTION"
+ },
+ {
+  "id": "t15",
+  "from": "advancement@shslou.org",
+  "subject": "Pink and White ticket sales now open",
+  "snippet": "Get your tickets for the Pink and White gala.",
+  "thread_has_my_reply": false,
+  "received": "2026-10-28T10:15:00-04:00",
+  "expected": {
+   "lane": "school",
+   "inbox": "archive",
+   "star_required": false
+  },
+  "rule": "fundraising FYI"
+ },
+ {
+  "id": "t16",
+  "from": "shateammoms@gmail.com",
+  "subject": "FH practice moved to 5pm Thursday",
+  "snippet": "Heads up, field hockey practice is moved to 5pm this Thursday.",
+  "thread_has_my_reply": false,
+  "received": "2026-10-28T10:15:00-04:00",
+  "expected": {
+   "lane": "school-jada",
+   "inbox": "keep",
+   "star_required": false
+  },
+  "rule": "athletic schedule change = ACTION"
+ },
+ {
+  "id": "t17",
+  "from": "events@apexfieldhockey.com",
+  "subject": "Showcase registration: Winter Elite Camp",
+  "snippet": "Register now for the Apex winter showcase.",
+  "thread_has_my_reply": false,
+  "received": "2026-10-28T10:15:00-04:00",
+  "expected": {
+   "lane": "school-jada",
+   "inbox": "archive",
+   "star_required": false
+  },
+  "rule": "external club marketing FYI"
+ },
+ {
+  "id": "t18",
+  "from": "alerts@brightarrow.com",
+  "subject": "Report card available for Jackson Watkins",
+  "snippet": "Trimester 1 report card is available in the parent portal.",
+  "thread_has_my_reply": false,
+  "received": "2026-10-28T10:15:00-04:00",
+  "expected": {
+   "lane": "school-jackson",
+   "inbox": "keep",
+   "star_required": false
+  },
+  "rule": "report card = ACTION"
+ },
+ {
+  "id": "t19",
+  "from": "receipts@amilia.com",
+  "subject": "Tournament registration confirmation",
+  "snippet": "You're registered for the fall tournament. No further action needed.",
+  "thread_has_my_reply": false,
+  "received": "2026-10-28T10:15:00-04:00",
+  "expected": {
+   "lane": "school",
+   "inbox": "archive",
+   "star_required": false
+  },
+  "rule": "Amilia registration FYI"
+ },
+ {
+  "id": "t20",
+  "from": "noreply-accounts@google.com",
+  "subject": "Toddle shared a document with you",
+  "snippet": "Toddle has shared a Google Drive document with you.",
+  "thread_has_my_reply": false,
+  "received": "2026-10-28T10:15:00-04:00",
+  "expected": {
+   "lane": "notifications",
+   "inbox": "archive",
+   "star_required": false
+  },
+  "rule": "Google account notice re Toddle = not school"
+ },
+ {
+  "id": "t21",
+  "from": "partners@fbtgibbons.com",
+  "subject": "Sponsorship opportunity: SHA Athletics",
+  "snippet": "Support Sacred Heart Academy athletics with a sponsorship package.",
+  "thread_has_my_reply": false,
+  "received": "2026-10-28T10:15:00-04:00",
+  "expected": {
+   "lane": "school-jada",
+   "inbox": "archive",
+   "star_required": false
+  },
+  "rule": "sponsorship solicitation FYI"
+ },
+ {
+  "id": "t22",
+  "from": "mjones@shslou.org",
+  "subject": "Level 3 reading conference - please pick a time",
+  "snippet": "Please choose a conference slot for Jackson using the link below.",
+  "thread_has_my_reply": false,
+  "received": "2026-10-28T10:15:00-04:00",
+  "expected": {
+   "lane": "school-jackson",
+   "inbox": "keep",
+   "star_required": false
+  },
+  "rule": "direct teacher + conference scheduling"
+ },
+ {
+  "id": "t23",
+  "from": "rsmith@shslou.org",
+  "subject": "Junior college counseling night Nov 12 - RSVP",
+  "snippet": "Juniors and parents: please RSVP for college counseling night.",
+  "thread_has_my_reply": false,
+  "received": "2026-10-28T10:15:00-04:00",
+  "expected": {
+   "lane": "school-jada",
+   "inbox": "keep",
+   "star_required": false
+  },
+  "rule": "RSVP = ACTION; junior/college counseling = Jada"
+ },
+ {
+  "id": "t24",
+  "from": "nurse@shslou.org",
+  "subject": "Jackson visited the health office today",
+  "snippet": "Jackson came to the nurse with a headache and returned to class.",
+  "thread_has_my_reply": false,
+  "received": "2026-10-28T10:15:00-04:00",
+  "expected": {
+   "lane": "school-jackson",
+   "inbox": "keep",
+   "star_required": true
+  },
+  "rule": "nurse/health = ACTION + star"
+ },
+ {
+  "id": "t25",
+  "from": "info@shslou.org",
+  "subject": "Weather closing: campus closed tomorrow",
+  "snippet": "Due to weather, all Sacred Heart campuses will be closed tomorrow.",
+  "thread_has_my_reply": false,
+  "received": "2026-10-28T10:15:00-04:00",
+  "expected": {
+   "lane": "school",
+   "inbox": "keep",
+   "star_required": false
+  },
+  "rule": "weather closing = ACTION, campus-wide"
+ },
+ {
+  "id": "t26",
+  "from": "communications@shslou.org",
+  "subject": "Campus parking lot resurfacing update",
+  "snippet": "Resurfacing of the north lot finished on schedule.",
+  "thread_has_my_reply": false,
+  "received": "2026-10-28T10:15:00-04:00",
+  "expected": {
+   "lane": "school",
+   "inbox": "archive",
+   "star_required": false
+  },
+  "rule": "general announcement, no ask, campus"
+ },
+ {
+  "id": "t27",
+  "from": "auto-confirm@amazon.com",
+  "subject": "Your Amazon.com order #112-4481 has been placed",
+  "snippet": "Thanks for your order of a USB-C hub.",
+  "thread_has_my_reply": false,
+  "received": "2026-10-28T10:15:00-04:00",
+  "expected": {
+   "lane": "receipts",
+   "inbox": "archive",
+   "star_required": false
+  },
+  "rule": "order confirmation"
+ },
+ {
+  "id": "t28",
+  "from": "mcinfo@ups.com",
+  "subject": "UPS Update: Your package has shipped",
+  "snippet": "Tracking 1Z999AA10123456784, arriving Thursday.",
+  "thread_has_my_reply": false,
+  "received": "2026-10-28T10:15:00-04:00",
+  "expected": {
+   "lane": "shipping",
+   "inbox": "archive",
+   "star_required": false
+  },
+  "rule": "shipping/tracking"
+ },
+ {
+  "id": "t29",
+  "from": "no.reply.alerts@chase.com",
+  "subject": "Your Chase statement is ready",
+  "snippet": "Your September statement is now available.",
+  "thread_has_my_reply": false,
+  "received": "2026-10-28T10:15:00-04:00",
+  "expected": {
+   "lane": "finance",
+   "inbox": "archive",
+   "star_required": false
+  },
+  "rule": "bank statement"
+ },
+ {
+  "id": "t30",
+  "from": "info@account.netflix.com",
+  "subject": "Your subscription renews on Nov 5",
+  "snippet": "Your Standard plan will renew automatically.",
+  "thread_has_my_reply": false,
+  "received": "2026-10-28T10:15:00-04:00",
+  "expected": {
+   "lane": "finance",
+   "inbox": "archive",
+   "star_required": false
+  },
+  "rule": "subscription renewal"
+ },
+ {
+  "id": "t31",
+  "from": "crew@morningbrew.com",
+  "subject": "Morning Brew: markets, AI chips and more",
+  "snippet": "Good morning. Here's what you need to know today.",
+  "thread_has_my_reply": false,
+  "received": "2026-10-28T10:15:00-04:00",
+  "expected": {
+   "lane": "newsletters",
+   "inbox": "archive",
+   "star_required": false
+  },
+  "rule": "newsletter"
+ },
+ {
+  "id": "t32",
+  "from": "target@em.target.com",
+  "subject": "30% off home this weekend",
+  "snippet": "Shop the fall home event.",
+  "thread_has_my_reply": false,
+  "received": "2026-10-28T10:15:00-04:00",
+  "expected": {
+   "lane": "newsletters",
+   "inbox": "archive",
+   "star_required": false
+  },
+  "rule": "promotion"
+ },
+ {
+  "id": "t33",
+  "from": "notifications@github.com",
+  "subject": "[jwatkins0101/personal] Run failed: CI",
+  "snippet": "The workflow run failed for main.",
+  "thread_has_my_reply": false,
+  "received": "2026-10-28T10:15:00-04:00",
+  "expected": {
+   "lane": "notifications",
+   "inbox": "archive",
+   "star_required": false
+  },
+  "rule": "GitHub notification"
+ },
+ {
+  "id": "t34",
+  "from": "do-not-reply@blackboard.com",
+  "subject": "Daily Notifications",
+  "snippet": "You have 4 new notifications in Blackboard.",
+  "thread_has_my_reply": false,
+  "received": "2026-10-28T10:15:00-04:00",
+  "expected": {
+   "lane": "notifications",
+   "inbox": "archive",
+   "star_required": false
+  },
+  "rule": "Blackboard recurring sender"
+ },
+ {
+  "id": "t35",
+  "from": "mychart@nortonhealthcare.org",
+  "subject": "You have a new message in MyNortonChart",
+  "snippet": "Log in to MyNortonChart to view your message.",
+  "thread_has_my_reply": false,
+  "received": "2026-10-28T10:15:00-04:00",
+  "expected": {
+   "lane": "notifications",
+   "inbox": "archive",
+   "star_required": false
+  },
+  "rule": "portal alert, no appointment time"
+ },
+ {
+  "id": "t36",
+  "from": "mychart@nortonhealthcare.org",
+  "subject": "Appointment reminder: Tue Nov 3 at 9:40 AM with Dr. Patel",
+  "snippet": "Please arrive 15 minutes early for your appointment.",
+  "thread_has_my_reply": false,
+  "received": "2026-10-28T10:15:00-04:00",
+  "expected": {
+   "lane": "action",
+   "inbox": "keep",
+   "star_required": false
+  },
+  "rule": "portal message naming appointment time = exception, ACTION"
+ },
+ {
+  "id": "t37",
+  "from": "no-reply@rs.ring.com",
+  "subject": "Motion detected at your Front Door",
+  "snippet": "There was motion at your Front Door at 2:14 PM.",
+  "thread_has_my_reply": false,
+  "received": "2026-10-28T10:15:00-04:00",
+  "expected": {
+   "lane": "notifications",
+   "inbox": "archive",
+   "star_required": false
+  },
+  "rule": "Ring home-device"
+ },
+ {
+  "id": "t38",
+  "from": "clubnews@bluesombrero.com",
+  "subject": "St. Matthews Baseball fall wrap-up",
+  "snippet": "Thanks for a great fall season!",
+  "thread_has_my_reply": false,
+  "received": "2026-10-28T10:15:00-04:00",
+  "expected": {
+   "lane": "newsletters",
+   "inbox": "archive",
+   "star_required": false
+  },
+  "rule": "St. Matthews Baseball newsletter"
+ },
+ {
+  "id": "t39",
+  "from": "dana@clientco.com",
+  "subject": "SOW revisions - can you review by Friday?",
+  "snippet": "Hi Jermaine, attached are the SOW revisions. Can you review and sign off by Friday?",
+  "thread_has_my_reply": false,
+  "received": "2026-10-28T10:15:00-04:00",
+  "expected": {
+   "lane": "action",
+   "inbox": "keep",
+   "star_required": false
+  },
+  "rule": "real human needing reply"
+ },
+ {
+  "id": "t40",
+  "from": "billing@hostingvendor.com",
+  "subject": "Invoice #2291 due Nov 1",
+  "snippet": "Your invoice for $240.00 is due November 1.",
+  "thread_has_my_reply": false,
+  "received": "2026-10-28T10:15:00-04:00",
+  "expected": {
+   "lane": "action",
+   "inbox": "keep",
+   "star_required": false
+  },
+  "rule": "bill with due date = ACTION"
+ },
+ {
+  "id": "t41",
+  "from": "sara@partnerco.com",
+  "subject": "Re: podcast recording",
+  "snippet": "Sounds good, see you then!",
+  "thread_has_my_reply": true,
+  "received": "2026-10-28T10:15:00-04:00",
+  "expected": {
+   "lane": "action",
+   "inbox": "keep",
+   "star_required": false
+  },
+  "rule": "known contact reply chain"
+ },
+ {
+  "id": "t42",
+  "from": "news@flipboard.com",
+  "subject": "Your Flipboard daily edition",
+  "snippet": "Top stories picked for you.",
+  "thread_has_my_reply": false,
+  "received": "2026-10-28T10:15:00-04:00",
+  "expected": {
+   "lane": "newsletters",
+   "inbox": "archive",
+   "star_required": false
+  },
+  "rule": "Flipboard digest"
+ },
+ {
+  "id": "t43",
+  "from": "no-reply@rs.email.nextdoor.com",
+  "subject": "Nextdoor digest: 12 new posts near you",
+  "snippet": "Lost dog, fence contractor recs and more.",
+  "thread_has_my_reply": false,
+  "received": "2026-10-28T10:15:00-04:00",
+  "expected": {
+   "lane": "newsletters",
+   "inbox": "archive",
+   "star_required": false
+  },
+  "rule": "Nextdoor digest"
+ },
+ {
+  "id": "t44",
+  "from": "alerts@getrave.com",
+  "subject": "Rave Alert: Test of the UofL emergency notification system",
+  "snippet": "This is only a test.",
+  "thread_has_my_reply": false,
+  "received": "2026-10-28T10:15:00-04:00",
+  "expected": {
+   "lane": "notifications",
+   "inbox": "archive",
+   "star_required": false
+  },
+  "rule": "Rave Alert"
+ },
+ {
+  "id": "t45",
+  "from": "mjones@shslou.org",
+  "subject": "Re: Jackson's missing homework",
+  "snippet": "Thanks for letting me know, he can turn it in Monday.",
+  "thread_has_my_reply": true,
+  "received": "2026-10-28T10:15:00-04:00",
+  "expected": {
+   "lane": "school-jackson",
+   "inbox": "keep",
+   "star_required": false
+  },
+  "rule": "school thread with my reply: never archive"
+ },
+ {
+  "id": "t46",
+  "from": "ceo@clientco.com",
+  "subject": "URGENT: board deck needed by noon today",
+  "snippet": "Jermaine, we need the updated board deck by noon today.",
+  "thread_has_my_reply": false,
+  "received": "2026-10-28T10:15:00-04:00",
+  "expected": {
+   "lane": "action",
+   "inbox": "keep",
+   "star_required": true
+  },
+  "rule": "urgent due today from client: ACTION + star"
+ }
+]

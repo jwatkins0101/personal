@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>Label</key>
+	<string>com.jermaine.yt-daily-brief</string>
+	<key>ProgramArguments</key>
+	<array>
+		<string>/bin/zsh</string>
+		<string>-lc</string>
+		<string>cd ~/Documents/Sites &amp;&amp; claude -p x</string>
+	</array>
+	<key>StandardErrorPath</key>
+	<string>/Users/jermainewatkins/Documents/Sites/youtube-knowledge/briefs/.launchd.err.log</string>
+	<key>StandardOutPath</key>
+	<string>/Users/jermainewatkins/Documents/Sites/youtube-knowledge/briefs/.launchd.log</string>
+	<key>StartCalendarInterval</key>
+	<dict>
+		<key>Hour</key>
+		<integer>7</integer>
+		<key>Minute</key>
+		<integer>3</integer>
+	</dict>
+</dict>
+</plist>

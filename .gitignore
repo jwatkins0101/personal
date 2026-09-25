@@ -36,3 +36,6 @@ __pycache__/
 .claude/*
 !.claude/settings.json
 !.claude/hooks/
+
+# gate scratch output
+tests/.out/

@@ -13,6 +13,7 @@ import { messagesToClassifiable } from "../classifier/adapters.js";
 import { captureTaskSpecs, type TaskSpec } from "../tasks/index.js";
 import { GTD_LISTS, type GtdKey } from "../tasks/google-tasks.js";
 import { loadContactIndex, nameOrHandle } from "../contacts/resolver.js";
+import { writeLaneSummary } from "../cos/summary.js";
 
 // Categories worth turning into a task; everything else (newsletter/reference/idea) is ignored.
 const ACTIONABLE = new Set(["urgent", "work", "personal", "admin", "health", "finance", "waiting-on"]);
@@ -101,6 +102,7 @@ async function main(): Promise<void> {
 
   if (incoming.length === 0) {
     console.log("Nothing to triage.");
+    writeLaneSummary({ items_in: 0, items_out: {} });
     return;
   }
 
@@ -114,6 +116,7 @@ async function main(): Promise<void> {
 
   if (actionItems.length === 0) {
     console.log("No action items found in recent messages.");
+    writeLaneSummary({ items_in: incoming.length, items_out: { no_action: incoming.length } });
     return;
   }
 
@@ -174,6 +177,15 @@ async function main(): Promise<void> {
 
   const res = await captureTaskSpecs(specs);
   console.log(`\n→ Tasks: ${res.created} new · ${res.skipped} already captured`);
+  writeLaneSummary({
+    items_in: incoming.length,
+    items_out: {
+      no_action: incoming.length - actionItems.length,
+      tasks_created: res.created,
+      already_captured: res.skipped,
+      merged_same_sender: actionItems.length - specs.length,
+    },
+  });
   if (res.created > 0) {
     const parts = Object.entries(res.byList).map(([k, n]) => `${GTD_LISTS[k as GtdKey]}: ${n}`);
     console.log(`  Routed → ${parts.join(" · ")}`);

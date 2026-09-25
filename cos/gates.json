@@ -173,6 +173,200 @@
         "tests/fixtures/claude-cli/no-result-output.json": "87dfa9ce3a51490e24a98baa6af08672b93acdc13de2fb94dba298619708db47",
         "tests/fixtures/claude-cli/legacy-parser.ts": "aa8d9c521719113e2a284a40a45d07326aef4bf1e7593b001895c4b2acd50418"
       }
+    },
+    {
+      "id": "triage-fixtures",
+      "story": "S1-1",
+      "tier": "llm",
+      "acceptance": [
+        "AC-06"
+      ],
+      "command": [
+        "npx",
+        "tsx",
+        "tests/gates/triage-fixtures.ts"
+      ],
+      "script": "tests/gates/triage-fixtures.ts",
+      "assertion_files": [
+        "tests/fixtures/triage/emails.json",
+        "tests/fixtures/triage/sabotaged-rules.md",
+        "prompts/gmail-triage.md",
+        "src/claude/result.ts"
+      ],
+      "negative": {
+        "env": {
+          "TRIAGE_RULES_FILE": "tests/fixtures/triage/sabotaged-rules.md",
+          "TRIAGE_RUNS": "1"
+        },
+        "reason": "rules that archive everything must miss the ACTION and school fixtures"
+      },
+      "script_sha256": "156e2693fd19855624a6fced60eb75e45941df671185a3a05056923d181d9c2a",
+      "assertion_sha256": {
+        "tests/fixtures/triage/emails.json": "83d63559bb5519bff1d96c1e819e7a496e97088012964e0b9fde7a020a0e003b",
+        "tests/fixtures/triage/sabotaged-rules.md": "a0cfc2eafce343a9571e54c08b852edc105177b4a00bfe7e416ec74befe73161",
+        "prompts/gmail-triage.md": "5910c19c445d1c7dfc95a8c127581fe2476471a4b3b331ba1111af9b046c5440",
+        "src/claude/result.ts": "9afc8f479d77cf0941e2eddf5f4dacd4cfa68c45c4cc3da8858ed1ace46f0201"
+      }
+    },
+    {
+      "id": "ledger-schema",
+      "story": "S1-2",
+      "tier": "unit",
+      "acceptance": [
+        "AC-07"
+      ],
+      "command": [
+        "npx",
+        "tsx",
+        "tests/gates/ledger.ts",
+        "schema"
+      ],
+      "script": "tests/gates/ledger.ts",
+      "assertion_files": [
+        "cos/lib/ledger.mjs",
+        "tests/fixtures/ledger/lib-no-validate.mjs"
+      ],
+      "negative": {
+        "env": {
+          "COS_LEDGER_LIB": "tests/fixtures/ledger/lib-no-validate.mjs"
+        },
+        "reason": "a ledger that accepts anything must fail"
+      },
+      "script_sha256": "2ab62c645ac7ce3b4a7d0600705e89a7e094f65a13156e33df475494edb0274a",
+      "assertion_sha256": {
+        "cos/lib/ledger.mjs": "68fd202a0ffc62fa677055db0c98b8603940af45f688374286df6a9737c6baa7",
+        "tests/fixtures/ledger/lib-no-validate.mjs": "9560e17daa9b11fe0abb0237cd997d071e8b5e32d160a1331ae9eeae766117a6"
+      }
+    },
+    {
+      "id": "reconcile",
+      "story": "S1-3",
+      "tier": "unit",
+      "acceptance": [
+        "AC-08"
+      ],
+      "command": [
+        "npx",
+        "tsx",
+        "tests/gates/ledger.ts",
+        "reconcile"
+      ],
+      "script": "tests/gates/ledger.ts",
+      "assertion_files": [
+        "cos/lib/ledger.mjs",
+        "tests/fixtures/ledger/lib-no-reconcile.mjs"
+      ],
+      "negative": {
+        "env": {
+          "COS_LEDGER_LIB": "tests/fixtures/ledger/lib-no-reconcile.mjs"
+        },
+        "reason": "17-vs-16 must be caught"
+      },
+      "script_sha256": "2ab62c645ac7ce3b4a7d0600705e89a7e094f65a13156e33df475494edb0274a",
+      "assertion_sha256": {
+        "cos/lib/ledger.mjs": "68fd202a0ffc62fa677055db0c98b8603940af45f688374286df6a9737c6baa7",
+        "tests/fixtures/ledger/lib-no-reconcile.mjs": "8fdab4cca95cab632da0d1ae92c9fcd8dc8a1ff85f1c3157f16b4b5de32b4112"
+      }
+    },
+    {
+      "id": "artifacts",
+      "story": "S1-4",
+      "tier": "unit",
+      "acceptance": [
+        "AC-09"
+      ],
+      "command": [
+        "npx",
+        "tsx",
+        "tests/gates/ledger.ts",
+        "artifacts"
+      ],
+      "script": "tests/gates/ledger.ts",
+      "assertion_files": [
+        "cos/lib/ledger.mjs",
+        "tests/fixtures/ledger/lib-no-artifacts.mjs"
+      ],
+      "negative": {
+        "env": {
+          "COS_LEDGER_LIB": "tests/fixtures/ledger/lib-no-artifacts.mjs"
+        },
+        "reason": "a claimed missing file must be caught"
+      },
+      "script_sha256": "2ab62c645ac7ce3b4a7d0600705e89a7e094f65a13156e33df475494edb0274a",
+      "assertion_sha256": {
+        "cos/lib/ledger.mjs": "68fd202a0ffc62fa677055db0c98b8603940af45f688374286df6a9737c6baa7",
+        "tests/fixtures/ledger/lib-no-artifacts.mjs": "6bee991917d55fb7dbfa0ead33f5d6140d6cfa87f933b2ba882917edb4e7637f"
+      }
+    },
+    {
+      "id": "heartbeat",
+      "story": "S1-5",
+      "tier": "unit",
+      "acceptance": [
+        "AC-10"
+      ],
+      "command": [
+        "npx",
+        "tsx",
+        "tests/gates/ledger.ts",
+        "heartbeat"
+      ],
+      "script": "tests/gates/ledger.ts",
+      "assertion_files": [
+        "cos/lib/ledger.mjs",
+        "tests/fixtures/ledger/lib-no-heartbeat.mjs",
+        "src/cos/cli.ts"
+      ],
+      "negative": {
+        "env": {
+          "COS_LEDGER_LIB": "tests/fixtures/ledger/lib-no-heartbeat.mjs"
+        },
+        "reason": "a lane silent since 09-16 must be stale"
+      },
+      "script_sha256": "2ab62c645ac7ce3b4a7d0600705e89a7e094f65a13156e33df475494edb0274a",
+      "assertion_sha256": {
+        "cos/lib/ledger.mjs": "68fd202a0ffc62fa677055db0c98b8603940af45f688374286df6a9737c6baa7",
+        "tests/fixtures/ledger/lib-no-heartbeat.mjs": "cb962b43b4b42c096c721134f73792011b7efdb798d7e21186a03074786a89dd",
+        "src/cos/cli.ts": "12a387b34ecbc2632b9263f4b810044d8cee39cbfeef0342b679db42d7334639"
+      }
+    },
+    {
+      "id": "launchd-lint",
+      "story": "S1-6",
+      "tier": "deploy",
+      "acceptance": [
+        "AC-11"
+      ],
+      "command": [
+        "python3",
+        "tests/gates/launchd-lint.py"
+      ],
+      "script": "tests/gates/launchd-lint.py",
+      "assertion_files": [
+        "cos/bin/lane-run.sh",
+        "cos/bin/record-run.mjs",
+        "cos/lib/ledger.mjs",
+        "cos/lanes.json",
+        "scripts/deploy-lanes.sh",
+        "scripts/set-launchd-lane.py",
+        "tests/fixtures/launchd/com.jermaine.yt-daily-brief.plist"
+      ],
+      "negative": {
+        "env": {
+          "PLIST_DIR": "tests/fixtures/launchd"
+        },
+        "reason": "the pre-fix yt plist (zsh, logs in ~/Documents) must fail"
+      },
+      "script_sha256": "a4f2a5a878e6fa9ed5547ca0ecc7c4c9cb28cc43132c75c5acdb67a7ac142c3e",
+      "assertion_sha256": {
+        "cos/bin/lane-run.sh": "16193c3810c5a75ec28e7d633705da0e80a78cf4fb4f092bd6488c7842c14631",
+        "cos/bin/record-run.mjs": "0f4bfbbde771e1458a83ed129dcf4b53659fd78e77a212b43ad83a4f76d405c6",
+        "cos/lib/ledger.mjs": "68fd202a0ffc62fa677055db0c98b8603940af45f688374286df6a9737c6baa7",
+        "cos/lanes.json": "dba96ae359ef360c412941e12037c0189de1126ac582329654611d6d9e62d24e",
+        "scripts/deploy-lanes.sh": "5b8facac123164175ec57732bc8b81f04b56affdd2d71a05b75b3b6a1dc0da8f",
+        "scripts/set-launchd-lane.py": "a929afb52bb94650c1d4715aa5355e126e424516022a05fc5dd6612b7627eca4",
+        "tests/fixtures/launchd/com.jermaine.yt-daily-brief.plist": "9311a7dbd4c82b256d938ac8e0a8b4366925e1c3836861cf687d2f9c845fa1f5"
+      }
     }
   ]
 }

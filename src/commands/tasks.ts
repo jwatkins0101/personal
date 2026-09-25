@@ -6,6 +6,7 @@
  *   npm run tasks -- claude       # print the "🤖 Claude Code" backlog lane
  */
 import { captureFromInbox } from "../tasks/index.js";
+import { writeLaneSummary } from "../cos/summary.js";
 import {
   listOpenGtdTasks,
   ensureGtdLists,
@@ -87,6 +88,10 @@ async function main(): Promise<void> {
   console.log(`Capturing action items from the last ${days} days of unread inbox...`);
   const r = await captureFromInbox(days);
   console.log(`\nScanned ${r.scanned} unread · ${r.actionable} actionable · ${r.created} new tasks · ${r.skipped} already captured`);
+  writeLaneSummary({
+    items_in: r.scanned,
+    items_out: { not_actionable: r.scanned - r.actionable, tasks_created: r.created, already_captured: r.skipped },
+  });
   if (r.created > 0) {
     const parts = Object.entries(r.byList).map(([k, n]) => `${GTD_LISTS[k as GtdKey]}: ${n}`);
     console.log(`Routed → ${parts.join(" · ")}`);

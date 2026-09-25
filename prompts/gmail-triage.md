@@ -227,3 +227,16 @@ If it's the 7am window:
 - Any school sender you could not attribute to a kid (so the rule can be tightened)
 - Any senders that showed up repeatedly (rule candidates)
 - Heads-up draft: created / skipped (with reason)
+
+## Run summary file (required, last step)
+
+If the environment variable `COS_RUN_SUMMARY` is set, write the run's counts to that path as JSON **by serializing with `jq -n`**, never by hand-typing JSON. Every message you listed in step 1 must be counted exactly once in `items_out`, so the values add up to `items_in`:
+
+```
+jq -n --argjson in N --argjson action A --argjson school S --argjson receipts R --argjson shipping H \
+  --argjson finance F --argjson newsletters W --argjson notifications T \
+  '{items_in:$in, items_out:{action:$action, school:$school, receipts:$receipts, shipping:$shipping, finance:$finance, newsletters:$newsletters, notifications:$notifications}}' \
+  > "$COS_RUN_SUMMARY"
+```
+
+`school` counts school-lane messages (kept or labeled); `action` counts every other message left in the inbox. If you could not finish, still write the file with the counts you have and add `"status":"partial"` plus a `gaps` array describing what's missing.

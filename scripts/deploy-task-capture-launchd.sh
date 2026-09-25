@@ -6,6 +6,9 @@
 # it cd's into the project and reads chat.db — both TCC-protected — so the job needs Full Disk
 # Access granted to /bin/bash (see docs/USAGE.md). The hourly email triage does NOT need this.
 set -euo pipefail
+case "$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)" in */.claude/worktrees/*)
+  echo "REFUSED: deploy from the main checkout, not a worktree." >&2; exit 1 ;;
+esac
 
 REPO_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 SUPPORT_DIR="$HOME/Library/Application Support/assistance/task-capture"
@@ -25,6 +28,7 @@ export PATH="\$HOME/.local/bin:/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin:\$
 PROJECT="$REPO_DIR"
 LOG_DIR="\$HOME/Library/Logs/assistance"
 LOG="\$LOG_DIR/task-capture.log"
+WRAP="\$HOME/Library/Application Support/assistance/cos/bin/lane-run.sh"
 mkdir -p "\$LOG_DIR"
 
 echo "" >> "\$LOG"
@@ -36,7 +40,7 @@ if ! cd "\$PROJECT" 2>>"\$LOG"; then
 fi
 
 echo "--- email -> tasks ---" >> "\$LOG"
-npm run tasks >> "\$LOG" 2>&1 || echo "(tasks step failed)" >> "\$LOG"
+"\$WRAP" tasks-email --attempts 2 -- npm run tasks >> "\$LOG" 2>&1 || echo "(tasks step failed)" >> "\$LOG"
 
 echo "--- sms -> tasks (last 2 days) ---" >> "\$LOG"
 # chat.db + Contacts are TCC-protected, and the npm->node->sqlite3 chain can't open them even
@@ -51,9 +55,10 @@ if /usr/bin/sqlite3 -readonly "\$HOME/Library/Messages/chat.db" "VACUUM INTO '\$
     dst="\$TMPD/\$(basename "\$(dirname "\$ab")").abcddb"
     /usr/bin/sqlite3 -readonly "\$ab" "VACUUM INTO '\$dst'" 2>>"\$LOG" && CONTACTS="\${CONTACTS:+\$CONTACTS:}\$dst"
   done
-  MESSAGES_DB="\$MSGDB" CONTACTS_DBS="\$CONTACTS" npm run sms-triage -- 2 >> "\$LOG" 2>&1 || echo "(sms-triage step failed)" >> "\$LOG"
+  MESSAGES_DB="\$MSGDB" CONTACTS_DBS="\$CONTACTS" "\$WRAP" tasks-sms --attempts 2 -- npm run sms-triage -- 2 >> "\$LOG" 2>&1 || echo "(sms-triage step failed)" >> "\$LOG"
 else
   echo "(could not snapshot chat.db — is /bin/bash in Full Disk Access? see docs/USAGE.md)" >> "\$LOG"
+  "\$WRAP" tasks-sms --attempts 1 -- /bin/bash -c 'echo "chat.db snapshot failed"; exit 1' >> "\$LOG" 2>&1
 fi
 rm -rf "\$TMPD"
 

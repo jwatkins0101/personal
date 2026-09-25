@@ -41,7 +41,8 @@
     "pipeline:dry": "tsx src/commands/orchestrate.ts --dry-run",
     "build": "tsc --noEmit",
     "dev": "tsx watch src/index.ts",
-    "gates": "tsx scripts/run-gates.ts"
+    "gates": "tsx scripts/run-gates.ts",
+    "cos": "tsx src/cos/cli.ts"
   },
   "dependencies": {
     "better-sqlite3": "^13.0.3",

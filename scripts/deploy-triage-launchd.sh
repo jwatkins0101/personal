@@ -8,6 +8,9 @@
 set -euo pipefail
 
 REPO_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+case "$REPO_DIR" in */.claude/worktrees/*)
+  echo "REFUSED: deploy from the main checkout, not a worktree ($REPO_DIR)." >&2; exit 1 ;;
+esac
 TRIAGE_DIR="$HOME/Library/Application Support/assistance/triage"
 PLIST="$HOME/Library/LaunchAgents/com.assistance.gmail-triage.plist"
 RUNNER="$TRIAGE_DIR/run-gmail-triage.sh"
@@ -65,20 +68,6 @@ echo "=== Done: $(date) ===" >> "$LOG_FILE"
 RUNNER_EOF
 chmod +x "$RUNNER"
 
-# 2. Repoint the existing LaunchAgent at the relocated runner (preserve schedule), and pin a
-#    readable WorkingDirectory so launchd doesn't emit getcwd "Operation not permitted" warnings.
-if [ -f "$PLIST" ]; then
-  /usr/libexec/PlistBuddy -c "Set :ProgramArguments:1 $RUNNER" "$PLIST"
-  /usr/libexec/PlistBuddy -c "Set :WorkingDirectory $TRIAGE_DIR" "$PLIST" 2>/dev/null \
-    || /usr/libexec/PlistBuddy -c "Add :WorkingDirectory string $TRIAGE_DIR" "$PLIST"
-else
-  echo "WARNING: $PLIST not found — schedule plist missing; nothing repointed." >&2
-fi
-
-# 3. Reload the job.
-launchctl bootout "gui/$(id -u)/$LABEL" 2>/dev/null || true
-launchctl bootstrap "gui/$(id -u)" "$PLIST"
-
+# 2. Point the LaunchAgent at the standard lane wrapper (run record + retries) and reload it.
+bash "$REPO_DIR/scripts/deploy-lanes.sh" inbox
 echo "Deployed runner: $RUNNER"
-echo "Reloaded launchd job: $LABEL"
-launchctl print "gui/$(id -u)/$LABEL" 2>/dev/null | grep -E "state =|program =" | head -3 || true

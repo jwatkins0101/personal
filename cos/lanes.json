@@ -1,0 +1,10 @@
+{
+  "lanes": [
+    { "lane": "inbox",       "label": "com.assistance.gmail-triage",  "schedule": { "days": [1,2,3,4,5,6,7], "times": ["07:00","08:00","09:00","10:00","11:00","12:00","13:00","14:00","15:00","16:00","17:00","18:00","19:00","20:00","21:00"] }, "grace_minutes": 30, "counts": true },
+    { "lane": "tasks-email", "label": "com.assistance.task-capture",  "schedule": { "days": [1,2,3,4,5,6,7], "times": ["08:00","18:00"] }, "grace_minutes": 30, "counts": true },
+    { "lane": "tasks-sms",   "label": "com.assistance.task-capture",  "schedule": { "days": [1,2,3,4,5,6,7], "times": ["08:00","18:00"] }, "grace_minutes": 30, "counts": true },
+    { "lane": "flights",     "label": "com.assistance.flight-check",  "schedule": { "days": [1,2,3,4,5,6,7], "times": ["07:20"] }, "grace_minutes": 30, "counts": false },
+    { "lane": "deals",       "label": "com.jermaine.deal-watch",      "schedule": { "days": [3,7], "times": ["07:18"] }, "grace_minutes": 90, "counts": false },
+    { "lane": "yt",          "label": "com.jermaine.yt-daily-brief",  "schedule": { "days": [1,2,3,4,5,6,7], "times": ["07:03"] }, "grace_minutes": 90, "counts": false }
+  ]
+}
