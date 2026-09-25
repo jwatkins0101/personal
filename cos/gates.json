@@ -327,7 +327,7 @@
       "assertion_sha256": {
         "cos/lib/ledger.mjs": "68fd202a0ffc62fa677055db0c98b8603940af45f688374286df6a9737c6baa7",
         "tests/fixtures/ledger/lib-no-heartbeat.mjs": "cb962b43b4b42c096c721134f73792011b7efdb798d7e21186a03074786a89dd",
-        "src/cos/cli.ts": "37ce2b63b1ee6c0fd2b893b829a0bd2989e016a521f01a7121616a53d38beaa4"
+        "src/cos/cli.ts": "fb953b8323327c07a7851025f68eb2207a39c0bee2b17510b7a21017c38f6052"
       }
     },
     {
@@ -358,14 +358,14 @@
         },
         "reason": "the pre-fix yt plist (zsh, logs in ~/Documents) must fail"
       },
-      "script_sha256": "8d62069097ef91561122de686ae1dfef095dd0c65ade4834f859a442b78b9cc4",
+      "script_sha256": "d020623f8b038a86ef2509dcb90809dbe9236d1491637a831733768f1bd8a252",
       "assertion_sha256": {
         "cos/bin/lane-run.sh": "16193c3810c5a75ec28e7d633705da0e80a78cf4fb4f092bd6488c7842c14631",
         "cos/bin/record-run.mjs": "0f4bfbbde771e1458a83ed129dcf4b53659fd78e77a212b43ad83a4f76d405c6",
         "cos/lib/ledger.mjs": "68fd202a0ffc62fa677055db0c98b8603940af45f688374286df6a9737c6baa7",
         "cos/lanes.json": "d570a21b56bdf949a43f6edc9aac66403426c271c60f27ddf0fc9678259b9f8b",
-        "scripts/deploy-lanes.sh": "a7c9c2596df331f6cabcb0b51cd13425dc92c0e482777c5d3aaafc26344aefda",
-        "scripts/set-launchd-lane.py": "28613227e58eb8d6113b2f2f53e17085957eff24811314c9e617a0bfdeeb9d60",
+        "scripts/deploy-lanes.sh": "b0d90c604757169e5f3d3a8570052aa6feeac6bdf97206c5d46a7a911352f747",
+        "scripts/set-launchd-lane.py": "7a06292c87f58b9be13e2e044e01c9e0dc420c979ae7f12c8ade0b0328f43c75",
         "tests/fixtures/launchd/com.jermaine.yt-daily-brief.plist": "9311a7dbd4c82b256d938ac8e0a8b4366925e1c3836861cf687d2f9c845fa1f5",
         "cos/bin/with-sms-snapshot.sh": "b15e96905a52488583678a24408bcc501f55300aa0c8407a4da69a3e4e97cdcd"
       }
@@ -662,6 +662,68 @@
       "assertion_sha256": {
         "src/cos/weekly.ts": "b8b4ac1eaf0954a8900fc47084536a7340290588de4d3ad3feff59c212420a0f",
         "tests/fixtures/cos/weekly-broken.ts": "7e85f495cc8fbaba0d2115f36f35b0d4ff0206f0cb93c4763c09f5254d5895f6"
+      }
+    },
+    {
+      "id": "board-live",
+      "story": "S4-1",
+      "tier": "unit",
+      "acceptance": [
+        "AC-24"
+      ],
+      "command": [
+        "npx",
+        "tsx",
+        "tests/gates/cos-board.ts",
+        "board-live"
+      ],
+      "script": "tests/gates/cos-board.ts",
+      "assertion_files": [
+        "src/cos/board.ts",
+        "tests/fixtures/cos/board-frozen.ts"
+      ],
+      "negative": {
+        "env": {
+          "BOARD_MODULE": "tests/fixtures/cos/board-frozen.ts"
+        },
+        "reason": "a board that serves a frozen state is not live"
+      },
+      "script_sha256": "3c7dca7fe7c09cdbdba168c3771aaa1aa4068c7d7476d13bdce0b0ee55d6dd65",
+      "assertion_sha256": {
+        "src/cos/board.ts": "90e2fb55b1830b3cecbc62eb8f2b6b39efc1db6152bfdcd522c29210851f64d6",
+        "tests/fixtures/cos/board-frozen.ts": "7544e49410333ea6cdc198d57d511c3e364bd616ccab5815d809e6f6ee25149c"
+      }
+    },
+    {
+      "id": "board-security",
+      "story": "S4-2",
+      "tier": "unit",
+      "acceptance": [
+        "AC-25"
+      ],
+      "command": [
+        "npx",
+        "tsx",
+        "tests/gates/cos-board.ts",
+        "board-security"
+      ],
+      "script": "tests/gates/cos-board.ts",
+      "assertion_files": [
+        "src/cos/board.ts",
+        "src/cos/cli.ts",
+        "tests/fixtures/cos/board-open.ts"
+      ],
+      "negative": {
+        "env": {
+          "BOARD_MODULE": "tests/fixtures/cos/board-open.ts"
+        },
+        "reason": "a board with no token/host checks must fail"
+      },
+      "script_sha256": "3c7dca7fe7c09cdbdba168c3771aaa1aa4068c7d7476d13bdce0b0ee55d6dd65",
+      "assertion_sha256": {
+        "src/cos/board.ts": "90e2fb55b1830b3cecbc62eb8f2b6b39efc1db6152bfdcd522c29210851f64d6",
+        "src/cos/cli.ts": "fb953b8323327c07a7851025f68eb2207a39c0bee2b17510b7a21017c38f6052",
+        "tests/fixtures/cos/board-open.ts": "de4387422ab139538a82376a793cede0ce9a6d70d9a76041cafa08055f1bcc08"
       }
     }
   ]

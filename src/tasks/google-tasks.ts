@@ -30,6 +30,7 @@ export interface GoogleTask {
   notes?: string;
   due?: string; // RFC3339, date-only (time ignored by Google Tasks)
   status: "needsAction" | "completed";
+  completed?: string; // RFC3339, set when status is completed
   list?: string; // populated by listOpenTasks for convenience
 }
 
@@ -77,6 +78,18 @@ export async function listTasks(listId: string, includeCompleted = false): Promi
   if (!includeCompleted) params.set("showCompleted", "false");
   const json = await tapi<{ items?: GoogleTask[] }>(`/lists/${listId}/tasks?${params}`);
   return json.items || [];
+}
+
+/** Tasks completed at or after `sinceIso` across the GTD lists (includes ones Google hides after completion). */
+export async function listCompletedSince(sinceIso: string): Promise<GoogleTask[]> {
+  const ids = await ensureGtdLists();
+  const out: GoogleTask[] = [];
+  for (const key of Object.keys(GTD_LISTS) as GtdKey[]) {
+    const params = new URLSearchParams({ maxResults: "100", showCompleted: "true", showHidden: "true", completedMin: sinceIso });
+    const json = await tapi<{ items?: GoogleTask[] }>(`/lists/${ids[key]}/tasks?${params}`);
+    for (const t of json.items || []) if (t.status === "completed") out.push({ ...t, list: GTD_LISTS[key] });
+  }
+  return out;
 }
 
 export interface NewTask {

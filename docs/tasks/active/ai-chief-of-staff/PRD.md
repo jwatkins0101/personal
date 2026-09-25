@@ -1,6 +1,6 @@
 # Feature: AI Chief of Staff (v1)
 
-Revision: 4. Status: in progress. Feature ID: ai-chief-of-staff.
+Revision: 5. Status: in progress. Feature ID: ai-chief-of-staff.
 Source plan: `PLAN.md` (approved 2026-09-24, decisions D1–D8 = recommended). Harness: Ralph 2.0 @ `6d9f21ea27bb41662e1e69dd19ca1c483ad41c44`.
 
 ## Current specification
@@ -157,6 +157,9 @@ Existing prompt-driven lanes emit this record with a wrapper step (the lane writ
 | AC-20 | Duplicate commitments across lanes merge into one | `gate:dedupe` fixture (same promise in email and SMS) | not_run |
 | AC-21 | `cos eod` at 17:30 writes EOD JSON; the next `morning` consumes it, or escalates `missing_eod` | `gate:eod-handoff`; live 2-day chain | not_run |
 | AC-22 | `cos weekly` (Fri 15:00) writes a scorecard with the 5 metrics and promotion candidates, and never changes autonomy by itself | `gate:weekly-shape`; live Friday run | not_run |
+| **Live task board (D16)** |||
+| AC-24 | `http://127.0.0.1:8787` (launchd keep-alive) shows pending Decide items, Completed (approved / sent / skipped items, kept commitments, checked-off Google Tasks, end-of-day done) for today and this week, open and overdue commitments, and lane health; the page polls every 5 seconds and an action shows up on the next poll | `gate:board-live` (negative: frozen state) | not_run |
+| AC-25 | Board actions keep every safety check: token required (401), Host must be localhost (403), JSON-only posts, 127.0.0.1 only; send needs a preview then an explicit confirm and keeps the placeholder, recipient-swap and expiry refusals; commitments close only with evidence | `gate:board-security` (negative: open board) | not_run |
 
 All gates are registered in `cos/gates.json` (tier, command, script sha256, assertion-file sha256). They run with `npm run gates`, and each gate is proven to fail on its negative fixture before it counts.
 

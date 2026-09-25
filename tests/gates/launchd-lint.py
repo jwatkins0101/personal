@@ -75,4 +75,14 @@ for l in lanes:
     else:
         check(len(args) > 2 and args[1].endswith("/cos/bin/lane-run.sh") and args[1].startswith("/") and not args[1].startswith(docs) and args[2] == l["lane"],
               f"{label}: wrapped by lane-run.sh as lane '{l['lane']}'")
+# Live board (D16): always-on, bash, logs outside ~/Documents, binds localhost in code.
+bp = os.path.join(plist_dir, "com.assistance.cos-board.plist")
+if os.path.exists(bp) or "PLIST_DIR" not in os.environ:
+    if not os.path.exists(bp):
+        check(False, "com.assistance.cos-board: plist missing")
+    else:
+        b = plistlib.load(open(bp, "rb"))
+        check(b.get("KeepAlive") is True and b.get("RunAtLoad") is True, "com.assistance.cos-board: KeepAlive + RunAtLoad")
+        check(b.get("ProgramArguments", [""])[0] == "/bin/bash" and "src/cos/cli.ts board" in " ".join(b.get("ProgramArguments", [])), "com.assistance.cos-board: runs the board via /bin/bash")
+        check(all(not str(b.get(k, "")).startswith(docs) and str(b.get(k, "")).startswith("/") for k in ("StandardOutPath", "StandardErrorPath", "WorkingDirectory")), "com.assistance.cos-board: logs and working dir outside ~/Documents")
 sys.exit(fail)

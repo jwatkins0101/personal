@@ -8,15 +8,16 @@
  *   weekly            Friday scorecard (AC-22)
  *   commitments       list open commitments
  *   close ID EVIDENCE close a commitment with evidence (gmail:/sms:/cal:/task:)
+ *   board             run the live task board on http://127.0.0.1:8787 (launchd keeps it up)
+ *   board-url         print the board URL (with its local token)
  */
 import { readFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { laneHealth, type LaneConfig } from "../../cos/lib/ledger.mjs";
 import { getDb } from "../storage/db.js";
-import { approve, send, skip, listApprovals, expireApprovals, localDate, type Executors } from "./approvals.js";
-import { readDraft, sendDraft } from "../mail/gmail-api.js";
-import { ensureGtdLists, insertTask } from "../tasks/google-tasks.js";
+import { approve, send, skip, listApprovals, expireApprovals, localDate } from "./approvals.js";
+import { realExecutors } from "./executors.js";
 
 const REPO_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "../..");
 const LANES_PATH = process.env.COS_LANES_PATH ?? resolve(REPO_ROOT, "cos/lanes.json");
@@ -35,11 +36,6 @@ function health(): number {
   console.log(bad.length ? `\n${bad.length} lane(s) need attention` : "\nall lanes healthy");
   return bad.length ? 1 : 0;
 }
-
-const realExecutors: Executors = {
-  readDraft, sendDraft,
-  async createTask(title, notes) { const ids = await ensureGtdLists(); return (await insertTask(ids.inbox, { title, notes })).id; },
-};
 
 async function main(): Promise<number> {
   const argv = process.argv.slice(2);
@@ -89,6 +85,26 @@ async function main(): Promise<number> {
         const c = await closeCommitment(getDb(), n, ev, makeEvidenceChecker({ date: date, sources: [], approvals_today: [], open_commitments: [], gaps: [] }));
         console.log(`Closed #${c.id}: ${c.what} (evidence ${c.closed_evidence})`); return 0;
       } catch (e) { console.error((e as Error).message); return 1; }
+    }
+    case "board": {
+      const { createBoardServer, loadOrCreateToken, BOARD_PORT } = await import("./board.js");
+      const { makeEvidenceChecker } = await import("./eod.js");
+      const { listCompletedSince } = await import("../tasks/google-tasks.js");
+      const config = JSON.parse(readFileSync(LANES_PATH, "utf8")) as { lanes: LaneConfig[] };
+      const token = loadOrCreateToken();
+      const server = createBoardServer({
+        db: getDb(), lanes: config.lanes, executors: realExecutors,
+        checker: makeEvidenceChecker({ date, sources: [], approvals_today: [], open_commitments: [], gaps: [] }),
+        tasksCompletedSince: listCompletedSince,
+      }, token, BOARD_PORT);
+      await new Promise<void>((res) => server.listen(BOARD_PORT, "127.0.0.1", res));
+      console.log(`board: http://127.0.0.1:${BOARD_PORT}/?t=${token}`);
+      return new Promise<number>(() => {}); // run until launchd stops it
+    }
+    case "board-url": {
+      const { loadOrCreateToken, BOARD_PORT } = await import("./board.js");
+      console.log(`http://127.0.0.1:${BOARD_PORT}/?t=${loadOrCreateToken()}`);
+      return 0;
     }
     case "ping-test": {
       const { sendIMessageToSelf } = await import("./notify.js");
