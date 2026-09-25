@@ -66,6 +66,10 @@ for l in lanes:
         want = ([1, 2, 3, 4, 5], (17, 30)) if label.endswith("eod") else ([5], (15, 0))
         days = sorted(x.get("Weekday") for x in sci) if isinstance(sci, list) else []
         check(days == want[0] and all((x.get("Hour"), x.get("Minute")) == want[1] for x in sci), f"{label}: scheduled {want[1][0]:02d}:{want[1][1]:02d} on {want[0]}")
+    if label.startswith("com.assistance.triage-"):
+        sci = p.get("StartCalendarInterval")
+        hours = sorted(x.get("Hour") for x in sci) if isinstance(sci, list) else []
+        check(hours == list(range(7, 22)) and all(x.get("Minute") == 5 for x in sci), f"{label}: hourly at :05, 7am-9pm")
     if label == "com.assistance.cos-eod":
         check(any(a.endswith("/with-sms-snapshot.sh") for a in args), f"{label}: runs with SMS snapshots")
     if label == "com.assistance.task-capture":

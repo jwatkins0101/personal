@@ -14,6 +14,9 @@
  *   agent-jobs        list recent agent jobs
  *   accounts          verify each Google account profile (who is really signed in)
  *   analyze           read-only mailbox analysis across all accounts (HTML + JSON report)
+ *   triage ACCOUNT [--dry-run]                rules triage of the last 90 minutes (owlthat, techunify)
+ *   triage-backlog ACCOUNT [--dry-run] [--max N]  one-time cleanup of old inbox mail
+ *   triage-undo ACCOUNT SINCE_ISO [--tag hourly|backlog]  put archived mail back in the inbox
  */
 import { readFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
@@ -151,6 +154,23 @@ async function main(): Promise<number> {
       for (const e of r.errors) console.log(`ERROR ${e.account}: ${e.error}`);
       console.log(`report: ${r.html}`);
       return r.errors.length ? 1 : 0;
+    }
+    case "triage": case "triage-backlog": {
+      const t = await import("./rules-triage-run.js");
+      const dry = argv.includes("--dry-run");
+      const max = argv.includes("--max") ? Number(argv[argv.indexOf("--max") + 1]) : 100000;
+      const r = cmd === "triage" ? await t.hourly(arg, new Date(), dry) : await t.backlog(arg, dry, max);
+      console.log(`${r.dryRun ? "DRY RUN " : ""}${r.account}: scanned ${r.scanned} · kept ${r.kept} · starred ${r.starred} · archived ${JSON.stringify(r.archived)}`);
+      for (const [rule, n] of Object.entries(r.byRule).sort((a, b) => b[1] - a[1])) console.log(`  ${String(n).padStart(6)}  ${rule}`);
+      if (!r.dryRun) console.log(`undo log: ${r.logPath}`);
+      return 0;
+    }
+    case "triage-undo": {
+      const t = await import("./rules-triage-run.js");
+      const since = argv[2]; const tag = argv.includes("--tag") ? argv[argv.indexOf("--tag") + 1] : undefined;
+      if (!arg || !since) { console.error("usage: npm run cos -- triage-undo ACCOUNT SINCE_ISO [--tag hourly|backlog]"); return 2; }
+      console.log(`restored ${await t.undo(arg, since, tag)} message(s) to the ${arg} inbox`);
+      return 0;
     }
     case "ping-test": {
       const { sendIMessageToSelf } = await import("./notify.js");

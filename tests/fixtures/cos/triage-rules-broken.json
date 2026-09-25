@@ -1,0 +1,83 @@
+{
+  "_doc": "Rules-based triage for the non-personal mailboxes (D24). First matching rule wins. Actions: keep (stay in inbox), keep_star (stay + star), archive (remove from inbox, add the rule's label). Anything no rule matches STAYS in the inbox. Starred mail and senders you've written to in the last 90 days always stay. Built from the 2026-09-25 mailbox analysis.",
+  "accounts": {
+    "owlthat": {
+      "labels": {
+        "ci": "CoS/CI",
+        "newsletters": "CoS/Newsletters",
+        "notifications": "CoS/Notifications"
+      },
+      "rules": [
+        {
+          "name": "archive everything",
+          "action": "archive",
+          "label": "ci"
+        }
+      ],
+      "backlog": {
+        "older_than_days": 30,
+        "include_unread": true
+      }
+    },
+    "techunify": {
+      "labels": {
+        "newsletters": "CoS/Newsletters",
+        "notifications": "CoS/Notifications",
+        "social": "CoS/Social"
+      },
+      "rules": [
+        {
+          "name": "archive everything",
+          "action": "archive",
+          "label": "newsletters"
+        }
+      ],
+      "backlog": {
+        "older_than_days": 14,
+        "include_unread": true
+      }
+    }
+  },
+  "backlog_only": {
+    "personal": {
+      "_doc": "Personal keeps its existing AI triage. One-time cleanup of old bulk mail still sitting in the inbox.",
+      "labels": {
+        "backlog": "CoS/Backlog archived"
+      },
+      "older_than_days": 30,
+      "rules": [
+        {
+          "name": "failed payment or billing problem",
+          "subject": "(payment|charge|invoice).{0,30}(failed|declined|past due|overdue|unsuccessful)|card (was )?declined",
+          "action": "keep"
+        },
+        {
+          "name": "school",
+          "from_domain": [
+            "shslou.org",
+            "toddleapp.com",
+            "brightarrow.com",
+            "factsmgt.com"
+          ],
+          "action": "keep"
+        },
+        {
+          "name": "old bulk mail",
+          "bulk": true,
+          "action": "archive",
+          "label": "backlog"
+        },
+        {
+          "name": "old promotions/social/forums",
+          "category": [
+            "promotions",
+            "social",
+            "forums"
+          ],
+          "action": "archive",
+          "label": "backlog"
+        }
+      ]
+    }
+  }
+}

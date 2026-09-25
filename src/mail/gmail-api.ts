@@ -201,3 +201,18 @@ export async function getThreadMessages(threadId: string): Promise<{ id: string;
   const json = (await res.json()) as { messages?: { id: string; labelIds?: string[]; internalDate: string }[] };
   return (json.messages ?? []).map((m) => ({ id: m.id, labelIds: m.labelIds ?? [], internalDate: Number(m.internalDate) }));
 }
+
+/** Returns the id of a user label, creating it if missing (nested names like "CoS/CI" are fine). */
+export async function ensureLabel(name: string): Promise<string> {
+  const res = await gapi(`/labels`);
+  if (!res.ok) throw new Error(`Gmail labels list failed (${res.status}): ${await res.text()}`);
+  const found = ((await res.json()) as { labels?: { id: string; name: string }[] }).labels?.find((l) => l.name === name);
+  if (found) return found.id;
+  const created = await gapi(`/labels`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ name, labelListVisibility: "labelShow", messageListVisibility: "show" }),
+  });
+  if (!created.ok) throw new Error(`Gmail label create failed (${created.status}): ${await created.text()}`);
+  return ((await created.json()) as { id: string }).id;
+}

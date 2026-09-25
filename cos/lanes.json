@@ -160,6 +160,74 @@
       },
       "grace_minutes": 60,
       "counts": true
+    },
+    {
+      "lane": "triage-owlthat",
+      "label": "com.assistance.triage-owlthat",
+      "schedule": {
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7
+        ],
+        "times": [
+          "07:05",
+          "08:05",
+          "09:05",
+          "10:05",
+          "11:05",
+          "12:05",
+          "13:05",
+          "14:05",
+          "15:05",
+          "16:05",
+          "17:05",
+          "18:05",
+          "19:05",
+          "20:05",
+          "21:05"
+        ]
+      },
+      "grace_minutes": 30,
+      "counts": true
+    },
+    {
+      "lane": "triage-techunify",
+      "label": "com.assistance.triage-techunify",
+      "schedule": {
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7
+        ],
+        "times": [
+          "07:05",
+          "08:05",
+          "09:05",
+          "10:05",
+          "11:05",
+          "12:05",
+          "13:05",
+          "14:05",
+          "15:05",
+          "16:05",
+          "17:05",
+          "18:05",
+          "19:05",
+          "20:05",
+          "21:05"
+        ]
+      },
+      "grace_minutes": 30,
+      "counts": true
     }
   ]
 }

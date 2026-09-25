@@ -15,6 +15,8 @@ import { dropAnswered, repliedAfter, type RepliedFn } from "./replied.js";
 import { withAccount } from "../google/auth.js";
 import { activeAccounts } from "./accounts.js";
 import { gmailRef } from "./refs.js";
+import { ciStatus, type CiState, type CiConfig } from "./ci-status.js";
+import { loadRules } from "./rules-triage.js";
 
 const REPO_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "../..");
 const CODE = join(homedir(), "Code");
@@ -31,6 +33,8 @@ export interface BriefInputs {
   gaps: string[];
   /** Previous workday's end-of-day carry-forward (Phase 3). */
   eod?: { date: string; carry_forward: { text: string; ref: string }[] } | null;
+  /** Latest CI result per workflow, from CI alert emails (D24). */
+  ci?: CiState[];
   /** Open commitments (Phase 3). */
   commitments?: { ref: string; owner: "me" | "them"; counterparty: string; what: string; due_at: string | null; open_question: string | null }[];
 }
@@ -58,6 +62,13 @@ export async function gatherInputs(now = new Date(), replied: RepliedFn = replie
   // Mail you already answered is handled: it never becomes a Decide item or a reply owed (D17).
   const answered = await dropAnswered(inbox, replied);
   inbox.splice(0, inbox.length, ...answered.kept);
+
+  // CI status from alert emails, including ones triage archived.
+  const ciCfg = (loadRules() as unknown as { ci_status?: CiConfig }).ci_status;
+  const ci = ciCfg && activeAccounts().some((a) => a.id === ciCfg.account)
+    ? await attempt("CI status", gaps, () => withAccount(ciCfg.account, async () =>
+        ciStatus(await getMessagesMeta(await listMessageIds(`from:${ciCfg.from} newer_than:${ciCfg.lookback_days}d`, 200)), ciCfg)), [] as CiState[])
+    : [];
 
   const tasks = await attempt("Google Tasks", gaps, async () =>
     (await listOpenGtdTasks()).map((t) => ({ id: t.id, title: t.title, due: t.due, list: t.list, notes: (t.notes ?? "").slice(0, 200) })), []);
@@ -87,5 +98,5 @@ export async function gatherInputs(now = new Date(), replied: RepliedFn = replie
   const deals = join(CODE, "deal-watch/briefs", `brief-${date}.html`);
   if (existsSync(deals)) fyi_sources.deals_brief = readFileSync(deals, "utf8").replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").slice(0, 2000);
 
-  return { date, generated_at: now.toISOString(), inbox, tasks, calendar, lanes, lane_gaps, fyi_sources, gaps };
+  return { date, generated_at: now.toISOString(), inbox, tasks, calendar, lanes, lane_gaps, fyi_sources, gaps, ci };
 }

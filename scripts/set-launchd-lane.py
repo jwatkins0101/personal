@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Rewrite (or create) one LaunchAgent plist's program, log paths, working dir and schedule (used by deploy-lanes.sh).
-usage: set-launchd-lane.py <plist> <log_path> <workdir> [--time HH:MM] [--weekdays 1-5] [--keepalive] -- <program args...>"""
+usage: set-launchd-lane.py <plist> <log_path> <workdir> [--time HH:MM] [--weekdays 1-5] [--hours 7-21] [--keepalive] -- <program args...>"""
 import os, plistlib, sys
 argv = sys.argv[1:]
 sep = argv.index("--")
@@ -23,6 +23,9 @@ if "--time" in opts:
         d["StartCalendarInterval"] = [{"Weekday": w, "Hour": int(h), "Minute": int(m)} for w in range(int(a), int(b) + 1)]
     else:
         d["StartCalendarInterval"] = {"Hour": int(h), "Minute": int(m)}
+if "--hours" in opts:
+    a, b = opts[opts.index("--hours") + 1].split("-")
+    d["StartCalendarInterval"] = [{"Hour": h, "Minute": 5} for h in range(int(a), int(b) + 1)]
 if "--keepalive" in opts:
     d["KeepAlive"] = True
     d["RunAtLoad"] = True

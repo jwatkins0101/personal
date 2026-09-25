@@ -1,0 +1,220 @@
+{
+  "_doc": "Rules-based triage for the non-personal mailboxes (D24). First matching rule wins. Actions: keep (stay in inbox), keep_star (stay + star), archive (remove from inbox, add the rule's label). Anything no rule matches STAYS in the inbox. Starred mail and senders you've written to in the last 90 days always stay. Built from the 2026-09-25 mailbox analysis.",
+  "accounts": {
+    "owlthat": {
+      "labels": {
+        "ci": "CoS/CI",
+        "newsletters": "CoS/Newsletters",
+        "notifications": "CoS/Notifications"
+      },
+      "rules": [
+        {
+          "name": "failed payment or billing problem",
+          "subject": "(payment|charge|invoice).{0,30}(failed|declined|past due|overdue|unsuccessful)|card (was )?declined|action required.{0,20}(payment|billing)",
+          "action": "keep_star"
+        },
+        {
+          "name": "security alert",
+          "subject": "security alert|new sign-in|suspicious|verify your (identity|account)|password (was )?changed|2-step|unusual activity",
+          "action": "keep"
+        },
+        {
+          "name": "legal, registered agent, tax",
+          "from_domain": [
+            "cscglobal.com",
+            "irs.gov",
+            "sos.ky.gov",
+            "delaware.gov"
+          ],
+          "action": "keep"
+        },
+        {
+          "name": "app and marketplace reviews",
+          "from_domain": [
+            "canva.com"
+          ],
+          "subject": "review|approved|rejected|submission|APPS-\\d+",
+          "action": "keep"
+        },
+        {
+          "name": "CI build alerts",
+          "from": [
+            "website@owlthat.com"
+          ],
+          "subject": "^\\[owlthat ci\\]",
+          "action": "archive",
+          "label": "ci"
+        },
+        {
+          "name": "newsletters",
+          "from_domain": [
+            "pitchbook.com",
+            "beehiiv.com",
+            "substack.com",
+            "hubspot.com",
+            "mail.beehiiv.com"
+          ],
+          "action": "archive",
+          "label": "newsletters"
+        },
+        {
+          "name": "vendor marketing (has unsubscribe link)",
+          "from_domain": [
+            "openai.com",
+            "tiktok.com",
+            "google.com",
+            "canva.com",
+            "stripe.com",
+            "atlassian.net",
+            "aws.com",
+            "brex.com"
+          ],
+          "bulk": true,
+          "action": "archive",
+          "label": "newsletters"
+        },
+        {
+          "name": "service notifications",
+          "from_domain": [
+            "brex.com",
+            "stripe.com",
+            "aws.com",
+            "amazonaws.com",
+            "atlassian.net",
+            "atlassian.com",
+            "google.com",
+            "tiktok.com",
+            "github.com"
+          ],
+          "action": "archive",
+          "label": "notifications"
+        },
+        {
+          "name": "any other bulk mail",
+          "bulk": true,
+          "action": "archive",
+          "label": "newsletters"
+        }
+      ],
+      "backlog": {
+        "older_than_days": 30,
+        "include_unread": true
+      }
+    },
+    "techunify": {
+      "labels": {
+        "newsletters": "CoS/Newsletters",
+        "notifications": "CoS/Notifications",
+        "social": "CoS/Social"
+      },
+      "rules": [
+        {
+          "name": "failed payment or billing problem",
+          "subject": "(payment|charge|invoice).{0,30}(failed|declined|past due|overdue|unsuccessful)|card (was )?declined",
+          "action": "keep_star"
+        },
+        {
+          "name": "security alert",
+          "subject": "security alert|new sign-in|suspicious|verify your (identity|account)|password (was )?changed|unusual activity",
+          "action": "keep"
+        },
+        {
+          "name": "social networks",
+          "from_domain": [
+            "nextdoor.com",
+            "facebookmail.com",
+            "facebook.com",
+            "linkedin.com",
+            "instagram.com",
+            "x.com",
+            "twitter.com",
+            "tiktok.com"
+          ],
+          "action": "archive",
+          "label": "social"
+        },
+        {
+          "name": "service notifications",
+          "from_domain": [
+            "amazonaws.com",
+            "github.com",
+            "google.com",
+            "googlemail.com",
+            "equifax.com"
+          ],
+          "bulk": false,
+          "action": "archive",
+          "label": "notifications"
+        },
+        {
+          "name": "any bulk mail",
+          "bulk": true,
+          "action": "archive",
+          "label": "newsletters"
+        },
+        {
+          "name": "promotions and forums tabs",
+          "category": [
+            "promotions",
+            "social",
+            "forums"
+          ],
+          "action": "archive",
+          "label": "newsletters"
+        }
+      ],
+      "backlog": {
+        "older_than_days": 14,
+        "include_unread": true
+      }
+    }
+  },
+  "backlog_only": {
+    "personal": {
+      "_doc": "Personal keeps its existing AI triage. One-time cleanup of old bulk mail still sitting in the inbox.",
+      "labels": {
+        "backlog": "CoS/Backlog archived"
+      },
+      "older_than_days": 30,
+      "rules": [
+        {
+          "name": "failed payment or billing problem",
+          "subject": "(payment|charge|invoice).{0,30}(failed|declined|past due|overdue|unsuccessful)|card (was )?declined",
+          "action": "keep"
+        },
+        {
+          "name": "school",
+          "from_domain": [
+            "shslou.org",
+            "toddleapp.com",
+            "brightarrow.com",
+            "factsmgt.com"
+          ],
+          "action": "keep"
+        },
+        {
+          "name": "old bulk mail",
+          "bulk": true,
+          "action": "archive",
+          "label": "backlog"
+        },
+        {
+          "name": "old promotions/social/forums",
+          "category": [
+            "promotions",
+            "social",
+            "forums"
+          ],
+          "action": "archive",
+          "label": "backlog"
+        }
+      ]
+    }
+  },
+  "ci_status": {
+    "account": "owlthat",
+    "from": "website@owlthat.com",
+    "subject": "^\\[owlthat ci\\] (\\S+) on (\\S+) is (RED|green again)",
+    "lookback_days": 14
+  }
+}

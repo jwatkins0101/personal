@@ -1,6 +1,6 @@
 # Feature: AI Chief of Staff (v1)
 
-Revision: 9. Status: in progress. Feature ID: ai-chief-of-staff.
+Revision: 10. Status: in progress. Feature ID: ai-chief-of-staff.
 Source plan: `PLAN.md` (approved 2026-09-24, decisions D1–D8 = recommended). Harness: Ralph 2.0 @ `6d9f21ea27bb41662e1e69dd19ca1c483ad41c44`.
 
 ## Current specification
@@ -166,6 +166,10 @@ Existing prompt-driven lanes emit this record with a wrapper step (the lane writ
 | AC-28 | The agent runs with the charter, tools Bash/Read/Grep/Glob only (no web, no edits) and a fail-closed allowlist hook: read-only Gmail (messages/threads get|list, labels list) and text utilities; no send, draft, modify, trash, calendar, network tools, interpreters, command substitution or writes outside /tmp | `gate:agent-guard` (negative: no-op guard) | not_run |
 | AC-29 | Email addressed to a reply-elsewhere mailbox (UofL: *@louisville.edu, forwarded into Gmail) never gets a Gmail reply draft from the brief or the agent; the item says "reply from Outlook", keeps the suggested text, and the board offers Open Outlook and Copy text | `gate:reply-elsewhere` (negative: rule removed) | not_run |
 | AC-30 | The brief, end-of-day wrap, board and agent read every signed-in Google account (cos/accounts.json); items carry their account (`gmail:<account>:<id>`, old `gmail:<id>` = personal); replies are drafted, previewed and sent in the account the email came to; the agent reads that mailbox | `gate:multi-account` (negative: profile removed) | not_run |
+| **Mailbox triage for all accounts (D24)** |||
+| AC-31 | owlthat and techunify are triaged by deterministic rules (cos/triage-rules.json): CI alerts, newsletters, notifications and social mail are labeled CoS/... and archived; failed payments are kept and starred; security, legal and app-review mail, starred mail, anyone you've written to, and every unmatched sender stay in the inbox | `gate:triage-rules` (negative: archive-everything rules) | not_run |
+| AC-32 | Triage never deletes: dry runs change nothing; real runs archive in label groups and log every change; `triage-undo` restores them; hourly runs use an epoch window | `gate:triage-apply` | not_run |
+| AC-33 | The brief tracks owlthat CI from the alert emails (including archived ones): the latest result per workflow wins and a still-RED build is an escalation linking its alert | `gate:ci-status` | not_run |
 
 All gates are registered in `cos/gates.json` (tier, command, script sha256, assertion-file sha256). They run with `npm run gates`, and each gate is proven to fail on its negative fixture before it counts.
 

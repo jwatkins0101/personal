@@ -19,6 +19,7 @@ import { previousWorkday, readEod } from "./eod.js";
 import { withAccount } from "../google/auth.js";
 import { parseGmailRef } from "./refs.js";
 import { replyElsewhere, elsewhereDetail } from "./mailboxes.js";
+import { ciEscalations } from "./ci-status.js";
 import { listCommitments, overdue } from "./commitments.js";
 
 export const BRIEF_DIR = process.env.COS_BRIEF_DIR ?? join(homedir(), "Library/Application Support/assistance/briefs");
@@ -58,6 +59,7 @@ export async function runMorning(now = new Date(), deps: { gather?: (now: Date) 
   for (const l of inputs.lanes) if (l.state !== "ok") escalations.push(`lane ${l.lane}: ${l.state}${l.last_started_at ? ` (last run ${l.last_started_at})` : " (never ran)"}${l.gaps.length ? ` - ${l.gaps.join("; ")}` : ""}`);
   for (const g of inputs.lane_gaps) if (!inputs.lanes.some((l) => l.lane === g.lane && l.state !== "ok")) escalations.push(`lane ${g.lane} run at ${g.started_at}: ${g.status} - ${g.gaps.join("; ")}`);
   for (const g of inputs.gaps) escalations.push(g);
+  for (const e of ciEscalations(inputs.ci ?? [])) escalations.push(e);
 
   // Phase 3: yesterday's end-of-day hand-off and the commitment ledger (AC-18, AC-21).
   const prevDay = previousWorkday(inputs.date);

@@ -3,7 +3,7 @@
 # (ai-chief-of-staff AC-07, AC-11). Idempotent. Backs up each plist before changing it.
 #   scripts/deploy-lanes.sh            deploy runtime + all lanes
 #   scripts/deploy-lanes.sh runtime    deploy cos/bin + cos/lib only
-#   scripts/deploy-lanes.sh <lane>     deploy runtime + one lane (inbox|deals|yt|tasks|cos-morning|cos-eod|cos-weekly|cos-board)
+#   scripts/deploy-lanes.sh <lane>     deploy runtime + one lane (inbox|deals|yt|tasks|cos-morning|cos-eod|cos-weekly|cos-board|triage-owlthat|triage-techunify)
 set -euo pipefail
 REPO_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 case "$REPO_DIR" in */.claude/worktrees/*)
@@ -64,6 +64,12 @@ CREATE=1 set_lane cos-weekly com.assistance.cos-weekly cos-weekly-launchd.log "$
 # Live task board on http://127.0.0.1:8787 (D16): always on, restarted by launchd if it exits.
 CREATE=1 set_lane cos-board com.assistance.cos-board cos-board.log "$AS" --keepalive -- \
   /bin/bash -c 'export PATH="$HOME/.local/bin:/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin"; cd "$HOME/Code/assistance" && exec node_modules/.bin/tsx src/cos/cli.ts board'
+
+# Rules triage for owlthat and techunify: hourly at :05, 7am-9pm (D24).
+for acct in owlthat techunify; do
+  CREATE=1 set_lane triage-$acct com.assistance.triage-$acct triage-$acct-launchd.log "$AS" --hours 7-21 -- \
+    /bin/bash "$WRAP" triage-$acct --attempts 2 -- /bin/bash -c "cd \"\$HOME/Code/assistance\" && npm run -s cos -- triage $acct"
+done
 
 # task-capture wraps each of its two steps itself (see deploy-task-capture-launchd.sh).
 if [ "$ONLY" = "all" ] || [ "$ONLY" = "tasks" ]; then bash "$REPO_DIR/scripts/deploy-task-capture-launchd.sh"; fi
