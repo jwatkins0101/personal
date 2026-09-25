@@ -47,6 +47,9 @@ try {
   check(bars.length === 2 && !/data-v="accept"/.test(bars[0][3]) && /data-v="spam"/.test(bars[0][3]) && !/data-v="spam"/.test(bars[1][3]) && /data-v="hold"/.test(bars[1][3]), "brief shows answer buttons per item (no Accept on replies, Spam only on emails)");
   let parses = true; try { new Function(html.split("<script>")[1].split("</script>")[0]); } catch { parses = false; }
   check(parses && /\/respond',\{verdict:v,note:note\}/.test(html), "brief page script parses and posts answers to the board");
+  check(/data-v="send"/.test(bars[0][3]) && !/data-v="send"/.test(bars[1][3]), "reply items have a Send button in the brief; other items don't");
+  check(/'\/preview',\{\}\)/.test(html) && /v==='confirm'.{0,120}'\/send',\{confirm:true\}/.test(html) && !/v==='send'.{0,200}'\/send'/.test(html), "Send in the brief shows the Gmail draft first; only Confirm send sends");
+  check(/readDraft\(String\(pl\.draft_id \?\? ""\), pl\.account\)/.test(readFileSync("src/cos/board.ts", "utf8")), "draft preview reads from the draft's own mailbox");
   check(/heldItems\(db\)/.test(readFileSync("src/cos/morning.ts", "utf8")), "the morning brief lists items on hold");
 } catch (e) { check(false, `threw: ${(e as Error).message}`); }
 finally { rmSync(tmp, { recursive: true, force: true }); }

@@ -115,6 +115,11 @@ async function main(): Promise<number> {
       console.log(`http://127.0.0.1:${BOARD_PORT}/brief/${arg && /^\d{4}-/.test(arg) ? arg : localDate()}.html?t=${loadOrCreateToken()}`);
       return 0;
     }
+    case "rerender": {
+      const { rerenderHtml } = await import("./render.js"); const { BRIEF_DIR } = await import("./morning.js");
+      console.log(rerenderHtml(arg && /^\d{4}-/.test(arg) ? arg : localDate(), BRIEF_DIR));
+      return 0;
+    }
     case "respond": {
       const { respond } = await import("./approvals.js");
       const v = argv[2] as "done" | "accept" | "dismiss" | "spam" | "hold"; const note = argv.slice(3).filter((x, i, all) => x !== "--date" && all[i - 1] !== "--date").join(" ");

@@ -7,13 +7,13 @@
   ],
   "passed": true,
   "problems": [],
-  "tested_commit": "5523230622d920aded9611b42535d1f06459719e",
+  "tested_commit": "40c93182108bfa1d2fbc6da21d940d9360aeb2b2",
   "worktree_dirty": true,
-  "prd_revision": 12,
+  "prd_revision": 13,
   "gate_sha256": "49686679ba5b19ec62d16f6b0403bb80c69b002ba1fac1f661438562067ee080",
   "assertion_sha256": {
     "src/cos/notify.ts": "951f5c0265494b7cfcacd64c354fdd66ea76f2e9c3d229feda1f8d5e4546e94a",
-    "src/cos/morning.ts": "0f38d94706e28e15e97857f5c253e1284905e456c3b2ede8527d84838a40aa0e"
+    "src/cos/morning.ts": "06886e3cc2d3c0898af253fdfb8ac309235703436148aa5096893f1692ada2bb"
   },
   "command": "npx tsx tests/gates/cos-audio.ts",
   "exit_code": 0,
@@ -26,5 +26,5 @@
     "exit_code": 1,
     "output": "FAIL audio is staged outside ~/Library/Application Support (Messages can't send from there)\nPASS keeps only the newest 14 audio copies\nPASS the staged file is the brief's audio\nPASS the morning ping is followed by the audio attachment\nPASS a failed attachment is reported, not silent"
   },
-  "timestamp": "2026-09-25T11:44:44.697Z"
+  "timestamp": "2026-09-25T14:52:28.872Z"
 }

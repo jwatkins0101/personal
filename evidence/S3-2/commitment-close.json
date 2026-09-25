@@ -7,9 +7,9 @@
   ],
   "passed": true,
   "problems": [],
-  "tested_commit": "5523230622d920aded9611b42535d1f06459719e",
+  "tested_commit": "40c93182108bfa1d2fbc6da21d940d9360aeb2b2",
   "worktree_dirty": true,
-  "prd_revision": 12,
+  "prd_revision": 13,
   "gate_sha256": "884ccc75cf4d226035048e8c3f05aa3f9269cb5831d8f0495c308176a2cb0ab0",
   "assertion_sha256": {
     "src/cos/commitments.ts": "60e58a521bee70b780748256e1b68cfbcb317e8b2d6140108bf5051c585c1d49",
@@ -18,14 +18,14 @@
   },
   "command": "npx tsx tests/gates/cos-phase3.ts commitment-close",
   "exit_code": 0,
-  "output": "Running migration 1...\nMigration 1 complete.\nRunning migration 2...\nMigration 2 complete.\nRunning migration 3...\nMigration 3 complete.\nRunning migration 4...\nMigration 4 complete.\nRunning migration 5...\nMigration 5 complete.\nRunning migration 6...\nMigration 6 complete.\nRunning migration 7...\nMigration 7 complete.\nPASS no evidence: refused\nPASS free-text evidence: refused\nPASS unconfirmed evidence: refused\nPASS still open after refusals\nPASS confirmed sent message closes it, evidence recorded\nPASS double close refused",
+  "output": "Running migration 1...\nMigration 1 complete.\nRunning migration 2...\nMigration 2 complete.\nRunning migration 3...\nMigration 3 complete.\nRunning migration 4...\nMigration 4 complete.\nRunning migration 5...\nMigration 5 complete.\nRunning migration 6...\nMigration 6 complete.\nRunning migration 7...\nMigration 7 complete.\nRunning migration 8...\nMigration 8 complete.\nPASS no evidence: refused\nPASS free-text evidence: refused\nPASS unconfirmed evidence: refused\nPASS still open after refusals\nPASS confirmed sent message closes it, evidence recorded\nPASS double close refused",
   "negative_validation": {
     "env": {
       "COMMITMENTS_MODULE": "tests/fixtures/cos/commitments-broken.ts"
     },
     "reason": "closing without evidence must fail",
     "exit_code": 1,
-    "output": "Running migration 1...\nMigration 1 complete.\nRunning migration 2...\nMigration 2 complete.\nRunning migration 3...\nMigration 3 complete.\nRunning migration 4...\nMigration 4 complete.\nRunning migration 5...\nMigration 5 complete.\nRunning migration 6...\nMigration 6 complete.\nRunning migration 7...\nMigration 7 complete.\nFAIL no evidence: refused\nFAIL free-text evidence: refused\nFAIL unconfirmed evidence: refused\nFAIL still open after refusals\nPASS confirmed sent message closes it, evidence recorded\nFAIL double close refused"
+    "output": "Running migration 1...\nMigration 1 complete.\nRunning migration 2...\nMigration 2 complete.\nRunning migration 3...\nMigration 3 complete.\nRunning migration 4...\nMigration 4 complete.\nRunning migration 5...\nMigration 5 complete.\nRunning migration 6...\nMigration 6 complete.\nRunning migration 7...\nMigration 7 complete.\nRunning migration 8...\nMigration 8 complete.\nFAIL no evidence: refused\nFAIL free-text evidence: refused\nFAIL unconfirmed evidence: refused\nFAIL still open after refusals\nPASS confirmed sent message closes it, evidence recorded\nFAIL double close refused"
   },
-  "timestamp": "2026-09-25T11:44:30.200Z"
+  "timestamp": "2026-09-25T14:52:13.897Z"
 }

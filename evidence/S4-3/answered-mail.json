@@ -7,9 +7,9 @@
   ],
   "passed": true,
   "problems": [],
-  "tested_commit": "5523230622d920aded9611b42535d1f06459719e",
+  "tested_commit": "40c93182108bfa1d2fbc6da21d940d9360aeb2b2",
   "worktree_dirty": true,
-  "prd_revision": 12,
+  "prd_revision": 13,
   "gate_sha256": "de50517550b579ca32f72b6bd1a4f12bf356563d92ddf033c47d77cf7e74c138",
   "assertion_sha256": {
     "src/cos/replied.ts": "9ece76d093cade89b3b25e12886e961e192636316d158a03e601f0e942e442d5",
@@ -18,14 +18,14 @@
   },
   "command": "npx tsx tests/gates/cos-board.ts answered-mail",
   "exit_code": 0,
-  "output": "Running migration 1...\nMigration 1 complete.\nRunning migration 2...\nMigration 2 complete.\nRunning migration 3...\nMigration 3 complete.\nRunning migration 4...\nMigration 4 complete.\nRunning migration 5...\nMigration 5 complete.\nRunning migration 6...\nMigration 6 complete.\nRunning migration 7...\nMigration 7 complete.\nPASS answered mail dropped before the brief; unanswered kept\nPASS answered item records your sent message\nPASS a failed check keeps the mail (never hides on error)\nPASS brief reads yesterday's calendar and treats it as already happened (D18)\nPASS morning gather filters answered mail before synthesis\n(node:6947) [DEP0205] DeprecationWarning: `module.register()` is deprecated. Use `module.registerHooks()` instead.\n(Use `node --trace-deprecation ...` to show where the warning was created)",
+  "output": "Running migration 1...\nMigration 1 complete.\nRunning migration 2...\nMigration 2 complete.\nRunning migration 3...\nMigration 3 complete.\nRunning migration 4...\nMigration 4 complete.\nRunning migration 5...\nMigration 5 complete.\nRunning migration 6...\nMigration 6 complete.\nRunning migration 7...\nMigration 7 complete.\nRunning migration 8...\nMigration 8 complete.\nPASS answered mail dropped before the brief; unanswered kept\nPASS answered item records your sent message\nPASS a failed check keeps the mail (never hides on error)\nPASS brief reads yesterday's calendar and treats it as already happened (D18)\nPASS morning gather filters answered mail before synthesis\n(node:23877) [DEP0205] DeprecationWarning: `module.register()` is deprecated. Use `module.registerHooks()` instead.\n(Use `node --trace-deprecation ...` to show where the warning was created)",
   "negative_validation": {
     "env": {
       "REPLIED_MODULE": "tests/fixtures/cos/replied-broken.ts"
     },
     "reason": "a filter that never detects your replies must fail",
     "exit_code": 1,
-    "output": "Running migration 1...\nMigration 1 complete.\nRunning migration 2...\nMigration 2 complete.\nRunning migration 3...\nMigration 3 complete.\nRunning migration 4...\nMigration 4 complete.\nRunning migration 5...\nMigration 5 complete.\nRunning migration 6...\nMigration 6 complete.\nRunning migration 7...\nMigration 7 complete.\nFAIL answered mail dropped before the brief; unanswered kept\nFAIL answered item records your sent message\nPASS a failed check keeps the mail (never hides on error)\nPASS brief reads yesterday's calendar and treats it as already happened (D18)\nPASS morning gather filters answered mail before synthesis\n(node:6995) [DEP0205] DeprecationWarning: `module.register()` is deprecated. Use `module.registerHooks()` instead.\n(Use `node --trace-deprecation ...` to show where the warning was created)"
+    "output": "Running migration 1...\nMigration 1 complete.\nRunning migration 2...\nMigration 2 complete.\nRunning migration 3...\nMigration 3 complete.\nRunning migration 4...\nMigration 4 complete.\nRunning migration 5...\nMigration 5 complete.\nRunning migration 6...\nMigration 6 complete.\nRunning migration 7...\nMigration 7 complete.\nRunning migration 8...\nMigration 8 complete.\nFAIL answered mail dropped before the brief; unanswered kept\nFAIL answered item records your sent message\nPASS a failed check keeps the mail (never hides on error)\nPASS brief reads yesterday's calendar and treats it as already happened (D18)\nPASS morning gather filters answered mail before synthesis\n(node:23926) [DEP0205] DeprecationWarning: `module.register()` is deprecated. Use `module.registerHooks()` instead.\n(Use `node --trace-deprecation ...` to show where the warning was created)"
   },
-  "timestamp": "2026-09-25T11:44:34.191Z"
+  "timestamp": "2026-09-25T14:52:18.044Z"
 }

@@ -213,7 +213,7 @@ export function createBoardServer(deps: BoardDeps, token: string, port = BOARD_P
           if (row.kind !== "reply") throw new Error(`Item ${n} is not an email draft.`);
           if (action === "preview") {
             if (row.status !== "pending" || new Date(row.expires_at) < now) throw new Error(`Item ${n} is ${row.status === "pending" ? "expired" : row.status}; nothing to send.`);
-            const draft = await deps.executors.readDraft(String(JSON.parse(row.payload_json).draft_id ?? ""));
+            const pl = JSON.parse(row.payload_json); const draft = await deps.executors.readDraft(String(pl.draft_id ?? ""), pl.account);
             return json(res, 200, { ok: true, preview: draft, placeholder: (draft.body.match(PLACEHOLDER) ?? draft.subject.match(PLACEHOLDER))?.[0] ?? null });
           }
           if (body.confirm !== true) return json(res, 400, { ok: false, error: "send needs {\"confirm\": true} after a preview" });

@@ -7,9 +7,9 @@
   ],
   "passed": true,
   "problems": [],
-  "tested_commit": "5523230622d920aded9611b42535d1f06459719e",
+  "tested_commit": "40c93182108bfa1d2fbc6da21d940d9360aeb2b2",
   "worktree_dirty": true,
-  "prd_revision": 12,
+  "prd_revision": 13,
   "gate_sha256": "44271b20ff1fc2b7417ba5bc2d627475c37bc01045fb3b00175cf4667b1c8964",
   "assertion_sha256": {
     "cos/triage-rules.json": "80558f426d3184fe83f7673ff61958c325a3d301c7b4f462c23a0ee245644fd7",
@@ -27,5 +27,5 @@
     "exit_code": 1,
     "output": "PASS owlthat: CI alert (RED) archived to CoS/CI (the brief tracks CI status)\nFAIL owlthat: PitchBook newsletter archived\nFAIL owlthat: failed Brex payment kept and starred\nFAIL owlthat: Stripe receipt archived to notifications\nFAIL owlthat: Brex 'limit reached, pay your balance' kept and starred\nFAIL owlthat: collections notice kept and starred even from a newsletter sender\nFAIL owlthat: AWS instance retirement kept\nFAIL owlthat: legal notice (CSC) kept\nFAIL owlthat: Canva app review kept\nFAIL owlthat: security alert kept\nPASS owlthat: client you write to kept\nFAIL owlthat: unknown person kept (no rule matched)\nPASS owlthat: starred mail never archived\nFAIL techunify: Nextdoor archived to social\nPASS techunify: Kroger bulk archived\nPASS techunify: Stella's Venue newsletter archived\nFAIL techunify: unknown person kept\nPASS techunify: promotions tab archived\nFAIL techunify: Workspace security-risk notice kept\nFAIL techunify: OAuth 'action advised' notice kept\nFAIL techunify: account-deletion warning kept\nFAIL techunify: new domain account notice kept\nFAIL techunify: password-change notice kept\nFAIL techunify: bounce notices archived (flagged separately)"
   },
-  "timestamp": "2026-09-25T11:44:42.265Z"
+  "timestamp": "2026-09-25T14:52:26.147Z"
 }

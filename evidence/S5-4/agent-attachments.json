@@ -7,9 +7,9 @@
   ],
   "passed": true,
   "problems": [],
-  "tested_commit": "5523230622d920aded9611b42535d1f06459719e",
+  "tested_commit": "40c93182108bfa1d2fbc6da21d940d9360aeb2b2",
   "worktree_dirty": true,
-  "prd_revision": 12,
+  "prd_revision": 13,
   "gate_sha256": "596f1a1db53f9cf36d22c4b11c030ee218e438e684651de8e7e77784999190ad",
   "assertion_sha256": {
     "src/cos/attachments.ts": "1a9d4f42639a66bf290a5d45ce684a6f475f54d6e78e25da1f1e4fc3323159c7",
@@ -21,14 +21,14 @@
   },
   "command": "npx tsx tests/gates/cos-agent.ts agent-attachments",
   "exit_code": 0,
-  "output": "PASS Word (.docx) attachment becomes plain text\nPASS PDF attachment becomes plain text\nPASS unsupported file types are reported, not guessed at\nPASS a ~15k-character document (like the AACSB definitions) is read to the end\nPASS oversized attachments are skipped\nPASS images skipped; at most 5 attachments read, the rest reported\nRunning migration 1...\nMigration 1 complete.\nRunning migration 2...\nMigration 2 complete.\nRunning migration 3...\nMigration 3 complete.\nRunning migration 4...\nMigration 4 complete.\nRunning migration 5...\nMigration 5 complete.\nRunning migration 6...\nMigration 6 complete.\nRunning migration 7...\nMigration 7 complete.\nPASS the agent receives the attachment text\nPASS attachment text is framed as data, not instructions (it contains an injection attempt)\nPASS unreadable attachments show up in the agent's gaps",
+  "output": "PASS Word (.docx) attachment becomes plain text\nPASS PDF attachment becomes plain text\nPASS unsupported file types are reported, not guessed at\nPASS a ~15k-character document (like the AACSB definitions) is read to the end\nPASS oversized attachments are skipped\nPASS images skipped; at most 5 attachments read, the rest reported\nRunning migration 1...\nMigration 1 complete.\nRunning migration 2...\nMigration 2 complete.\nRunning migration 3...\nMigration 3 complete.\nRunning migration 4...\nMigration 4 complete.\nRunning migration 5...\nMigration 5 complete.\nRunning migration 6...\nMigration 6 complete.\nRunning migration 7...\nMigration 7 complete.\nRunning migration 8...\nMigration 8 complete.\nPASS the agent receives the attachment text\nPASS attachment text is framed as data, not instructions (it contains an injection attempt)\nPASS unreadable attachments show up in the agent's gaps",
   "negative_validation": {
     "env": {
       "ATTACH_MODULE": "tests/fixtures/cos/attachments-broken.ts"
     },
     "reason": "dumping raw file bytes instead of extracting text must fail",
     "exit_code": 1,
-    "output": "FAIL Word (.docx) attachment becomes plain text\nFAIL PDF attachment becomes plain text\nFAIL unsupported file types are reported, not guessed at\nFAIL a ~15k-character document (like the AACSB definitions) is read to the end\nFAIL oversized attachments are skipped\nPASS images skipped; at most 5 attachments read, the rest reported\nRunning migration 1...\nMigration 1 complete.\nRunning migration 2...\nMigration 2 complete.\nRunning migration 3...\nMigration 3 complete.\nRunning migration 4...\nMigration 4 complete.\nRunning migration 5...\nMigration 5 complete.\nRunning migration 6...\nMigration 6 complete.\nRunning migration 7...\nMigration 7 complete.\nFAIL the agent receives the attachment text\nPASS attachment text is framed as data, not instructions (it contains an injection attempt)\nPASS unreadable attachments show up in the agent's gaps"
+    "output": "FAIL Word (.docx) attachment becomes plain text\nFAIL PDF attachment becomes plain text\nFAIL unsupported file types are reported, not guessed at\nFAIL a ~15k-character document (like the AACSB definitions) is read to the end\nFAIL oversized attachments are skipped\nPASS images skipped; at most 5 attachments read, the rest reported\nRunning migration 1...\nMigration 1 complete.\nRunning migration 2...\nMigration 2 complete.\nRunning migration 3...\nMigration 3 complete.\nRunning migration 4...\nMigration 4 complete.\nRunning migration 5...\nMigration 5 complete.\nRunning migration 6...\nMigration 6 complete.\nRunning migration 7...\nMigration 7 complete.\nRunning migration 8...\nMigration 8 complete.\nFAIL the agent receives the attachment text\nPASS attachment text is framed as data, not instructions (it contains an injection attempt)\nPASS unreadable attachments show up in the agent's gaps"
   },
-  "timestamp": "2026-09-25T11:44:44.142Z"
+  "timestamp": "2026-09-25T14:52:28.230Z"
 }

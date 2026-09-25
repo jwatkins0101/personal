@@ -3,7 +3,7 @@
  * Section order is fixed by the charter; the brief-shape gate checks it.
  */
 import { spawnSync } from "node:child_process";
-import { existsSync, mkdirSync, statSync, writeFileSync, rmSync } from "node:fs";
+import { existsSync, mkdirSync, readFileSync, statSync, writeFileSync, rmSync } from "node:fs";
 import { join } from "node:path";
 import type { Approval } from "./approvals.js";
 import type { Line } from "./synth.js";
@@ -87,8 +87,8 @@ export function toHtml(b: Brief, audioFile: string | null): string {
           a.kind === "reply" && a.payload.draft_body ? `<details><summary>Draft reply</summary><pre>${esc(String(a.payload.draft_body))}</pre></details>` : ""}
           <div class="cmd"><code>npm run cos -- ${verb} ${a.day_index}</code> <code>npm run cos -- skip ${a.day_index}</code>${l ? ` <a href="${l}">source</a>` : ""}</div>
           <div class="answer" data-date="${esc(a.brief_date)}" data-n="${a.day_index}" data-email="${/^gmail:/.test(a.source_ref) ? "1" : ""}" data-kind="${a.kind}">
-            <button data-v="done">Done</button>${a.kind === "reply" ? "" : `<button data-v="accept">Accept</button>`}<button data-v="dismiss">Dismiss</button>${/^gmail:/.test(a.source_ref) ? `<button data-v="spam">Spam</button>` : ""}<button data-v="hold">Hold</button>
-            <input class="note" placeholder="note (needed for Hold), e.g. until we get money in"><span class="said"></span></div></li>`; }).join("")}</ol>
+            ${a.kind === "reply" ? `<button data-v="send" class="go">Send…</button>` : ""}<button data-v="done">Done</button>${a.kind === "reply" ? "" : `<button data-v="accept">Accept</button>`}<button data-v="dismiss">Dismiss</button>${/^gmail:/.test(a.source_ref) ? `<button data-v="spam">Spam</button>` : ""}<button data-v="hold">Hold</button>
+            <input class="note" placeholder="note (needed for Hold), e.g. until we get money in"><span class="said"></span><div class="pv"></div></div></li>`; }).join("")}</ol>
        <p class="muted">Unanswered items expire at 23:59 with nothing sent.</p>`
     : `<p class="muted">Nothing needs your decision.</p>`;
   const sec: Record<(typeof SECTION_ORDER)[number], string> = {
@@ -126,6 +126,7 @@ audio{width:100%}.speed{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
 .speed button[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
 .answer{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-top:8px}.answer button{border:1px solid var(--line);background:none;color:var(--ink);border-radius:8px;padding:4px 10px;font:600 13px system-ui;cursor:pointer}
 .answer button:hover{border-color:var(--accent)}.answer .note{flex:1;min-width:160px;border:1px solid var(--line);background:var(--bg);color:var(--ink);border-radius:8px;padding:4px 8px;font:13px system-ui}
+.answer button.go{border-color:var(--accent);color:var(--accent)}.answer .pv{flex-basis:100%}.answer .pv:empty{display:none}.pvbox{border:1px solid var(--accent);border-radius:10px;padding:10px;margin-top:4px}.pvbox pre{white-space:pre-wrap;margin:6px 0}.pvbox .warn{color:#c0392b;font-weight:600;font-size:13px}.pvbox button.ok{background:var(--accent);color:#fff;border-color:var(--accent)}
 .answer .said{font-size:13px;color:var(--accent);font-weight:600}.answer.off button,.answer.off .note{display:none}.answer-hint{font-size:13px;color:var(--muted)}
 </style></head><body><main><h1>Morning brief · ${esc(b.date)}</h1>${player}
 ${SECTION_ORDER.map((h) => `<section data-section="${esc(h)}"><h2>${esc(h)}</h2>${sec[h]}</section>`).join("\n")}
@@ -135,9 +136,15 @@ function set(s){r=s;a.playbackRate=s;a.preservesPitch=true;document.querySelecto
 document.querySelectorAll('.speed button').forEach(function(b){b.onclick=function(){set(parseFloat(b.dataset.s))}});a.addEventListener('loadedmetadata',function(){a.playbackRate=r});set(r);})();
 (function(){var T=new URLSearchParams(location.search).get('t');var bars=document.querySelectorAll('.answer');if(!bars.length)return;
 if(!T||location.protocol.indexOf('http')!==0){bars.forEach(function(b){b.classList.add('off')});var h=document.querySelector('.decide');if(h){var p=document.createElement('p');p.className='answer-hint';p.textContent='To answer items here, open this brief from your board (npm run cos -- brief-url).';h.parentNode.insertBefore(p,h)}return}
+function esc(x){return String(x).replace(/[&<>"']/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
 function api(path,body){return fetch(path,{method:body?'POST':'GET',headers:Object.assign({'x-cos-token':T},body?{'content-type':'application/json'}:{}),body:body?JSON.stringify(body):undefined}).then(function(r){return r.json()})}
 api('/api/state').then(function(s){var open={};(s.decide||[]).forEach(function(d){open[d.date+'/'+d.n]=1});bars.forEach(function(b){if(!open[b.dataset.date+'/'+b.dataset.n]){b.classList.add('off');b.querySelector('.said').textContent='Answered'}})}).catch(function(){});
 bars.forEach(function(b){b.addEventListener('click',function(e){var btn=e.target.closest('button');if(!btn)return;var v=btn.dataset.v,note=b.querySelector('.note').value;
+var said=b.querySelector('.said'),pv=b.querySelector('.pv'),base='/api/approvals/'+b.dataset.date+'/'+b.dataset.n;
+if(v==='send'){said.textContent='Loading the draft from Gmail…';api(base+'/preview',{}).then(function(r){if(!r.ok){said.textContent=r.error;return}said.textContent='';var d=r.preview;
+pv.innerHTML='<div class="pvbox"><div><b>To:</b> '+esc(d.to||'')+'</div><div><b>Subject:</b> '+esc(d.subject||'')+'</div><pre>'+esc(d.body||'')+'</pre>'+(r.placeholder?'<div class="warn">Has placeholder text ('+esc(r.placeholder)+'). Sending will be refused: edit it in Gmail first.</div>':'')+'<button data-v="confirm" class="ok">Confirm send</button> <button data-v="cancel">Cancel</button></div>'});return}
+if(v==='cancel'){pv.innerHTML='';said.textContent='';return}
+if(v==='confirm'){said.textContent='Sending…';api(base+'/send',{confirm:true}).then(function(r){said.textContent=r.ok?r.message:r.error;if(r.ok){pv.innerHTML='';b.classList.add('off')}});return}
 if(v==='hold'&&!note.trim()){b.querySelector('.note').focus();b.querySelector('.said').textContent='Add a note for Hold';return}
 b.querySelector('.said').textContent='Saving…';api('/api/approvals/'+b.dataset.date+'/'+b.dataset.n+'/respond',{verdict:v,note:note}).then(function(r){b.querySelector('.said').textContent=r.ok?r.message:r.error;if(r.ok)b.classList.add('off')})})})})();
 </script></body></html>`;
@@ -161,5 +168,16 @@ export function writeBrief(b: Brief, dir: string): { md: string; html: string; m
   if (audioError) b = { ...b, escalations: [...b.escalations, audioError] };
   writeFileSync(md, toMarkdown(b));
   writeFileSync(html, toHtml(b, mp3Out ? `${b.date}.mp3` : null));
+  writeFileSync(join(dir, `.${b.date}.brief.json`), JSON.stringify(b));
   return { md, html, mp3: mp3Out, audioError };
+}
+
+/** Re-render a saved brief's page with the current template (keeps its audio; no new audio, no ping). */
+export function rerenderHtml(date: string, dir: string): string {
+  const saved = join(dir, `.${date}.brief.json`);
+  if (!existsSync(saved)) throw new Error(`No saved brief data for ${date} (briefs are saved from 2026-09-26 on).`);
+  const b = JSON.parse(readFileSync(saved, "utf8")) as Brief;
+  const html = join(dir, `${date}.html`);
+  writeFileSync(html, toHtml(b, existsSync(join(dir, `${date}.mp3`)) ? `${date}.mp3` : null));
+  return html;
 }
