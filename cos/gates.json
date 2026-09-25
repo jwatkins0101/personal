@@ -357,13 +357,13 @@
         },
         "reason": "the pre-fix yt plist (zsh, logs in ~/Documents) must fail"
       },
-      "script_sha256": "efb2f749e09f69d62d3c05272f94084e8f31851d863f747873bf291e8d3c548e",
+      "script_sha256": "42d10869e36aa58ffdcc2a91679e890c89418e6a40f42b425185585a2277ed34",
       "assertion_sha256": {
         "cos/bin/lane-run.sh": "16193c3810c5a75ec28e7d633705da0e80a78cf4fb4f092bd6488c7842c14631",
         "cos/bin/record-run.mjs": "0f4bfbbde771e1458a83ed129dcf4b53659fd78e77a212b43ad83a4f76d405c6",
         "cos/lib/ledger.mjs": "68fd202a0ffc62fa677055db0c98b8603940af45f688374286df6a9737c6baa7",
         "cos/lanes.json": "139a98ceaabb37e58133bfa6c3e97865be21542ae8941de05238f408918ed671",
-        "scripts/deploy-lanes.sh": "fd851621f0f9a19de15e9a1ea01b0ff2f9cfebadd8c4622f973ac61471b5e257",
+        "scripts/deploy-lanes.sh": "b77fa3fa6376641bd6400a3f5777610c7a68d6da94199b57d32f329a8f0dde8b",
         "scripts/set-launchd-lane.py": "a929afb52bb94650c1d4715aa5355e126e424516022a05fc5dd6612b7627eca4",
         "tests/fixtures/launchd/com.jermaine.yt-daily-brief.plist": "9311a7dbd4c82b256d938ac8e0a8b4366925e1c3836861cf687d2f9c845fa1f5"
       }

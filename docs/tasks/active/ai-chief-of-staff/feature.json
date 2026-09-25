@@ -5,7 +5,7 @@
   "harness_commit": "6d9f21ea27bb41662e1e69dd19ca1c483ad41c44",
   "repositories": {
     "jwatkins0101/personal": {
-      "path": "~/Documents/Sites/assistance",
+      "path": "~/Code/assistance",
       "base_sha": "a4fbd9b1b8ab54c51fe3aedb260ab05a70b46863",
       "branch": "feature/ai-chief-of-staff",
       "tested_sha": "3be0b0f"
@@ -237,7 +237,8 @@
     "D8",
     "OD-1",
     "D9",
-    "D10"
+    "D10",
+    "D11"
   ],
   "metrics": {
     "started_at": "2026-09-24T22:30:00-04:00",

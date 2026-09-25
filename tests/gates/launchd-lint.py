@@ -56,6 +56,7 @@ for l in lanes:
         v = p.get(k, "")
         check(bool(v) and v.startswith("/") and not v.startswith(docs), f"{label}: {k} absolute and outside ~/Documents")
     check(bool(args) and args[0] == "/bin/bash", f"{label}: runs via /bin/bash (Full Disk Access)")
+    check(not any("/Documents/" in a for a in args), f"{label}: no program argument points into ~/Documents (D11)")
     if label == "com.assistance.task-capture":
         runner = args[1] if len(args) > 1 else ""
         txt = open(runner).read() if os.path.exists(runner) else ""

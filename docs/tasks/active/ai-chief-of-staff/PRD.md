@@ -161,7 +161,7 @@ Existing prompt-driven lanes emit this record with a wrapper step (the lane writ
 All gates are registered in `cos/gates.json` (tier, command, script sha256, assertion-file sha256). They run with `npm run gates`, and each gate is proven to fail on its negative fixture before it counts.
 
 ### Delivery
-- **Repo:** `jwatkins0101/personal` (local `~/Documents/Sites/assistance`), branch `feature/ai-chief-of-staff` in its own worktree.
+- **Repo:** `jwatkins0101/personal` (local `~/Code/assistance`; moved out of iCloud Documents, D11), branch `feature/ai-chief-of-staff` in its own worktree.
 - **Deployment units:**
   - launchd agents: `com.assistance.gmail-triage`, `com.assistance.task-capture`, `com.jermaine.deal-watch`, `com.jermaine.yt-daily-brief` (all through `cos/bin/lane-run.sh`), `com.assistance.cos-morning`, `com.assistance.cos-eod`, `com.assistance.cos-weekly`; `com.assistance.flight-check` removed (D10);
   - deployed prompt/runner copies in `~/Library/Application Support/assistance/`.

@@ -18,7 +18,7 @@ Both are macOS `launchd` jobs. Logs:
 From the project folder:
 
 ```bash
-cd ~/Documents/Sites/assistance
+cd ~/Code/assistance
 ```
 
 | Command | What it does |

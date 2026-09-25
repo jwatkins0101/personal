@@ -6,7 +6,7 @@ set -euo pipefail
 
 export PATH="/opt/homebrew/bin:$PATH"
 
-PROJECT_DIR="/Users/jermainewatkins/Documents/Sites/assistance"
+PROJECT_DIR="/Users/jermainewatkins/Code/assistance"
 LOG_DIR="$HOME/Library/Logs/assistance"
 LOG_FILE="$LOG_DIR/flights.log"
 

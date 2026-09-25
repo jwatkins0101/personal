@@ -38,14 +38,14 @@ set_lane() {
   echo "lane wired: $label"
 }
 
-SITES="$HOME/Documents/Sites"
+CODE="$HOME/Code"
 set_lane inbox com.assistance.gmail-triage gmail-triage-launchd.log "$AS/triage" -- \
   /bin/bash "$WRAP" inbox --attempts 2 -- /bin/bash "$AS/triage/run-gmail-triage.sh"
 set_lane deals com.jermaine.deal-watch deals-launchd.log "$AS" -- \
-  /bin/bash "$WRAP" deals --attempts 1 --artifact "$SITES/deal-watch/briefs/brief-{date}.html" -- /bin/zsh "$SITES/deal-watch/run.sh"
+  /bin/bash "$WRAP" deals --attempts 1 --artifact "$CODE/deal-watch/briefs/brief-{date}.html" -- /bin/zsh "$CODE/deal-watch/run.sh"
 set_lane yt com.jermaine.yt-daily-brief yt-launchd.log "$AS" -- \
-  /bin/bash "$WRAP" yt --attempts 2 --artifact "$SITES/youtube-knowledge/briefs/{date}.md" -- \
-  /bin/zsh -lc 'cd "$HOME/Documents/Sites" && "$HOME/.local/bin/claude" -p "Follow the instructions in youtube-knowledge/daily-brief.md exactly." --dangerously-skip-permissions'
+  /bin/bash "$WRAP" yt --attempts 2 --artifact "$CODE/youtube-knowledge/briefs/{date}.md" -- \
+  /bin/zsh -lc 'cd "$HOME/Code" && "$HOME/.local/bin/claude" -p "Follow the instructions in youtube-knowledge/daily-brief.md exactly." --dangerously-skip-permissions'
 
 # task-capture wraps each of its two steps itself (see deploy-task-capture-launchd.sh).
 if [ "$ONLY" = "all" ] || [ "$ONLY" = "tasks" ]; then bash "$REPO_DIR/scripts/deploy-task-capture-launchd.sh"; fi

@@ -7,7 +7,7 @@ set -euo pipefail
 
 export PATH="/Users/jermainewatkins/.local/bin:/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin:$PATH"
 
-PROJECT_DIR="/Users/jermainewatkins/Documents/Sites/assistance"
+PROJECT_DIR="/Users/jermainewatkins/Code/assistance"
 LOG_DIR="$HOME/Library/Logs/assistance"
 LOG_FILE="$LOG_DIR/gmail-triage.log"
 PROMPT_FILE="$PROJECT_DIR/prompts/gmail-triage.md"
