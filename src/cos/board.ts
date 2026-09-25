@@ -14,7 +14,8 @@ import { homedir } from "node:os";
 import { dirname, join } from "node:path";
 import type Database from "better-sqlite3";
 import { laneHealth, type LaneConfig } from "../../cos/lib/ledger.mjs";
-import { approve, send, skip, expireApprovals, localDate, PLACEHOLDER, type Executors } from "./approvals.js";
+import { approve, send, skip, markDone, expireApprovals, localDate, PLACEHOLDER, type Executors } from "./approvals.js";
+import type { RepliedFn } from "./replied.js";
 import { listCommitments, closeCommitment, type EvidenceChecker } from "./commitments.js";
 import { spentToday, DAILY_BUDGET_USD } from "./budget.js";
 import { BRIEF_DIR } from "./morning.js";
@@ -51,6 +52,8 @@ export interface BoardDeps {
   checker: EvidenceChecker;
   /** Google Tasks completed since an ISO time; may throw (shown as a warning). */
   tasksCompletedSince: (iso: string) => Promise<{ id: string; title: string; completed?: string; list?: string }[]>;
+  /** Reply detection for gmail-sourced items (auto-complete what you handled in Gmail). */
+  replied?: RepliedFn;
   now?: () => Date;
   briefDir?: string;
   eodDir?: string;
@@ -58,12 +61,25 @@ export interface BoardDeps {
 
 const gmailLink = (ref: string) => (ref.startsWith("gmail:") ? `https://mail.google.com/mail/u/0/#all/${ref.slice(6)}` : undefined);
 
+let replyCheckedAt = 0;
+/** Auto-completes pending gmail-sourced items you already replied to (at most once a minute). */
+async function reconcileReplies(deps: BoardDeps, now: Date): Promise<void> {
+  if (!deps.replied || Date.now() - replyCheckedAt < 60_000) return;
+  replyCheckedAt = Date.now();
+  const rows = deps.db.prepare("SELECT brief_date, day_index, source_ref FROM cos_approvals WHERE status='pending' AND source_ref LIKE 'gmail:%'").all() as { brief_date: string; day_index: number; source_ref: string }[];
+  for (const r of rows) {
+    try { const rep = await deps.replied(r.source_ref.slice(6)); if (rep) markDone(deps.db, r.brief_date, r.day_index, `gmail:${rep.sentId} (you replied ${rep.at})`, now); }
+    catch { /* leave pending; never auto-complete on an error */ }
+  }
+}
+
 let tasksCache: { at: number; since: string; items: Awaited<ReturnType<BoardDeps["tasksCompletedSince"]>>; error?: string } | null = null;
 
 export async function buildState(deps: BoardDeps): Promise<BoardState> {
   const now = deps.now?.() ?? new Date();
   const db = deps.db;
   expireApprovals(db, now);
+  await reconcileReplies(deps, now);
   const date = localDate(now);
   const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
   const weekStart = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 6);
@@ -79,8 +95,12 @@ export async function buildState(deps: BoardDeps): Promise<BoardState> {
 
   const completed: CompletedItem[] = [];
   const decided = db.prepare("SELECT * FROM cos_approvals WHERE status IN ('approved','sent','skipped') AND decided_at >= ?").all(weekStart.toISOString()) as Row[];
-  for (const r of decided) completed.push({ at: r.decided_at!, kind: r.status as CompletedItem["kind"], text: r.title,
-    detail: r.status === "sent" ? `sent${(r.result ?? "").includes(";edited") ? " (you edited it)" : ""}` : r.status, ref: r.source_ref });
+  for (const r of decided) {
+    const done = (r.result ?? "").startsWith("done:");
+    completed.push({ at: r.decided_at!, kind: done ? "done" : (r.status as CompletedItem["kind"]), text: r.title,
+      detail: done ? (r.result!.slice(5).startsWith("gmail:") ? `you handled it: ${r.result!.slice(5)}` : "marked done by you")
+        : r.status === "sent" ? `sent${(r.result ?? "").includes(";edited") ? " (you edited it)" : ""}` : r.status, ref: r.source_ref });
+  }
   for (const c of listCommitments(db, "closed")) {
     const at = new Date(c.updated_at.replace(" ", "T") + "Z");
     if (at >= weekStart) completed.push({ at: at.toISOString(), kind: "closed", text: `${c.owner === "me" ? "You kept" : `${c.counterparty} kept`}: ${c.what}`, detail: c.closed_evidence ?? undefined, ref: `commitment:${c.id}` });
@@ -167,12 +187,13 @@ export function createBoardServer(deps: BoardDeps, token: string, port = BOARD_P
       const body = await readJson(req);
       const now = deps.now?.() ?? new Date();
 
-      let m = url.pathname.match(/^\/api\/approvals\/(\d{4}-\d{2}-\d{2})\/(\d+)\/(approve|skip|preview|send)$/);
+      let m = url.pathname.match(/^\/api\/approvals\/(\d{4}-\d{2}-\d{2})\/(\d+)\/(approve|skip|preview|send|done)$/);
       if (m) {
         const [, d, nStr, action] = m; const n = Number(nStr);
         try {
           if (action === "approve") return json(res, 200, { ok: true, message: await approve(deps.db, deps.executors, d, n, now) });
           if (action === "skip") return json(res, 200, { ok: true, message: skip(deps.db, d, n, now) });
+          if (action === "done") return json(res, 200, { ok: true, message: markDone(deps.db, d, n, "by you", now) });
           const row = deps.db.prepare("SELECT kind, status, payload_json, expires_at FROM cos_approvals WHERE brief_date=? AND day_index=?").get(d, n) as { kind: string; status: string; payload_json: string; expires_at: string } | undefined;
           if (!row) throw new Error(`No item ${n} in the ${d} brief.`);
           if (row.kind !== "reply") throw new Error(`Item ${n} is not an email draft.`);
@@ -240,7 +261,7 @@ function render(s){
   (d.detail?'<div class="m">'+esc(d.detail)+'</div>':'')+'<div class="m">'+esc(d.source_ref)+(d.link?' · <a href="'+esc(d.link)+'" target="_blank" rel="noreferrer">source</a>':'')+(d.date!==s.date?' · from '+esc(d.date):'')+'</div>'+
   (d.kind==='reply'&&d.draft_body?'<div class="preview"><div class="m">Draft to '+esc(d.to)+'</div><pre>'+esc(d.draft_body)+'</pre>'+(d.has_placeholder?'<div class="warn">Has placeholder text: edit it in Gmail before sending.</div>':'')+'</div>':'')+
   '<div class="btns">'+(d.kind==='reply'?'<button class="primary" onclick="preview(\\''+id+'\\')">Review &amp; send…</button>':'<button class="primary" onclick="act(\\''+id+'\\',\\'approve\\')">Approve</button>')+
-  '<button onclick="act(\\''+id+'\\',\\'skip\\')">Skip</button></div><div id="pv-'+id.replace('/','-')+'"></div></div>'}).join(''):'<div class="empty">Nothing waiting on you.</div>';
+  '<button onclick="act(\\''+id+'\\',\\'done\\')">Done already</button><button onclick="act(\\''+id+'\\',\\'skip\\')">Skip</button></div><div id="pv-'+id.replace('/','-')+'"></div></div>'}).join(''):'<div class="empty">Nothing waiting on you.</div>';
  const done=xs=>xs.length?xs.map(c=>'<div class="item"><span class="pill '+c.kind+'">'+c.kind+'</span>'+esc(c.text)+'<div class="m">'+(c.at?day(c.at)+' '+time(c.at):'')+(c.detail?' · '+esc(c.detail):'')+'</div></div>').join(''):'<div class="empty">Nothing yet.</div>';
  $('done-today').innerHTML=done(s.completed.today);$('done-week').innerHTML=done(s.completed.week);
  const od=s.commitments.filter(c=>c.overdue).length;$('nc').textContent='('+s.commitments.length+' open'+(od?', '+od+' overdue':'')+')';

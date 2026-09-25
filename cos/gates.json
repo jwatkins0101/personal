@@ -327,7 +327,7 @@
       "assertion_sha256": {
         "cos/lib/ledger.mjs": "68fd202a0ffc62fa677055db0c98b8603940af45f688374286df6a9737c6baa7",
         "tests/fixtures/ledger/lib-no-heartbeat.mjs": "cb962b43b4b42c096c721134f73792011b7efdb798d7e21186a03074786a89dd",
-        "src/cos/cli.ts": "fb953b8323327c07a7851025f68eb2207a39c0bee2b17510b7a21017c38f6052"
+        "src/cos/cli.ts": "b8d7ff378e33e70ca538729f16016ab1fa5e1ae90e271f3d15ff02524952dba5"
       }
     },
     {
@@ -463,7 +463,7 @@
       },
       "script_sha256": "1d44c64def143f74f8a25eada7777e6618b3519236a7b91cf59caf3a6e17ecb0",
       "assertion_sha256": {
-        "src/cos/approvals.ts": "d615be67d4897c00987bc909a1f6ac6c26b60c13b542c40475f67275d2078739",
+        "src/cos/approvals.ts": "2adfc25e232ea56d5b1be77b8c2c4a1884b782f22a9ef0fe615a8e9a606eb9d7",
         "src/storage/migrations/005_cos.ts": "ace258d8d5151e726ee8ff6059097a6320c1b25670a9fc7a7e9bae88fbb3e37a",
         "tests/fixtures/cos/approvals-broken.ts": "ea30e21a185a2f168acd9a8a4241c9413462f491994a2e1a942e612253aee883"
       }
@@ -680,7 +680,8 @@
       "script": "tests/gates/cos-board.ts",
       "assertion_files": [
         "src/cos/board.ts",
-        "tests/fixtures/cos/board-frozen.ts"
+        "tests/fixtures/cos/board-frozen.ts",
+        "src/cos/replied.ts"
       ],
       "negative": {
         "env": {
@@ -688,10 +689,11 @@
         },
         "reason": "a board that serves a frozen state is not live"
       },
-      "script_sha256": "3c7dca7fe7c09cdbdba168c3771aaa1aa4068c7d7476d13bdce0b0ee55d6dd65",
+      "script_sha256": "3b0b5e0c0876ab97a76195200ee240fb26df284188c4731d4fe3e863a3b72e54",
       "assertion_sha256": {
-        "src/cos/board.ts": "90e2fb55b1830b3cecbc62eb8f2b6b39efc1db6152bfdcd522c29210851f64d6",
-        "tests/fixtures/cos/board-frozen.ts": "7544e49410333ea6cdc198d57d511c3e364bd616ccab5815d809e6f6ee25149c"
+        "src/cos/board.ts": "464681ebb1b00a5acd001206d971a07e83d0d48b08975e2e31ad79845300e3a1",
+        "tests/fixtures/cos/board-frozen.ts": "7544e49410333ea6cdc198d57d511c3e364bd616ccab5815d809e6f6ee25149c",
+        "src/cos/replied.ts": "06aa4cf473ded38e2b93880e46aa87cde5055756a1151b3cea06777562bcac57"
       }
     },
     {
@@ -719,11 +721,43 @@
         },
         "reason": "a board with no token/host checks must fail"
       },
-      "script_sha256": "3c7dca7fe7c09cdbdba168c3771aaa1aa4068c7d7476d13bdce0b0ee55d6dd65",
+      "script_sha256": "3b0b5e0c0876ab97a76195200ee240fb26df284188c4731d4fe3e863a3b72e54",
       "assertion_sha256": {
-        "src/cos/board.ts": "90e2fb55b1830b3cecbc62eb8f2b6b39efc1db6152bfdcd522c29210851f64d6",
-        "src/cos/cli.ts": "fb953b8323327c07a7851025f68eb2207a39c0bee2b17510b7a21017c38f6052",
+        "src/cos/board.ts": "464681ebb1b00a5acd001206d971a07e83d0d48b08975e2e31ad79845300e3a1",
+        "src/cos/cli.ts": "b8d7ff378e33e70ca538729f16016ab1fa5e1ae90e271f3d15ff02524952dba5",
         "tests/fixtures/cos/board-open.ts": "de4387422ab139538a82376a793cede0ce9a6d70d9a76041cafa08055f1bcc08"
+      }
+    },
+    {
+      "id": "answered-mail",
+      "story": "S4-3",
+      "tier": "unit",
+      "acceptance": [
+        "AC-26"
+      ],
+      "command": [
+        "npx",
+        "tsx",
+        "tests/gates/cos-board.ts",
+        "answered-mail"
+      ],
+      "script": "tests/gates/cos-board.ts",
+      "assertion_files": [
+        "src/cos/replied.ts",
+        "src/cos/gather.ts",
+        "tests/fixtures/cos/replied-broken.ts"
+      ],
+      "negative": {
+        "env": {
+          "REPLIED_MODULE": "tests/fixtures/cos/replied-broken.ts"
+        },
+        "reason": "a filter that never detects your replies must fail"
+      },
+      "script_sha256": "3b0b5e0c0876ab97a76195200ee240fb26df284188c4731d4fe3e863a3b72e54",
+      "assertion_sha256": {
+        "src/cos/replied.ts": "06aa4cf473ded38e2b93880e46aa87cde5055756a1151b3cea06777562bcac57",
+        "src/cos/gather.ts": "eb87dfd60f1eecd77c1e5e029a77535599566f5f47c50ea165f0d41da2bd629c",
+        "tests/fixtures/cos/replied-broken.ts": "d15f6cc7da52b3926a19e987ccd00f661e8822911b5b6e6e3dbb46e60a52dbbc"
       }
     }
   ]

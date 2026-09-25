@@ -132,6 +132,13 @@ export async function send(db: Database.Database, ex: Executors, briefDate: stri
   return `Sent to ${d.to} (message ${sentId}).`;
 }
 
+/** Records an item as already done outside the system (no side effect). evidence: gmail:<sent id> or "by you". */
+export function markDone(db: Database.Database, briefDate: string, n: number, evidence: string, now = new Date()): string {
+  const a = getPending(db, briefDate, n, now);
+  finish(db, a.id, "approved", `done:${evidence}`, now);
+  return `Done: ${a.title}`;
+}
+
 export function skip(db: Database.Database, briefDate: string, n: number, now = new Date()): string {
   const a = getPending(db, briefDate, n, now);
   finish(db, a.id, "skipped", "skipped by principal", now);

@@ -191,3 +191,11 @@ export async function sendDraft(draftId: string): Promise<string> {
   if (!res.ok) throw new Error(`Gmail draft send failed (${res.status}): ${await res.text()}`);
   return ((await res.json()) as { id: string }).id;
 }
+
+/** Messages in a thread (ids, labels, internal timestamps) for reply detection. */
+export async function getThreadMessages(threadId: string): Promise<{ id: string; labelIds: string[]; internalDate: number }[]> {
+  const res = await gapi(`/threads/${threadId}?format=minimal`);
+  if (!res.ok) throw new Error(`Gmail thread get failed (${res.status}): ${await res.text()}`);
+  const json = (await res.json()) as { messages?: { id: string; labelIds?: string[]; internalDate: string }[] };
+  return (json.messages ?? []).map((m) => ({ id: m.id, labelIds: m.labelIds ?? [], internalDate: Number(m.internalDate) }));
+}

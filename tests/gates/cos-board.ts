@@ -27,6 +27,7 @@ addApprovals(db, today, [
   { kind: "reply", title: "AACSB status", risk_tier: "A3", source_ref: "gmail:m3", payload: { draft_id: "d3", to: "andrew.wright@louisville.edu", draft_body: "My status is [SA/PA]" } },
   { kind: "reply", title: "Swapped", risk_tier: "A3", source_ref: "gmail:m4", payload: { draft_id: "d4", to: "friend@x.com" } },
 ]);
+addApprovals(db, today, [{ kind: "decide", title: "Already answered in Gmail", risk_tier: "A1", source_ref: "gmail:m5ans" }]);
 addApprovals(db, "2020-01-01", [{ kind: "reply", title: "Old expired", risk_tier: "A3", source_ref: "gmail:old", payload: { draft_id: "d9", to: "x@y.com" } }]);
 const past = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 3);
 const cm = upsertCommitment(db, { owner: "me", counterparty: "Jason", what: "Send the deck", due_quote: `${past.getMonth() + 1}/${past.getDate()}`, source_ref: "gmail:s1", source_date: new Date(past.getTime() - 86400_000 * 2) }).commitment;
@@ -39,6 +40,7 @@ const deps = {
   executors: { readDraft: async () => draft, sendDraft: async (id: string) => { sent.push(id); return `sent-${id}`; }, createTask: async () => "t" },
   checker: async (ev: string) => ev === "gmail:sent-deck",
   tasksCompletedSince: async () => [{ id: "gt1", title: "Renew car registration", completed: new Date().toISOString(), list: "📥 Inbox" }],
+  replied: async (id: string) => (id === "m5ans" ? { sentId: "sent-yesterday", at: new Date(now.getTime() - 3600_000).toISOString() } : null),
 };
 const server = board.createBoardServer(deps as never, token, 0);
 await new Promise<void>((r) => server.listen(0, "127.0.0.1", r));
@@ -59,7 +61,8 @@ const state = async () => (await call("GET", "/api/state")).body;
 try {
   if (which === "board-live") {
     let s = await state();
-    check(s?.decide?.length === 4, "Decide shows the 4 pending items (expired one excluded)");
+    check(s?.decide?.length === 4 && !s.decide.some((d: any) => d.title === "Already answered in Gmail"), "Decide shows 4 pending (expired excluded; the one you already answered auto-completed)");
+    check(s.completed.today.some((c: any) => c.kind === "done" && c.text === "Already answered in Gmail" && /gmail:sent-yesterday/.test(c.detail)), "auto-completed item shows in Completed with your sent message as evidence");
     check(s.completed.today.some((c: any) => c.kind === "task" && c.text === "Renew car registration") && s.completed.today.some((c: any) => c.kind === "done" && /pay stubs/.test(c.text)), "Completed today shows checked-off Google Tasks and end-of-day done items");
     check(s.commitments.length === 1 && s.commitments[0].overdue === true, "overdue commitment flagged");
     const page = await call("GET", `/?t=${token}`);
@@ -73,6 +76,9 @@ try {
     check((await call("POST", `/api/approvals/${today}/1/send`, { body: { confirm: true } })).body?.ok === true && sent.join() === "d1", "confirmed send sends exactly that draft");
     s = await state();
     check(s.completed.today.some((c: any) => c.kind === "sent" && c.text === "Reply to Jenna"), "next poll: sent reply shows in Completed");
+    check((await call("POST", `/api/approvals/${today}/4/done`, { body: {} })).body?.ok === true, "Done already from the board");
+    s = await state();
+    check(!s.decide.some((d: any) => d.n === 4) && s.completed.today.some((c: any) => c.kind === "done" && c.text === "Swapped" && c.detail === "marked done by you"), "next poll: manually done item in Completed");
     check((await call("POST", `/api/commitments/${cm.id}/close`, { body: { evidence: "gmail:sent-deck" } })).body?.ok === true, "mark a commitment kept with evidence");
     s = await state();
     check(s.commitments.length === 0 && s.completed.today.some((c: any) => c.kind === "closed" && /Send the deck/.test(c.text)), "next poll: commitment moved to Completed");
@@ -90,6 +96,15 @@ try {
     check((server.address() as AddressInfo).address === "127.0.0.1", "listens on 127.0.0.1 only");
     const cli = (await import("node:fs")).readFileSync("src/cos/cli.ts", "utf8");
     check(/server\.listen\(BOARD_PORT, "127\.0\.0\.1"/.test(cli), "production server binds 127.0.0.1");
+  } else if (which === "answered-mail") {
+    const r = await import(pathToFileURL(resolve(process.env.REPLIED_MODULE ?? "src/cos/replied.ts")).href) as typeof import("../../src/cos/replied.ts");
+    const inbox = [{ id: "a1", subject: "you answered" }, { id: "a2", subject: "still owed" }, { id: "a3", subject: "check failed" }];
+    const out = await r.dropAnswered(inbox, async (id) => { if (id === "a3") throw new Error("gmail down"); return id === "a1" ? { sentId: "s1", at: "2026-09-24T22:16:57Z" } : null; });
+    check(out.kept.map((x) => x.id).join() === "a2,a3", "answered mail dropped before the brief; unanswered kept");
+    check(out.answered.length === 1 && out.answered[0].reply.sentId === "s1", "answered item records your sent message");
+    check(out.kept.some((x) => x.id === "a3"), "a failed check keeps the mail (never hides on error)");
+    const g = (await import("node:fs")).readFileSync("src/cos/gather.ts", "utf8");
+    check(/dropAnswered\(inbox, replied\)/.test(g) && /inbox\.splice\(0, inbox\.length, \.\.\.answered\.kept\)/.test(g), "morning gather filters answered mail before synthesis");
   } else check(false, `unknown gate ${which}`);
 } catch (e) { check(false, `threw: ${(e as Error).message}`); }
 finally { server.close(); rmSync(tmp, { recursive: true, force: true }); }

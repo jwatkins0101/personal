@@ -1,6 +1,6 @@
 # Feature: AI Chief of Staff (v1)
 
-Revision: 5. Status: in progress. Feature ID: ai-chief-of-staff.
+Revision: 6. Status: in progress. Feature ID: ai-chief-of-staff.
 Source plan: `PLAN.md` (approved 2026-09-24, decisions D1–D8 = recommended). Harness: Ralph 2.0 @ `6d9f21ea27bb41662e1e69dd19ca1c483ad41c44`.
 
 ## Current specification
@@ -160,6 +160,7 @@ Existing prompt-driven lanes emit this record with a wrapper step (the lane writ
 | **Live task board (D16)** |||
 | AC-24 | `http://127.0.0.1:8787` (launchd keep-alive) shows pending Decide items, Completed (approved / sent / skipped items, kept commitments, checked-off Google Tasks, end-of-day done) for today and this week, open and overdue commitments, and lane health; the page polls every 5 seconds and an action shows up on the next poll | `gate:board-live` (negative: frozen state) | not_run |
 | AC-25 | Board actions keep every safety check: token required (401), Host must be localhost (403), JSON-only posts, 127.0.0.1 only; send needs a preview then an explicit confirm and keeps the placeholder, recipient-swap and expiry refusals; commitments close only with evidence | `gate:board-security` (negative: open board) | not_run |
+| AC-26 | Mail you already answered (a message you sent later in the same thread) never becomes a Decide item or a reply owed; the board auto-completes pending email items you handled in Gmail, citing your sent message; "Done already" records anything else you finished, with no side effect; a failed check never hides mail | `gate:answered-mail` + `gate:board-live` | not_run |
 
 All gates are registered in `cos/gates.json` (tier, command, script sha256, assertion-file sha256). They run with `npm run gates`, and each gate is proven to fail on its negative fixture before it counts.
 

@@ -96,6 +96,7 @@ async function main(): Promise<number> {
         db: getDb(), lanes: config.lanes, executors: realExecutors,
         checker: makeEvidenceChecker({ date, sources: [], approvals_today: [], open_commitments: [], gaps: [] }),
         tasksCompletedSince: listCompletedSince,
+        replied: (await import("./replied.js")).repliedAfter,
       }, token, BOARD_PORT);
       await new Promise<void>((res) => server.listen(BOARD_PORT, "127.0.0.1", res));
       console.log(`board: http://127.0.0.1:${BOARD_PORT}/?t=${token}`);
@@ -118,6 +119,10 @@ async function main(): Promise<number> {
       if (!rows.length) console.log("Nothing queued.");
       for (const a of rows) console.log(`${String(a.day_index).padStart(2)}. [${a.status}] ${a.kind === "reply" ? "send" : "approve"} ${a.day_index}: ${a.title}  (${a.source_ref})`);
       return 0;
+    }
+    case "done": {
+      const { markDone } = await import("./approvals.js");
+      try { console.log(markDone(getDb(), date, n, "by you")); return 0; } catch (e) { console.error((e as Error).message); return 1; }
     }
     case "approve": case "send": case "skip": {
       if (!Number.isInteger(n) || n < 1) { console.error(`usage: npm run cos -- ${cmd} N`); return 2; }

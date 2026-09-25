@@ -11,6 +11,7 @@ import { listMessageIds, getMessagesMeta } from "../mail/gmail-api.js";
 import { listOpenGtdTasks } from "../tasks/google-tasks.js";
 import { getCachedEvents } from "../calendar/cache.js";
 import { localDate } from "./approvals.js";
+import { dropAnswered, repliedAfter, type RepliedFn } from "./replied.js";
 
 const REPO_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "../..");
 const CODE = join(homedir(), "Code");
@@ -35,18 +36,22 @@ async function attempt<T>(label: string, gaps: string[], f: () => Promise<T>, fa
   try { return await f(); } catch (e) { gaps.push(`${label} unavailable: ${(e as Error).message.slice(0, 160)}`); return fallback; }
 }
 
-export async function gatherInputs(now = new Date()): Promise<BriefInputs> {
+export async function gatherInputs(now = new Date(), replied: RepliedFn = repliedAfter): Promise<BriefInputs> {
   const gaps: string[] = [];
   const date = localDate(now);
 
   // Inbox: what triage left in the inbox over the last 3 days (triage archives the rest).
-  const inbox = await attempt("Gmail inbox", gaps, async () => {
+  const inbox: BriefInputs["inbox"] = await attempt("Gmail inbox", gaps, async () => {
     const ids = await listMessageIds("in:inbox newer_than:3d", 40);
     const metas = await getMessagesMeta(ids);
     return metas.filter((m) => !m.listUnsub).map((m) => ({
       id: m.id, from: m.from, subject: m.subject, snippet: m.snippet, date: m.date, starred: m.labelIds.includes("STARRED"),
     }));
   }, []);
+
+  // Mail you already answered is handled: it never becomes a Decide item or a reply owed (D17).
+  const answered = await dropAnswered(inbox, replied);
+  inbox.splice(0, inbox.length, ...answered.kept);
 
   const tasks = await attempt("Google Tasks", gaps, async () =>
     (await listOpenGtdTasks()).map((t) => ({ id: t.id, title: t.title, due: t.due, list: t.list, notes: (t.notes ?? "").slice(0, 200) })), []);
