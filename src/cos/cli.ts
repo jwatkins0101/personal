@@ -10,6 +10,8 @@
  *   close ID EVIDENCE close a commitment with evidence (gmail:/sms:/cal:/task:)
  *   board             run the live task board on http://127.0.0.1:8787 (launchd keeps it up)
  *   board-url         print the board URL (with its local token)
+ *   agent-run JOB     run one "hand to agent" job (spawned by the board)
+ *   agent-jobs        list recent agent jobs
  */
 import { readFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
@@ -97,6 +99,7 @@ async function main(): Promise<number> {
         checker: makeEvidenceChecker({ date, sources: [], approvals_today: [], open_commitments: [], gaps: [] }),
         tasksCompletedSince: listCompletedSince,
         replied: (await import("./replied.js")).repliedAfter,
+        startAgent: (id: number) => { void import("./agent.js").then((a) => a.spawnJobRunner(id)); },
       }, token, BOARD_PORT);
       await new Promise<void>((res) => server.listen(BOARD_PORT, "127.0.0.1", res));
       console.log(`board: http://127.0.0.1:${BOARD_PORT}/?t=${token}`);
@@ -105,6 +108,23 @@ async function main(): Promise<number> {
     case "board-url": {
       const { loadOrCreateToken, BOARD_PORT } = await import("./board.js");
       console.log(`http://127.0.0.1:${BOARD_PORT}/?t=${loadOrCreateToken()}`);
+      return 0;
+    }
+    case "agent-run": {
+      const a = await import("./agent.js");
+      const { getMessageMeta, getMessageIdHeader, createReplyDraft } = await import("../mail/gmail-api.js");
+      const j = await a.runJob(getDb(), n, {
+        runClaude: process.env.COS_AGENT_FIXTURE ? () => a.readFixtureResult() : a.realRunClaude,
+        fetchSource: async (ref) => { const m = await getMessageMeta(ref.slice(6)); return { from: m.from, subject: m.subject, threadId: m.threadId }; },
+        messageIdHeader: getMessageIdHeader,
+        createReplyDraft,
+      });
+      console.log(`agent job ${j.id}: ${j.status}${j.error ? ` - ${j.error}` : ""}`);
+      return j.status === "ready" ? 0 : 1;
+    }
+    case "agent-jobs": {
+      for (const r of getDb().prepare("SELECT id, brief_date, day_index, status, cost_usd, error, summary FROM cos_agent_jobs ORDER BY id DESC LIMIT 20").all() as Record<string, unknown>[])
+        console.log(`#${r.id} ${r.brief_date}/${r.day_index} ${r.status}${r.cost_usd != null ? ` $${Number(r.cost_usd).toFixed(2)}` : ""} ${r.error ?? String(r.summary ?? "").slice(0, 80)}`);
       return 0;
     }
     case "ping-test": {

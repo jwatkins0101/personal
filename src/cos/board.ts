@@ -16,6 +16,7 @@ import type Database from "better-sqlite3";
 import { laneHealth, type LaneConfig } from "../../cos/lib/ledger.mjs";
 import { approve, send, skip, markDone, expireApprovals, localDate, PLACEHOLDER, type Executors } from "./approvals.js";
 import type { RepliedFn } from "./replied.js";
+import { createJob, cancelJob, jobsForItem, reapStaleJobs, type Job } from "./agent.js";
 import { listCommitments, closeCommitment, type EvidenceChecker } from "./commitments.js";
 import { spentToday, DAILY_BUDGET_USD } from "./budget.js";
 import { BRIEF_DIR } from "./morning.js";
@@ -36,7 +37,8 @@ export function loadOrCreateToken(path = TOKEN_PATH): string {
 export interface CompletedItem { at: string; kind: "sent" | "approved" | "skipped" | "closed" | "task" | "done"; text: string; detail?: string; ref?: string }
 export interface BoardState {
   generated_at: string; date: string;
-  decide: { date: string; n: number; kind: string; title: string; detail: string; source_ref: string; link?: string; to?: string; draft_body?: string; has_placeholder: boolean; expires_at: string }[];
+  decide: { date: string; n: number; kind: string; title: string; detail: string; source_ref: string; link?: string; to?: string; draft_body?: string; has_placeholder: boolean; expires_at: string;
+    agent: { id: number; status: string; started_at: string | null; finished_at: string | null; summary: string | null; needs_from_you: string[]; findings: { claim: string; source_ref: string }[]; gaps: string[]; drafted: boolean; cost_usd: number | null; error: string | null } | null }[];
   completed: { today: CompletedItem[]; week: CompletedItem[] };
   commitments: { id: number; owner: string; counterparty: string; what: string; due_at: string | null; overdue: boolean; open_question: string | null; sources: string[] }[];
   lanes: { lane: string; state: string; last_started_at: string | null; gaps: string[] }[];
@@ -52,6 +54,8 @@ export interface BoardDeps {
   checker: EvidenceChecker;
   /** Google Tasks completed since an ISO time; may throw (shown as a warning). */
   tasksCompletedSince: (iso: string) => Promise<{ id: string; title: string; completed?: string; list?: string }[]>;
+  /** Starts an agent runner for a queued job (detached process in production; inline in tests). */
+  startAgent?: (jobId: number) => void;
   /** Reply detection for gmail-sourced items (auto-complete what you handled in Gmail). */
   replied?: RepliedFn;
   now?: () => Date;
@@ -79,6 +83,7 @@ export async function buildState(deps: BoardDeps): Promise<BoardState> {
   const now = deps.now?.() ?? new Date();
   const db = deps.db;
   expireApprovals(db, now);
+  reapStaleJobs(db, now);
   await reconcileReplies(deps, now);
   const date = localDate(now);
   const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
@@ -89,8 +94,11 @@ export async function buildState(deps: BoardDeps): Promise<BoardState> {
   const pending = db.prepare("SELECT * FROM cos_approvals WHERE status='pending' ORDER BY brief_date, day_index").all() as Row[];
   const decide = pending.map((r) => {
     const p = JSON.parse(r.payload_json || "{}") as { to?: string; draft_body?: string };
+    const j: Job | undefined = jobsForItem(db, r.brief_date, r.day_index).at(-1);
+    const agent = j ? { id: j.id, status: j.status, started_at: j.started_at, finished_at: j.finished_at, summary: j.summary, needs_from_you: j.result?.needs_from_you ?? [],
+      findings: j.result?.findings ?? [], gaps: j.result?.gaps ?? [], drafted: !!j.draft_id, cost_usd: j.cost_usd, error: j.error } : null;
     return { date: r.brief_date, n: r.day_index, kind: r.kind, title: r.title, detail: r.detail, source_ref: r.source_ref, link: gmailLink(r.source_ref),
-      to: p.to, draft_body: p.draft_body, has_placeholder: !!p.draft_body && PLACEHOLDER.test(p.draft_body), expires_at: r.expires_at };
+      to: p.to, draft_body: p.draft_body, has_placeholder: !!p.draft_body && PLACEHOLDER.test(p.draft_body), expires_at: r.expires_at, agent };
   });
 
   const completed: CompletedItem[] = [];
@@ -206,6 +214,19 @@ export function createBoardServer(deps: BoardDeps, token: string, port = BOARD_P
           return json(res, 200, { ok: true, message: await send(deps.db, deps.executors, d, n, now, () => {}) });
         } catch (e) { return json(res, 400, { ok: false, error: (e as Error).message }); }
       }
+      m = url.pathname.match(/^\/api\/approvals\/(\d{4}-\d{2}-\d{2})\/(\d+)\/agent$/);
+      if (m) {
+        try {
+          const job = createJob(deps.db, m[1], Number(m[2]), String(body.note ?? ""), now);
+          deps.startAgent?.(job.id);
+          return json(res, 200, { ok: true, message: `Agent started on item ${m[2]}. It prepares; you review.`, job: job.id });
+        } catch (e) { return json(res, 400, { ok: false, error: (e as Error).message }); }
+      }
+      m = url.pathname.match(/^\/api\/agent\/(\d+)\/cancel$/);
+      if (m) {
+        try { cancelJob(deps.db, Number(m[1]), now); return json(res, 200, { ok: true, message: "Agent stopped." }); }
+        catch (e) { return json(res, 400, { ok: false, error: (e as Error).message }); }
+      }
       m = url.pathname.match(/^\/api\/commitments\/(\d+)\/close$/);
       if (m) {
         try { const c = await closeCommitment(deps.db, Number(m[1]), String(body.evidence ?? ""), deps.checker); return json(res, 200, { ok: true, message: `Closed: ${c.what}` }); }
@@ -248,7 +269,7 @@ input{border:1px solid var(--line);background:var(--bg);color:var(--ink);border-
 <script>
 const T=new URLSearchParams(location.search).get('t')||'';history.replaceState(null,'',location.pathname+'?t='+T);
 const $=id=>document.getElementById(id);const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-let busy=false,openPreview=null,lastOk=0;
+let busy=false,openPreview=null,openAgent=null,lastOk=0;
 function toast(t){const m=$('msg');m.textContent=t;m.style.display='block';clearTimeout(toast.h);toast.h=setTimeout(()=>m.style.display='none',4000)}
 async function api(path,body){const r=await fetch(path,{method:body?'POST':'GET',headers:{'x-cos-token':T,...(body?{'content-type':'application/json'}:{})},body:body?JSON.stringify(body):undefined});return r.json()}
 const time=iso=>new Date(iso).toLocaleTimeString([], {hour:'numeric',minute:'2-digit'});const day=iso=>new Date(iso).toLocaleDateString([], {weekday:'short',month:'short',day:'numeric'});
@@ -257,11 +278,12 @@ function render(s){
  $('brief').href=s.brief.exists?'/brief/'+s.date+'.html?t='+T:'#';$('brief').style.display=s.brief.exists?'':'none';
  $('warn').innerHTML=s.warnings.map(w=>'<div class="warn">'+esc(w)+'</div>').join('');
  $('nd').textContent=s.decide.length?'('+s.decide.length+')':'';
- if(!(busy||openPreview)) $('decide').innerHTML=s.decide.length?s.decide.map(d=>{const id=d.date+'/'+d.n;return '<div class="item" data-id="'+id+'"><div class="t">'+d.n+'. '+esc(d.title)+'</div>'+
+ if(!(busy||openPreview||openAgent)) $('decide').innerHTML=s.decide.length?s.decide.map(d=>{const id=d.date+'/'+d.n;return '<div class="item" data-id="'+id+'"><div class="t">'+d.n+'. '+esc(d.title)+'</div>'+
   (d.detail?'<div class="m">'+esc(d.detail)+'</div>':'')+'<div class="m">'+esc(d.source_ref)+(d.link?' · <a href="'+esc(d.link)+'" target="_blank" rel="noreferrer">source</a>':'')+(d.date!==s.date?' · from '+esc(d.date):'')+'</div>'+
   (d.kind==='reply'&&d.draft_body?'<div class="preview"><div class="m">Draft to '+esc(d.to)+'</div><pre>'+esc(d.draft_body)+'</pre>'+(d.has_placeholder?'<div class="warn">Has placeholder text: edit it in Gmail before sending.</div>':'')+'</div>':'')+
-  '<div class="btns">'+(d.kind==='reply'?'<button class="primary" onclick="preview(\\''+id+'\\')">Review &amp; send…</button>':'<button class="primary" onclick="act(\\''+id+'\\',\\'approve\\')">Approve</button>')+
-  '<button onclick="act(\\''+id+'\\',\\'done\\')">Done already</button><button onclick="act(\\''+id+'\\',\\'skip\\')">Skip</button></div><div id="pv-'+id.replace('/','-')+'"></div></div>'}).join(''):'<div class="empty">Nothing waiting on you.</div>';
+  agentBlock(d)+'<div class="btns">'+(d.kind==='reply'?'<button class="primary" onclick="preview(\\''+id+'\\')">Review &amp; send…</button>':'<button class="primary" onclick="act(\\''+id+'\\',\\'approve\\')">Approve</button>')+
+  (d.agent&&(d.agent.status==='queued'||d.agent.status==='running')?'':'<button data-agent="'+id+'">'+(d.agent&&d.agent.status==='ready'?'Ask agent again':'Hand to agent')+'</button>')+
+  '<button onclick="act(\\''+id+'\\',\\'done\\')">Done already</button><button onclick="act(\\''+id+'\\',\\'skip\\')">Skip</button></div><div id="ag-'+id.replace('/','-')+'"></div><div id="pv-'+id.replace('/','-')+'"></div></div>'}).join(''):'<div class="empty">Nothing waiting on you.</div>';
  const done=xs=>xs.length?xs.map(c=>'<div class="item"><span class="pill '+c.kind+'">'+c.kind+'</span>'+esc(c.text)+'<div class="m">'+(c.at?day(c.at)+' '+time(c.at):'')+(c.detail?' · '+esc(c.detail):'')+'</div></div>').join(''):'<div class="empty">Nothing yet.</div>';
  $('done-today').innerHTML=done(s.completed.today);$('done-week').innerHTML=done(s.completed.week);
  const od=s.commitments.filter(c=>c.overdue).length;$('nc').textContent='('+s.commitments.length+' open'+(od?', '+od+' overdue':'')+')';
@@ -279,5 +301,22 @@ async function preview(id){const[d,n]=id.split('/');const box=$('pv-'+id.replace
 function cancelPv(id){openPreview=null;$('pv-'+id.replace('/','-')).innerHTML='';refresh()}
 async function sendNow(id){const[d,n]=id.split('/');busy=true;const r=await api('/api/approvals/'+d+'/'+n+'/send',{confirm:true});busy=false;openPreview=null;toast(r.ok?r.message:r.error);refresh()}
 async function closeC(id){const ev=$('ev-'+id).value.trim();const r=await api('/api/commitments/'+id+'/close',{evidence:ev});toast(r.ok?r.message:r.error);refresh()}
+function mins(a,b){const m=Math.max(0,Math.round(((b?new Date(b):new Date())-new Date(a))/60000));return m<1?'<1 min':m+' min'}
+function agentBlock(d){const a=d.agent;if(!a)return'';
+ if(a.status==='queued'||a.status==='running')return '<div class="preview"><div class="t">🤖 Agent working…'+(a.started_at?' ('+mins(a.started_at)+')':' (starting)')+'</div><div class="m">Reading the thread and searching your mail. It prepares; you review.</div><div class="btns"><button data-stop="'+a.id+'">Stop</button></div></div>';
+ if(a.status==='ready')return '<div class="preview"><div class="t">🤖 Ready for review</div><div>'+esc(a.summary)+'</div>'+
+  (a.needs_from_you.length?'<div class="m" style="margin-top:6px"><b>Needs from you:</b></div><ul>'+a.needs_from_you.map(x=>'<li>'+esc(x)+'</li>').join('')+'</ul>':'')+
+  (a.findings.length?'<details><summary class="m">What it found ('+a.findings.length+')</summary><ul>'+a.findings.map(f=>'<li>'+esc(f.claim)+' <span class="m">'+esc(f.source_ref)+'</span></li>').join('')+'</ul></details>':'')+
+  (a.gaps.length?'<div class="m">Could not find: '+esc(a.gaps.join('; '))+'</div>':'')+
+  '<div class="m">'+(a.drafted?'Draft reply saved to Gmail: use Review &amp; send.':'No draft made.')+(a.cost_usd!=null?' · $'+a.cost_usd.toFixed(2):'')+'</div></div>';
+ if(a.status==='failed')return '<div class="warn">Agent could not finish: '+esc(a.error||'unknown error')+'</div>';
+ if(a.status==='cancelled')return '<div class="m">Agent stopped.</div>';return''}
+document.addEventListener('click',async e=>{const b=e.target.closest('button');if(!b)return;
+ if(b.dataset.agent){const id=b.dataset.agent;openAgent=id;const box=$('ag-'+id.replace('/','-'));
+  box.innerHTML='<div class="preview"><div class="m">Anything the agent should know? (optional)</div><textarea id="note-'+id.replace('/','-')+'" rows="2" style="width:100%;margin-top:6px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--ink);font:14px system-ui;padding:6px" placeholder="e.g. use last year&#39;s AACSB form"></textarea><div class="btns"><button class="primary" data-start="'+id+'">Start agent</button><button data-close="'+id+'">Cancel</button></div></div>'}
+ else if(b.dataset.start){const id=b.dataset.start;const[d,n]=id.split('/');const note=($('note-'+id.replace('/','-'))||{}).value||'';b.disabled=true;
+  const r=await api('/api/approvals/'+d+'/'+n+'/agent',{note});openAgent=null;toast(r.ok?r.message:r.error);refresh()}
+ else if(b.dataset.close){openAgent=null;refresh()}
+ else if(b.dataset.stop){const r=await api('/api/agent/'+b.dataset.stop+'/cancel',{});toast(r.ok?r.message:r.error);refresh()}});
 refresh();setInterval(()=>{if(!document.hidden)refresh()},5000);document.addEventListener('visibilitychange',()=>{if(!document.hidden)refresh()});
 </script></body></html>`;

@@ -1,7 +1,7 @@
 {
   "schema_version": "feature.v1",
   "feature": "ai-chief-of-staff",
-  "prd_revision": 6,
+  "prd_revision": 7,
   "harness_commit": "6d9f21ea27bb41662e1e69dd19ca1c483ad41c44",
   "repositories": {
     "jwatkins0101/personal": {
@@ -225,6 +225,20 @@
       "verified": false,
       "deployed": false,
       "live_verified": false
+    },
+    {
+      "id": "AC-27",
+      "implemented": true,
+      "verified": false,
+      "deployed": false,
+      "live_verified": false
+    },
+    {
+      "id": "AC-28",
+      "implemented": true,
+      "verified": false,
+      "deployed": false,
+      "live_verified": false
     }
   ],
   "release_record": null,
@@ -258,7 +272,8 @@
     "D15",
     "D16",
     "D17",
-    "D18"
+    "D18",
+    "D19"
   ],
   "metrics": {
     "started_at": "2026-09-24T22:30:00-04:00",

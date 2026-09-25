@@ -327,7 +327,7 @@
       "assertion_sha256": {
         "cos/lib/ledger.mjs": "68fd202a0ffc62fa677055db0c98b8603940af45f688374286df6a9737c6baa7",
         "tests/fixtures/ledger/lib-no-heartbeat.mjs": "cb962b43b4b42c096c721134f73792011b7efdb798d7e21186a03074786a89dd",
-        "src/cos/cli.ts": "b8d7ff378e33e70ca538729f16016ab1fa5e1ae90e271f3d15ff02524952dba5"
+        "src/cos/cli.ts": "f84630e00c7e77d39a750ff452156793210916f9445d9fb2fa3ada829aee6c2b"
       }
     },
     {
@@ -691,7 +691,7 @@
       },
       "script_sha256": "5de534db0369835f730455c6a4d4f329cf9a4b234395ab637e002ed544313509",
       "assertion_sha256": {
-        "src/cos/board.ts": "f3d2810cf4c44f6068095679db3ed07f939eabe7ec213b1c482c74a5bdeb639a",
+        "src/cos/board.ts": "035f4a87f1bf68d6b20a9f30bfe7285dcc209f8b7bf861128ac88ce4ab4be4bf",
         "tests/fixtures/cos/board-frozen.ts": "7544e49410333ea6cdc198d57d511c3e364bd616ccab5815d809e6f6ee25149c",
         "src/cos/replied.ts": "06aa4cf473ded38e2b93880e46aa87cde5055756a1151b3cea06777562bcac57"
       }
@@ -723,8 +723,8 @@
       },
       "script_sha256": "5de534db0369835f730455c6a4d4f329cf9a4b234395ab637e002ed544313509",
       "assertion_sha256": {
-        "src/cos/board.ts": "f3d2810cf4c44f6068095679db3ed07f939eabe7ec213b1c482c74a5bdeb639a",
-        "src/cos/cli.ts": "b8d7ff378e33e70ca538729f16016ab1fa5e1ae90e271f3d15ff02524952dba5",
+        "src/cos/board.ts": "035f4a87f1bf68d6b20a9f30bfe7285dcc209f8b7bf861128ac88ce4ab4be4bf",
+        "src/cos/cli.ts": "f84630e00c7e77d39a750ff452156793210916f9445d9fb2fa3ada829aee6c2b",
         "tests/fixtures/cos/board-open.ts": "de4387422ab139538a82376a793cede0ce9a6d70d9a76041cafa08055f1bcc08"
       }
     },
@@ -758,6 +758,74 @@
         "src/cos/replied.ts": "06aa4cf473ded38e2b93880e46aa87cde5055756a1151b3cea06777562bcac57",
         "src/cos/gather.ts": "eec8a888c906665f2dbb6c3b09543faccfadd7e87412cbdf80d57c402d5433d1",
         "tests/fixtures/cos/replied-broken.ts": "d15f6cc7da52b3926a19e987ccd00f661e8822911b5b6e6e3dbb46e60a52dbbc"
+      }
+    },
+    {
+      "id": "agent-flow",
+      "story": "S5-1",
+      "tier": "unit",
+      "acceptance": [
+        "AC-27"
+      ],
+      "command": [
+        "npx",
+        "tsx",
+        "tests/gates/cos-agent.ts",
+        "agent-flow"
+      ],
+      "script": "tests/gates/cos-agent.ts",
+      "assertion_files": [
+        "src/cos/agent.ts",
+        "src/cos/board.ts",
+        "src/storage/migrations/007_agent_jobs.ts",
+        "tests/fixtures/cos/agent/aacsb.json",
+        "tests/fixtures/cos/agent/placeholder.json",
+        "tests/fixtures/cos/agent-broken.ts"
+      ],
+      "negative": {
+        "env": {
+          "AGENT_MODULE": "tests/fixtures/cos/agent-broken.ts"
+        },
+        "reason": "an agent path that trusts the agent's recipient or drafts placeholders must fail"
+      },
+      "script_sha256": "22679474f0a7cbd7c2a179598432ba9bfd87ce27b8cd91e66c7b0a56f7ebc3bf",
+      "assertion_sha256": {
+        "src/cos/agent.ts": "9a5ec59b13230fdfeceb1d9ed7f30037659f745bba32838ee75cb73ed26db26e",
+        "src/cos/board.ts": "035f4a87f1bf68d6b20a9f30bfe7285dcc209f8b7bf861128ac88ce4ab4be4bf",
+        "src/storage/migrations/007_agent_jobs.ts": "4dd4dc3e0fc7362def9abbd3badb39569fab64dad039aca50c0320690ae18f17",
+        "tests/fixtures/cos/agent/aacsb.json": "184ec053cc73ca7fcf3c4641e82a95905e73dd0ea94edcfcef62dac3e6e01d9f",
+        "tests/fixtures/cos/agent/placeholder.json": "503c1900857e8f42573b180db88074682163e00707ec1e7de86495214bf47107",
+        "tests/fixtures/cos/agent-broken.ts": "d53625323ab85280160dd3e361035dbe5e3f921b92855e6baa4fb1004401869c"
+      }
+    },
+    {
+      "id": "agent-guard",
+      "story": "S5-2",
+      "tier": "unit",
+      "acceptance": [
+        "AC-28"
+      ],
+      "command": [
+        "npx",
+        "tsx",
+        "tests/gates/cos-agent.ts",
+        "agent-guard"
+      ],
+      "script": "tests/gates/cos-agent.ts",
+      "assertion_files": [
+        "cos/hooks/agent-guard.sh",
+        "src/cos/agent.ts"
+      ],
+      "negative": {
+        "env": {
+          "GUARD": "/usr/bin/true"
+        },
+        "reason": "a no-op guard must fail"
+      },
+      "script_sha256": "22679474f0a7cbd7c2a179598432ba9bfd87ce27b8cd91e66c7b0a56f7ebc3bf",
+      "assertion_sha256": {
+        "cos/hooks/agent-guard.sh": "d14f623a7e68ca20e6077b558f6713c61be0356391a7f52ab5886d570998884d",
+        "src/cos/agent.ts": "9a5ec59b13230fdfeceb1d9ed7f30037659f745bba32838ee75cb73ed26db26e"
       }
     }
   ]
