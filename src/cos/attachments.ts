@@ -10,8 +10,8 @@ import { extname, join } from "node:path";
 
 export const MAX_ATTACHMENTS = 5;
 export const MAX_BYTES = 10 * 1024 * 1024;
-export const MAX_CHARS_EACH = 8000;
-export const MAX_CHARS_TOTAL = 20000;
+export const MAX_CHARS_EACH = 20000;
+export const MAX_CHARS_TOTAL = 30000;
 
 export interface AttachmentText { name: string; text: string | null; note?: string }
 

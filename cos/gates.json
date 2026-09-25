@@ -788,7 +788,7 @@
         },
         "reason": "an agent path that trusts the agent's recipient or drafts placeholders must fail"
       },
-      "script_sha256": "716cf1d44dd88e0afd9b74eac106a7b276c85014d8f589bd8b932546f9233c14",
+      "script_sha256": "596f1a1db53f9cf36d22c4b11c030ee218e438e684651de8e7e77784999190ad",
       "assertion_sha256": {
         "src/cos/agent.ts": "34afc640c7b4b98904ea0ce38cc2013ef208c80da86b1d0bd92d0f1c090923d0",
         "src/cos/board.ts": "6b1ab81070f96097df95a884b6a196fdcb827d0992abcfc0375e9ae8aabb4e35",
@@ -822,7 +822,7 @@
         },
         "reason": "a no-op guard must fail"
       },
-      "script_sha256": "716cf1d44dd88e0afd9b74eac106a7b276c85014d8f589bd8b932546f9233c14",
+      "script_sha256": "596f1a1db53f9cf36d22c4b11c030ee218e438e684651de8e7e77784999190ad",
       "assertion_sha256": {
         "cos/hooks/agent-guard.sh": "d14f623a7e68ca20e6077b558f6713c61be0356391a7f52ab5886d570998884d",
         "src/cos/agent.ts": "34afc640c7b4b98904ea0ce38cc2013ef208c80da86b1d0bd92d0f1c090923d0"
@@ -856,7 +856,7 @@
         },
         "reason": "without the reply-elsewhere rule UofL mail would get Gmail drafts"
       },
-      "script_sha256": "716cf1d44dd88e0afd9b74eac106a7b276c85014d8f589bd8b932546f9233c14",
+      "script_sha256": "596f1a1db53f9cf36d22c4b11c030ee218e438e684651de8e7e77784999190ad",
       "assertion_sha256": {
         "src/cos/mailboxes.ts": "9e1d74e72431c5bdf0ca7cc270e6be7c0d654a6797f70ff2a7bfeb840c25ae96",
         "src/cos/morning.ts": "0aebb34ab44ced2018df24097cf945397c494e00f425f418fb91428ee5d3c085",
@@ -1041,9 +1041,9 @@
         },
         "reason": "dumping raw file bytes instead of extracting text must fail"
       },
-      "script_sha256": "716cf1d44dd88e0afd9b74eac106a7b276c85014d8f589bd8b932546f9233c14",
+      "script_sha256": "596f1a1db53f9cf36d22c4b11c030ee218e438e684651de8e7e77784999190ad",
       "assertion_sha256": {
-        "src/cos/attachments.ts": "212135e187c3734ef50cd5c140290b2971483ccbf7c0838c2c55b1ada88ab7fb",
+        "src/cos/attachments.ts": "1a9d4f42639a66bf290a5d45ce684a6f475f54d6e78e25da1f1e4fc3323159c7",
         "src/cos/agent.ts": "34afc640c7b4b98904ea0ce38cc2013ef208c80da86b1d0bd92d0f1c090923d0",
         "tests/fixtures/cos/attachments/definitions.docx": "d9c26766ef487a6d93da76068bb94cbebabedc2715f6283cbef631641189f920",
         "tests/fixtures/cos/attachments/definitions.pdf": "b7de53ec5f2c3e9342517ce9c8add4fe2c5a5b7c7805ed2dea092bf7f5c84eef",

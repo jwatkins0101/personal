@@ -125,6 +125,8 @@ try {
     check(!!pdf.text && /Instructional Practitioner/.test(pdf.text), "PDF attachment becomes plain text");
     const png = att.extractText("photo.png", readFileSync(`${F}/photo.png`));
     check(png.text === null && /can't read/.test(png.note ?? ""), "unsupported file types are reported, not guessed at");
+    const long = att.extractText("long.txt", Buffer.from("x".repeat(15000) + " APPENDIX-END"));
+    check(!!long.text && long.text.endsWith("APPENDIX-END"), "a ~15k-character document (like the AACSB definitions) is read to the end");
     check(att.extractText("huge.txt", Buffer.alloc(att.MAX_BYTES + 1)).text === null, "oversized attachments are skipped");
     const parts = [{ filename: "a.docx", mimeType: "application/vnd.openxmlformats-officedocument.wordprocessingml.document", body: { attachmentId: "x1", size: 100 } },
       { filename: "logo.png", mimeType: "image/png", body: { attachmentId: "img", size: 10 } },
