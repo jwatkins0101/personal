@@ -1,0 +1,25 @@
+{
+  "gate": "live-multi-account-brief",
+  "story": "S6-1",
+  "acceptance": [
+    "AC-30"
+  ],
+  "tested_commit": "2b8bccd9fd1d84b4ccea7b13aee0f67fe4c56822",
+  "command": "npm run cos -- morning (dry run: temp DB, COS_NO_DRAFTS, COS_NO_PING, COS_NO_AUDIO) against the 4 live accounts",
+  "result": {
+    "seconds": 87,
+    "decide": 5,
+    "account_refs_in_brief": {
+      "owlthat": 8,
+      "veryhealth": 1,
+      "techunify": 0
+    },
+    "notable": [
+      "owlthat: Canva APPS-54285 approved for release",
+      "owlthat: $250k offer from unverified domain flagged, no draft",
+      "UofL AACSB item marked reply-from-Outlook"
+    ]
+  },
+  "passed": true,
+  "timestamp": "2026-09-25T06:52:19.746370+00:00"
+}

@@ -7,13 +7,13 @@
   ],
   "passed": true,
   "problems": [],
-  "tested_commit": "e27d4b4c5a59e2f3357bdfa610d2cafa1caa03d8",
+  "tested_commit": "2b8bccd9fd1d84b4ccea7b13aee0f67fe4c56822",
   "worktree_dirty": true,
-  "prd_revision": 8,
+  "prd_revision": 9,
   "gate_sha256": "884ccc75cf4d226035048e8c3f05aa3f9269cb5831d8f0495c308176a2cb0ab0",
   "assertion_sha256": {
     "src/cos/dates.ts": "b3e2aad0815d84525b4571926ea6d24f1f9a3d8ad09b18d93114b02548e65cb7",
-    "src/cos/eod.ts": "d2ad1cab8f0ded1adf3afe3d4688ef3fb802d17f50fd06c69e5806ac8d8b319c",
+    "src/cos/eod.ts": "4de2cb3397fb47eca2b67de73c121c3385e64e7fa22f55e3e8cb7843b5041b33",
     "tests/fixtures/cos/eod-inputs.json": "ee4868a45a2d437c54856678dea5c3834ac056c8facd0becf7d56261692f22c4",
     "tests/fixtures/cos/eod-extraction.json": "ed2624a499bea5bbe2c341ad80804433523656687d9a2e9519163028f41706e6",
     "tests/fixtures/cos/dates-broken.ts": "8dfd112705e62873f7a8cb1aab6fee34d31c25ab95bab8850db8fa7e100a4d5a"
@@ -29,5 +29,5 @@
     "exit_code": 1,
     "output": "Running migration 1...\nMigration 1 complete.\nRunning migration 2...\nMigration 2 complete.\nRunning migration 3...\nMigration 3 complete.\nRunning migration 4...\nMigration 4 complete.\nRunning migration 5...\nMigration 5 complete.\nRunning migration 6...\nMigration 6 complete.\nRunning migration 7...\nMigration 7 complete.\nFAIL \"by Friday\" from a Thursday source -> 2026-09-25\nFAIL \"10/2\" from a Thursday source -> 2026-10-02\nFAIL \"Oct 2\" from a Thursday source -> 2026-10-02\nFAIL \"tomorrow\" from a Thursday source -> 2026-09-25\nFAIL \"next next week\" from a Thursday source -> undated\nFAIL \"soon\" from a Thursday source -> undated\nFAIL \"next week\" from a Thursday source -> undated\nFAIL \"next Friday\" from a Thursday source -> undated\nFAIL \"ASAP\" from a Thursday source -> undated\nPASS vague 'next next week' stored undated with an open question\nPASS a due quote not in the source is not used\nPASS every commitment keeps its source_ref"
   },
-  "timestamp": "2026-09-25T06:36:06.676Z"
+  "timestamp": "2026-09-25T06:50:06.553Z"
 }

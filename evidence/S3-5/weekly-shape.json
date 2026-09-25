@@ -7,9 +7,9 @@
   ],
   "passed": true,
   "problems": [],
-  "tested_commit": "e27d4b4c5a59e2f3357bdfa610d2cafa1caa03d8",
+  "tested_commit": "2b8bccd9fd1d84b4ccea7b13aee0f67fe4c56822",
   "worktree_dirty": true,
-  "prd_revision": 8,
+  "prd_revision": 9,
   "gate_sha256": "884ccc75cf4d226035048e8c3f05aa3f9269cb5831d8f0495c308176a2cb0ab0",
   "assertion_sha256": {
     "src/cos/weekly.ts": "b8b4ac1eaf0954a8900fc47084536a7340290588de4d3ad3feff59c212420a0f",
@@ -26,5 +26,5 @@
     "exit_code": 1,
     "output": "Running migration 1...\nMigration 1 complete.\nRunning migration 2...\nMigration 2 complete.\nRunning migration 3...\nMigration 3 complete.\nRunning migration 4...\nMigration 4 complete.\nRunning migration 5...\nMigration 5 complete.\nRunning migration 6...\nMigration 6 complete.\nRunning migration 7...\nMigration 7 complete.\nPASS ISO week label\nFAIL dropped ball counted (open, past due)\nPASS failed approval and refused send counted as caught errors\nPASS approvals this week and unchanged rate (7/8; the edited send doesn't count)\nPASS median decision latency in hours\nPASS cost from lane ledgers\nFAIL task kind listed as promotion candidate (25 clean, 0 corrections); reply is not\nPASS scorecard has all metrics\nPASS autonomy not changed by the review"
   },
-  "timestamp": "2026-09-25T06:36:09.385Z"
+  "timestamp": "2026-09-25T06:50:09.028Z"
 }

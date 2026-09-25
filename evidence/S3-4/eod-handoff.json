@@ -7,13 +7,13 @@
   ],
   "passed": true,
   "problems": [],
-  "tested_commit": "e27d4b4c5a59e2f3357bdfa610d2cafa1caa03d8",
+  "tested_commit": "2b8bccd9fd1d84b4ccea7b13aee0f67fe4c56822",
   "worktree_dirty": true,
-  "prd_revision": 8,
+  "prd_revision": 9,
   "gate_sha256": "884ccc75cf4d226035048e8c3f05aa3f9269cb5831d8f0495c308176a2cb0ab0",
   "assertion_sha256": {
-    "src/cos/eod.ts": "d2ad1cab8f0ded1adf3afe3d4688ef3fb802d17f50fd06c69e5806ac8d8b319c",
-    "src/cos/morning.ts": "47b49aab7cf3eaeb7c5051a7bc188eef2edd79930cb239a6207c36a6cec07e4e",
+    "src/cos/eod.ts": "4de2cb3397fb47eca2b67de73c121c3385e64e7fa22f55e3e8cb7843b5041b33",
+    "src/cos/morning.ts": "1756950c3a1923a799981272089f951af2ff01010ffaaeecf6fa38ea26f38695",
     "tests/fixtures/cos/eod-broken.ts": "a40b33838218379ca557dd3b121ab6fa484cc6049f05ea124f79083cce43859b",
     "tests/fixtures/cos/inputs.json": "5b674a883c0222c72c675d10efc7edc123ff52843923e089d8448b1eda60f84f"
   },
@@ -28,5 +28,5 @@
     "exit_code": 1,
     "output": "Running migration 1...\nMigration 1 complete.\nRunning migration 2...\nMigration 2 complete.\nRunning migration 3...\nMigration 3 complete.\nRunning migration 4...\nMigration 4 complete.\nRunning migration 5...\nMigration 5 complete.\nRunning migration 6...\nMigration 6 complete.\nRunning migration 7...\nMigration 7 complete.\nFAIL EOD writes eod/2026-09-24.json\nFAIL carry-forward kept; invented item dropped with a gap\nFAIL Friday's brief found Thursday's EOD\nFAIL your open commitment shows under Deadlines\nFAIL their undated promise shows under Waiting on\nPASS no Monday EOD: Tuesday's brief escalates missing_eod\nFAIL past-due commitment escalates as a dropped ball"
   },
-  "timestamp": "2026-09-25T06:36:08.744Z"
+  "timestamp": "2026-09-25T06:50:08.399Z"
 }

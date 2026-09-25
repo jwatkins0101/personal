@@ -7,25 +7,25 @@
   ],
   "passed": true,
   "problems": [],
-  "tested_commit": "e27d4b4c5a59e2f3357bdfa610d2cafa1caa03d8",
+  "tested_commit": "2b8bccd9fd1d84b4ccea7b13aee0f67fe4c56822",
   "worktree_dirty": true,
-  "prd_revision": 8,
-  "gate_sha256": "5de534db0369835f730455c6a4d4f329cf9a4b234395ab637e002ed544313509",
+  "prd_revision": 9,
+  "gate_sha256": "de50517550b579ca32f72b6bd1a4f12bf356563d92ddf033c47d77cf7e74c138",
   "assertion_sha256": {
-    "src/cos/board.ts": "7a10d52aac2d07fb9f0eea56d0f44ad53dff331193b3c39763dd401ed65436bb",
-    "src/cos/cli.ts": "72386ac625c2ab99e73443dd79e0e46f0f9f2c5c3e2aa9b16888160ea352b3fa",
+    "src/cos/board.ts": "6b1ab81070f96097df95a884b6a196fdcb827d0992abcfc0375e9ae8aabb4e35",
+    "src/cos/cli.ts": "ddc989dc4d803ff2b3baacbfc7a6c4bafe55756f1c70aab58858f8894a689304",
     "tests/fixtures/cos/board-open.ts": "de4387422ab139538a82376a793cede0ce9a6d70d9a76041cafa08055f1bcc08"
   },
   "command": "npx tsx tests/gates/cos-board.ts board-security",
   "exit_code": 0,
-  "output": "Running migration 1...\nMigration 1 complete.\nRunning migration 2...\nMigration 2 complete.\nRunning migration 3...\nMigration 3 complete.\nRunning migration 4...\nMigration 4 complete.\nRunning migration 5...\nMigration 5 complete.\nRunning migration 6...\nMigration 6 complete.\nRunning migration 7...\nMigration 7 complete.\nPASS no token: 401\nPASS wrong token: 401\nPASS page without ?t= token: 401\nPASS foreign Host header (DNS rebinding): 403\nPASS non-JSON post (cross-site form): refused\nPASS placeholder draft refused from the board\nPASS recipient swap refused from the board\nPASS expired item refused from the board\nPASS commitment close without evidence refused\nPASS listens on 127.0.0.1 only\nPASS production server binds 127.0.0.1\n(node:59495) [DEP0205] DeprecationWarning: `module.register()` is deprecated. Use `module.registerHooks()` instead.\n(Use `node --trace-deprecation ...` to show where the warning was created)",
+  "output": "Running migration 1...\nMigration 1 complete.\nRunning migration 2...\nMigration 2 complete.\nRunning migration 3...\nMigration 3 complete.\nRunning migration 4...\nMigration 4 complete.\nRunning migration 5...\nMigration 5 complete.\nRunning migration 6...\nMigration 6 complete.\nRunning migration 7...\nMigration 7 complete.\nPASS no token: 401\nPASS wrong token: 401\nPASS page without ?t= token: 401\nPASS foreign Host header (DNS rebinding): 403\nPASS non-JSON post (cross-site form): refused\nPASS placeholder draft refused from the board\nPASS recipient swap refused from the board\nPASS expired item refused from the board\nPASS commitment close without evidence refused\nPASS listens on 127.0.0.1 only\nPASS production server binds 127.0.0.1\n(node:72190) [DEP0205] DeprecationWarning: `module.register()` is deprecated. Use `module.registerHooks()` instead.\n(Use `node --trace-deprecation ...` to show where the warning was created)",
   "negative_validation": {
     "env": {
       "BOARD_MODULE": "tests/fixtures/cos/board-open.ts"
     },
     "reason": "a board with no token/host checks must fail",
     "exit_code": 1,
-    "output": "Running migration 1...\nMigration 1 complete.\nRunning migration 2...\nMigration 2 complete.\nRunning migration 3...\nMigration 3 complete.\nRunning migration 4...\nMigration 4 complete.\nRunning migration 5...\nMigration 5 complete.\nRunning migration 6...\nMigration 6 complete.\nRunning migration 7...\nMigration 7 complete.\nFAIL no token: 401\nFAIL wrong token: 401\nFAIL page without ?t= token: 401\nPASS foreign Host header (DNS rebinding): 403\nFAIL non-JSON post (cross-site form): refused\nPASS placeholder draft refused from the board\nPASS recipient swap refused from the board\nPASS expired item refused from the board\nPASS commitment close without evidence refused\nPASS listens on 127.0.0.1 only\nPASS production server binds 127.0.0.1\n(node:59543) [DEP0205] DeprecationWarning: `module.register()` is deprecated. Use `module.registerHooks()` instead.\n(Use `node --trace-deprecation ...` to show where the warning was created)"
+    "output": "Running migration 1...\nMigration 1 complete.\nRunning migration 2...\nMigration 2 complete.\nRunning migration 3...\nMigration 3 complete.\nRunning migration 4...\nMigration 4 complete.\nRunning migration 5...\nMigration 5 complete.\nRunning migration 6...\nMigration 6 complete.\nRunning migration 7...\nMigration 7 complete.\nFAIL no token: 401\nFAIL wrong token: 401\nFAIL page without ?t= token: 401\nPASS foreign Host header (DNS rebinding): 403\nFAIL non-JSON post (cross-site form): refused\nPASS placeholder draft refused from the board\nPASS recipient swap refused from the board\nPASS expired item refused from the board\nPASS commitment close without evidence refused\nPASS listens on 127.0.0.1 only\nPASS production server binds 127.0.0.1\n(node:72238) [DEP0205] DeprecationWarning: `module.register()` is deprecated. Use `module.registerHooks()` instead.\n(Use `node --trace-deprecation ...` to show where the warning was created)"
   },
-  "timestamp": "2026-09-25T06:36:10.920Z"
+  "timestamp": "2026-09-25T06:50:10.498Z"
 }

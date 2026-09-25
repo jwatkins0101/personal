@@ -1,0 +1,39 @@
+{
+  "gate": "multi-account",
+  "story": "S6-1",
+  "tier": "unit",
+  "acceptance": [
+    "AC-30"
+  ],
+  "passed": true,
+  "problems": [],
+  "tested_commit": "2b8bccd9fd1d84b4ccea7b13aee0f67fe4c56822",
+  "worktree_dirty": true,
+  "prd_revision": 9,
+  "gate_sha256": "d4fc7c1d8bab2aef6d22ca929eb07fff5c074da9884fd855d1e4144761c62b9a",
+  "assertion_sha256": {
+    "src/google/auth.ts": "30319d5148ff912960604ed483f63298a2883bb8910bd92dc40cc36cc5aaa6eb",
+    "src/cos/refs.ts": "834bd5f54277ea3469fae2f37566b33827f86f564322f5645583dc2cac559d1d",
+    "src/cos/gather.ts": "f28fac2b8e65b9dca4218676c32529708c2756e0d3f1271f456da10bbbf3c4d0",
+    "src/cos/morning.ts": "1756950c3a1923a799981272089f951af2ff01010ffaaeecf6fa38ea26f38695",
+    "src/cos/approvals.ts": "3db73aa35c2a8737107d28f2d7fc8bc4ef870729b1debc3634e56ffa72057b4b",
+    "src/cos/executors.ts": "9dafdf611825911eef62a9047dc67e8fbc762788479efcc7d62e249ef1b8ba68",
+    "src/cos/agent.ts": "ffa659bd295bb43fa71e479d9fa745f10718fdbf8add8331ca669d1c8831eb9b",
+    "src/cos/eod.ts": "4de2cb3397fb47eca2b67de73c121c3385e64e7fa22f55e3e8cb7843b5041b33",
+    "cos/accounts.json": "6455bbbd41555764ebd1ebc4c883c5c2a1c5f085a2ff6b3f77665ceba8c6091d",
+    "tests/fixtures/cos/synthesis-multi.json": "6cdbf05f86a76a13d2024f2aeeb805dc70df5c832572d788381a8ae6b5bf6711",
+    "tests/fixtures/cos/accounts-no-owlthat.json": "d90a4e49c48435ed0025ab68c10ae90d9ee6753b7bb783d8d4b35e6237ea20b0"
+  },
+  "command": "npx tsx tests/gates/cos-accounts.ts",
+  "exit_code": 0,
+  "output": "PASS old gmail:<id> refs still mean the personal account\nPASS account refs round-trip; personal keeps the short form\nPASS malformed or non-gmail refs are rejected\nPASS Gmail links open in the right signed-in account\nPASS each account loads credentials from its own gws profile\nPASS concurrent calls keep their own account\nRunning migration 1...\nMigration 1 complete.\nRunning migration 2...\nMigration 2 complete.\nRunning migration 3...\nMigration 3 complete.\nRunning migration 4...\nMigration 4 complete.\nRunning migration 5...\nMigration 5 complete.\nRunning migration 6...\nMigration 6 complete.\nRunning migration 7...\nMigration 7 complete.\nPASS brief drafts each reply in the account the email came to\nPASS the queued owlthat reply remembers its account\nPASS send reads and sends from owlthat; result ref names the account\nPASS agent's gws points at the item's mailbox\nPASS agent reads, drafts and cites in the owlthat mailbox\n(node:73143) [DEP0205] DeprecationWarning: `module.register()` is deprecated. Use `module.registerHooks()` instead.\n(Use `node --trace-deprecation ...` to show where the warning was created)",
+  "negative_validation": {
+    "env": {
+      "COS_ACCOUNTS_PATH": "tests/fixtures/cos/accounts-no-owlthat.json"
+    },
+    "reason": "without the owlthat profile its mail cannot be read or drafted in its own account",
+    "exit_code": 1,
+    "output": "PASS old gmail:<id> refs still mean the personal account\nPASS account refs round-trip; personal keeps the short form\nPASS malformed or non-gmail refs are rejected\nPASS Gmail links open in the right signed-in account\nFAIL threw: Unknown Google account profile \"owlthat\" (see cos/accounts.json)."
+  },
+  "timestamp": "2026-09-25T06:50:18.473Z"
+}
