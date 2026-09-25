@@ -938,10 +938,10 @@
         },
         "reason": "a rule set that archives everything must fail"
       },
-      "script_sha256": "1730d4fd4e5b44c1097cbc6fccbbee19d8492b27f168990e2389082b04997e5d",
+      "script_sha256": "44271b20ff1fc2b7417ba5bc2d627475c37bc01045fb3b00175cf4667b1c8964",
       "assertion_sha256": {
         "cos/triage-rules.json": "80558f426d3184fe83f7673ff61958c325a3d301c7b4f462c23a0ee245644fd7",
-        "src/cos/rules-triage.ts": "9a4346cb9b1969f0079bd2627179d8f31dd918849f1ea01bcffbaeccaacac6ae",
+        "src/cos/rules-triage.ts": "68f2411f64359e260c852e616250678704217523d81e17f2a20596f5e1df4095",
         "tests/fixtures/cos/triage-rules-broken.json": "865fbafc83167e03f37929b28f7c088fad03036dee454ce65fc4fab168d7f796"
       }
     },
@@ -970,10 +970,10 @@
         },
         "reason": "archiving unknown senders or protected mail must fail"
       },
-      "script_sha256": "1730d4fd4e5b44c1097cbc6fccbbee19d8492b27f168990e2389082b04997e5d",
+      "script_sha256": "44271b20ff1fc2b7417ba5bc2d627475c37bc01045fb3b00175cf4667b1c8964",
       "assertion_sha256": {
-        "src/cos/rules-triage.ts": "9a4346cb9b1969f0079bd2627179d8f31dd918849f1ea01bcffbaeccaacac6ae",
-        "src/cos/rules-triage-run.ts": "92df9daa0e2db81de198dd21bdf134ae5bd68ef982f597177199479124a94b44",
+        "src/cos/rules-triage.ts": "68f2411f64359e260c852e616250678704217523d81e17f2a20596f5e1df4095",
+        "src/cos/rules-triage-run.ts": "a7b31c82baf731cac359f0c83e0f90c5ec65b92eb74cff035d4fe4ae7eff92f4",
         "tests/fixtures/cos/triage-rules-broken.json": "865fbafc83167e03f37929b28f7c088fad03036dee454ce65fc4fab168d7f796"
       }
     },
@@ -1004,7 +1004,7 @@
         },
         "reason": "without the CI source the brief cannot track RED builds"
       },
-      "script_sha256": "1730d4fd4e5b44c1097cbc6fccbbee19d8492b27f168990e2389082b04997e5d",
+      "script_sha256": "44271b20ff1fc2b7417ba5bc2d627475c37bc01045fb3b00175cf4667b1c8964",
       "assertion_sha256": {
         "src/cos/ci-status.ts": "6d4aa5c5a3115f1b442047a648f3022b0dd181f5556aa9af2c836db86a4e21eb",
         "src/cos/gather.ts": "b6b7dc00898cd2be95a8c7984f462e5bae4cc6388b2c604b92a2f2d9bab8d9f4",

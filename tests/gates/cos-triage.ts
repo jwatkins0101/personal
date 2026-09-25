@@ -72,6 +72,9 @@ try {
     check(owlWrites.archived["CoS/CI"] === 1, "CI alerts from website@owlthat.com are archived even though you write to owlthat.com");
     const bk = await t.runRulesTriage("owlthat", owl, "in:inbox", { ...deps, batchModify: async (_ids: string[], add: string[]) => { if (add.includes("STARRED")) throw new Error("starred in backlog"); } }, { tag: "backlog", noStar: true });
     check(bk.starred === 0, "backlog cleanups keep billing mail without starring it");
+    calls.length = 0;
+    const chunked = await t.runRulesTriage("owlthat", owl, "in:inbox", { ...deps, getMetas: async (ids: string[]) => inbox.filter((m) => ids.includes(m.id)) as never }, { chunk: 2, tag: "hourly", noStar: true });
+    check(chunked.scanned === 5 && chunked.archived["CoS/CI"] === 1 && chunked.archived["CoS/Newsletters"] === 1 && calls.filter((c) => c.remove.includes("INBOX")).length === 2, "chunked runs apply each chunk as they go and total correctly");
     const cli = readFileSync("src/cos/rules-triage-run.ts", "utf8");
     check(/in:inbox after:\$\{since\}/.test(cli) && !/newer_than:\d+m/.test(cli), "hourly window is an epoch (never newer_than minutes)");
   } else if (which === "ci-status") {

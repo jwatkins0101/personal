@@ -38,7 +38,7 @@ export async function backlog(account: string, dryRun: boolean, max: number): Pr
   const cfg = all.accounts[account] ?? all.backlog_only[account];
   if (!cfg) throw new Error(`No backlog rules for "${account}".`);
   const days = cfg.backlog?.older_than_days ?? cfg.older_than_days ?? 30;
-  return runRulesTriage(account, cfg, days > 0 ? `in:inbox older_than:${days}d` : "in:inbox", realDeps(account), { dryRun, max, tag: "backlog", noStar: true });
+  return runRulesTriage(account, cfg, days > 0 ? `in:inbox older_than:${days}d` : "in:inbox", realDeps(account), { dryRun, max, tag: "backlog", noStar: true, onProgress: (d, t) => console.log(`  progress ${d}/${t}`) });
 }
 
 export const undo = (account: string, since: string, tag?: string) => undoTriage(account, since, realDeps(account), { tag });

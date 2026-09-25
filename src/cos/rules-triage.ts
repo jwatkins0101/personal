@@ -61,27 +61,33 @@ export interface TriageDeps {
 export interface TriageResult { account: string; query: string; scanned: number; kept: number; starred: number; archived: Record<string, number>; byRule: Record<string, number>; dryRun: boolean; logPath: string }
 
 /** Classifies messages from `query` and (unless dryRun) applies the decisions, logging every change for undo. */
-export async function runRulesTriage(account: string, cfg: AccountRules, query: string, deps: TriageDeps, opts: { dryRun?: boolean; max?: number; now?: Date; tag?: string; noStar?: boolean } = {}): Promise<TriageResult> {
+export async function runRulesTriage(account: string, cfg: AccountRules, query: string, deps: TriageDeps, opts: { dryRun?: boolean; max?: number; now?: Date; tag?: string; noStar?: boolean; chunk?: number; onProgress?: (done: number, total: number) => void } = {}): Promise<TriageResult> {
   const now = opts.now ?? new Date();
   const ids = await deps.listIds(query, opts.max ?? 500);
-  const metas = ids.length ? await deps.getMetas(ids) : [];
   const writeTo = await deps.sentDomains();
-  const toArchive = new Map<string, string[]>(); const toStar: string[] = [];
-  const byRule: Record<string, number> = {};
-  let kept = 0;
-  for (const m of metas) {
-    const d = decide(m, cfg, writeTo);
-    byRule[d.rule] = (byRule[d.rule] ?? 0) + 1;
-    if (d.action === "archive") { const k = d.label ?? ""; toArchive.set(k, [...(toArchive.get(k) ?? []), m.id]); }
-    else { kept++; if (d.action === "keep_star" && !opts.noStar && !m.labelIds.includes("STARRED")) toStar.push(m.id); }
-  }
   mkdirSync(UNDO_DIR, { recursive: true });
   const logPath = join(UNDO_DIR, `${account}.jsonl`);
-  const archived: Record<string, number> = {};
-  for (const [label, list] of toArchive) archived[label || "(no label)"] = list.length;
-  if (!opts.dryRun) {
+  const archived: Record<string, number> = {}; const byRule: Record<string, number> = {};
+  let kept = 0, starred = 0, scanned = 0;
+  const labelIds = new Map<string, string>();
+  // Work in chunks so a long cleanup keeps its progress if interrupted.
+  const chunk = opts.chunk ?? 2000;
+  for (let i = 0; i < ids.length; i += chunk) {
+    const metas = await deps.getMetas(ids.slice(i, i + chunk));
+    scanned += metas.length;
+    const toArchive = new Map<string, string[]>(); const toStar: string[] = [];
+    for (const m of metas) {
+      const d = decide(m, cfg, writeTo);
+      byRule[d.rule] = (byRule[d.rule] ?? 0) + 1;
+      if (d.action === "archive") { const k = d.label ?? ""; toArchive.set(k, [...(toArchive.get(k) ?? []), m.id]); }
+      else { kept++; if (d.action === "keep_star" && !opts.noStar && !m.labelIds.includes("STARRED")) toStar.push(m.id); }
+    }
+    for (const [label, list] of toArchive) archived[label || "(no label)"] = (archived[label || "(no label)"] ?? 0) + list.length;
+    starred += toStar.length;
+    if (opts.dryRun) continue;
     for (const [label, list] of toArchive) {
-      const labelId = label ? await deps.ensureLabel(label) : null;
+      if (label && !labelIds.has(label)) labelIds.set(label, await deps.ensureLabel(label));
+      const labelId = label ? labelIds.get(label)! : null;
       await deps.batchModify(list, labelId ? [labelId] : [], ["INBOX"]);
       for (const id of list) appendFileSync(logPath, JSON.stringify({ at: now.toISOString(), account, id, action: "archive", label, labelId, tag: opts.tag ?? "hourly" }) + "\n");
     }
@@ -89,8 +95,9 @@ export async function runRulesTriage(account: string, cfg: AccountRules, query: 
       await deps.batchModify(toStar, ["STARRED"], []);
       for (const id of toStar) appendFileSync(logPath, JSON.stringify({ at: now.toISOString(), account, id, action: "star", tag: opts.tag ?? "hourly" }) + "\n");
     }
+    opts.onProgress?.(scanned, ids.length);
   }
-  return { account, query, scanned: metas.length, kept, starred: toStar.length, archived, byRule, dryRun: !!opts.dryRun, logPath };
+  return { account, query, scanned, kept, starred, archived, byRule, dryRun: !!opts.dryRun, logPath };
 }
 
 /** Removes stars this system added (logged "star" actions) at/after `sinceIso`. */
