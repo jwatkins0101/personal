@@ -1,5 +1,6 @@
 # Dependencies
 node_modules/
+node_modules
 
 # Build output
 dist/
@@ -12,6 +13,12 @@ credentials/
 *.json
 !package.json
 !tsconfig.json
+!package-lock.json
+# ai-chief-of-staff: feature records, gate registry, evidence and fixtures are tracked
+!docs/tasks/**/*.json
+!cos/**/*.json
+!evidence/**/*.json
+!tests/fixtures/**/*.json
 
 # Logs
 logs/
@@ -25,5 +32,7 @@ Thumbs.db
 __pycache__/
 *.pyc
 
-# Claude Code local state (worktrees, session config)
-.claude/
+# Claude Code local state (worktrees, session config); shared hooks are tracked
+.claude/*
+!.claude/settings.json
+!.claude/hooks/

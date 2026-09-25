@@ -40,10 +40,11 @@
     "flights:status": "tsx src/commands/flight-tracker.ts status",
     "pipeline:dry": "tsx src/commands/orchestrate.ts --dry-run",
     "build": "tsc --noEmit",
-    "dev": "tsx watch src/index.ts"
+    "dev": "tsx watch src/index.ts",
+    "gates": "tsx scripts/run-gates.ts"
   },
   "dependencies": {
-    "better-sqlite3": "^12.6.2",
+    "better-sqlite3": "^13.0.3",
     "dotenv": "^16.4.0"
   },
   "devDependencies": {

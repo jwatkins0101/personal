@@ -1,0 +1,710 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>AI Chief of Staff PRD</title>
+  <style>
+
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+
+ul.task-list[class]{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+font-size: inherit;
+width: 0.8em;
+margin: 0 0.8em 0.2em -1.6em;
+vertical-align: middle;
+}
+.display.math{display: block; text-align: center; margin: 0.5rem auto;}
+
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+{ counter-reset: source-line 0; }
+pre.numberSource code > span
+{ position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+{ content: counter(source-line);
+position: relative; left: -1em; text-align: right; vertical-align: baseline;
+border: none; display: inline-block;
+-webkit-touch-callout: none; -webkit-user-select: none;
+-khtml-user-select: none; -moz-user-select: none;
+-ms-user-select: none; user-select: none;
+padding: 0 4px; width: 4em;
+color: #aaaaaa;
+}
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa; padding-left: 4px; }
+div.sourceCode
+{ }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } 
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.at { color: #7d9029; } 
+code span.bn { color: #40a070; } 
+code span.bu { color: #008000; } 
+code span.cf { color: #007020; font-weight: bold; } 
+code span.ch { color: #4070a0; } 
+code span.cn { color: #880000; } 
+code span.co { color: #60a0b0; font-style: italic; } 
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.do { color: #ba2121; font-style: italic; } 
+code span.dt { color: #902000; } 
+code span.dv { color: #40a070; } 
+code span.er { color: #ff0000; font-weight: bold; } 
+code span.ex { } 
+code span.fl { color: #40a070; } 
+code span.fu { color: #06287e; } 
+code span.im { color: #008000; font-weight: bold; } 
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.kw { color: #007020; font-weight: bold; } 
+code span.op { color: #666666; } 
+code span.ot { color: #007020; } 
+code span.pp { color: #bc7a00; } 
+code span.sc { color: #4070a0; } 
+code span.ss { color: #bb6688; } 
+code span.st { color: #4070a0; } 
+code span.va { color: #19177c; } 
+code span.vs { color: #4070a0; } 
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } 
+</style>
+  <style type="text/css">:root{--bg:#f7f6f2;--ink:#1c1b18;--ink2:#55524a;--line:#e2dfd6;--surface:#fff;--accent:#2f5d50}
+@media (prefers-color-scheme:dark){:root{--bg:#141412;--ink:#ecebe6;--ink2:#b5b1a7;--line:#34322d;--surface:#1d1c1a;--accent:#7fc3ab}}
+body{background:var(--bg);color:var(--ink);font:16px/1.65 -apple-system,Inter,system-ui,sans-serif;max-width:980px;margin:0 auto;padding:40px 16px 80px}
+h1{font:600 38px/1.15 Georgia,serif;margin:0 0 16px}h2{font:600 26px/1.2 Georgia,serif;margin:48px 0 12px;padding-top:12px;border-top:1px solid var(--line)}h3{margin:28px 0 8px}
+a{color:var(--accent)}table{border-collapse:collapse;width:100%;font-size:14px;display:block;overflow-x:auto;background:var(--surface);border:1px solid var(--line);border-radius:10px}
+th,td{text-align:left;vertical-align:top;padding:9px 12px;border-bottom:1px solid var(--line)}th{white-space:nowrap}
+pre{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:14px;overflow:auto;font-size:12.5px;line-height:1.35}
+code{font-family:ui-monospace,Menlo,monospace;font-size:.9em}hr{border:0;border-top:1px solid var(--line)}
+</style>
+</head>
+<body>
+<header id="title-block-header">
+<h1 class="title">AI Chief of Staff PRD</h1>
+</header>
+<h1 id="feature-ai-chief-of-staff-v1">Feature: AI Chief of Staff
+(v1)</h1>
+<p>Revision: 1. Status: planned. Feature ID: ai-chief-of-staff. Source
+plan: <code>PLAN.md</code> (approved 2026-09-24, decisions D1–D8 =
+recommended). Harness: Ralph 2.0 @
+<code>6d9f21ea27bb41662e1e69dd19ca1c483ad41c44</code>.</p>
+<h2 id="current-specification">Current specification</h2>
+<h3 id="problem-and-outcome">Problem and outcome</h3>
+<p>Jermaine (the principal) runs several separate scheduled assistants
+on this Mac: Gmail triage, task capture, flight checks, deal-watch and
+the YouTube brief. Each reports on its own, and some fail silently.
+Nothing merges their output into one set of decisions, tracks
+commitments, or checks its own numbers. Claude Code insights (69
+sessions, 2026-05 → 2026-09) show the costliest failures are wrong
+assumptions and ignored conventions: a Gmail query read as 90 months,
+digest counts that didn&#39;t reconcile, a claimed file that didn&#39;t exist, a
+silent scheduled-run failure.</p>
+<p><strong>Outcome:</strong> a chief of staff (CoS) orchestrator in this
+repo that, every weekday:</p>
+<ul>
+<li>produces <strong>one verified brief</strong> (07:30) with
+<strong>Decide / FYI / Escalations</strong> buckets;</li>
+<li>keeps a <strong>commitment ledger</strong>;</li>
+<li>writes a <strong>17:30 EOD wrap</strong> that feeds the next brief,
+plus a <strong>Friday review</strong>;</li>
+<li>queues every consequential action for a short-word approval
+(<code>approve N</code>, <code>send N</code>, <code>skip N</code>). No
+answer means no action.</li>
+</ul>
+<p>It never sends, pays or signs up on its own.</p>
+<h3 id="verified-facts-and-assumptions">Verified facts and
+assumptions</h3>
+<p><strong>Code and system facts</strong> (repo
+<code>jwatkins0101/personal</code> @ <code>a4fbd9b</code>, checked
+2026-09-24):</p>
+<table>
+<thead>
+<tr>
+<th>Fact</th>
+<th>Evidence</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Gmail triage runs hourly (launchd
+<code>com.assistance.gmail-triage</code>) as
+<code>claude --print --permission-mode bypassPermissions --allowedTools Bash</code>
+over a prompt file</td>
+<td><code>~/Library/Application Support/assistance/triage/run-gmail-triage.sh</code>;
+last run in <code>~/Library/Logs/assistance/gmail-triage.log</code>
+2026-09-24 21:00</td>
+</tr>
+<tr>
+<td>The <strong>deployed</strong> triage prompt (229 lines) differs from
+the repo copy <code>prompts/gmail-triage.md</code>, even though the
+runner says &quot;edit the repo copy&quot;</td>
+<td><code>diff -q</code> → differ</td>
+</tr>
+<tr>
+<td>Both copies use <code>in:inbox newer_than:90m</code>. In Gmail
+search, <code>m</code> means <strong>months</strong></td>
+<td>grep lines 16/46 (repo), 22/52 (deployed); Gmail search operator
+docs; insights report friction</td>
+</tr>
+<tr>
+<td>The triage context has Bash + <code>gws</code> with
+<code>gmail.modify</code> scope, which permits sending. So the
+inbox-reading context can send (the &quot;lethal trifecta&quot;)</td>
+<td>prompt header; Google OAuth scope docs</td>
+</tr>
+<tr>
+<td>YouTube daily brief latest file is <code>2026-09-16.md</code> (8
+days stale); its err log shows a <code>maxfiles</code> error</td>
+<td><code>Sites/youtube-knowledge/briefs/</code> listing</td>
+</tr>
+<tr>
+<td>Deal-watch brief is current
+(<code>brief-2026-09-24.html</code>)</td>
+<td><code>Sites/deal-watch/briefs/</code></td>
+</tr>
+<tr>
+<td>Existing modules: pipeline runner with retries/preflight/run
+history, unified classifier with confidence bouncer, Apple Calendar
+reader, Google Tasks, people graph, SQLite store
+(<code>memory_items</code> 9,515 rows; <code>people</code> 3,082)</td>
+<td><code>src/pipeline/</code>, <code>src/classifier/</code>,
+<code>src/calendar/apple.ts</code>, <code>src/tasks/</code>,
+<code>src/people/</code>, <code>src/storage/</code></td>
+</tr>
+<tr>
+<td>Apple Notes pipeline last ran 2026-02-25</td>
+<td><code>pipeline_runs</code> table</td>
+</tr>
+<tr>
+<td>No test framework and no CI in the repo. <code>npm run build</code>
+= <code>tsc --noEmit</code></td>
+<td><code>package.json</code>; no <code>.github/</code></td>
+</tr>
+<tr>
+<td>No wake schedule is configured for mornings</td>
+<td><code>pmset -g sched</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>External claims</strong> (from
+<code>Sites/ai-chief-of-staff-report/research.md</code>, retrieved
+2026-09-24):</p>
+<table>
+<thead>
+<tr>
+<th>Claim</th>
+<th>Source</th>
+<th>Disproving test</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Per-action approval prompts cause fatigue (~93% approval rate);
+containment beats prompts</td>
+<td>Anthropic, &quot;How we contain Claude&quot; (2026-05-25)</td>
+<td>Your approve-unchanged rate stays low with ≤5 items a day</td>
+</tr>
+<tr>
+<td>Inbox-reading agent + external send = exfiltration risk; filters
+miss social-engineering injections</td>
+<td>Willison (2025-06-16); OpenAI (2026-03-11)</td>
+<td>n/a (design constraint)</td>
+</tr>
+<tr>
+<td>Sub-agents need an objective, output format, tools and boundaries;
+multi-agent costs ~15x tokens</td>
+<td>Anthropic multi-agent research (2025-06-13)</td>
+<td>Sequential v1 meets the brief SLA at ≤$5/day</td>
+</tr>
+<tr>
+<td>CLAUDE.md is context, not enforced configuration</td>
+<td>Claude Code memory docs</td>
+<td>n/a</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Assumptions:</strong></p>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Assumption</th>
+<th>Confidence</th>
+<th>Disproving test</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>A1</td>
+<td>The triage LLM routes the fixture set deterministically enough to
+gate on 100% across 2 runs</td>
+<td>Medium</td>
+<td>Fixture eval shows run-to-run disagreement &gt; 0. If so, gate at
+100% on the rule-matched subset and ≥95% overall, and record the
+decision change</td>
+</tr>
+<tr>
+<td>A2</td>
+<td>Messages.app can send a one-line iMessage to the principal&#39;s own
+handle via AppleScript from launchd</td>
+<td>Medium</td>
+<td>AC-15 live test fails. Fall back to an email to self (drafts API +
+an approved send rule)</td>
+</tr>
+<tr>
+<td>A3</td>
+<td><code>claude -p --output-format json</code> reports usage/cost well
+enough to enforce a $5/day budget</td>
+<td>Medium</td>
+<td>The JSON has no cost field. Estimate from tokens × published price
+and mark it estimated</td>
+</tr>
+</tbody>
+</table>
+<h3 id="scope-and-non-goals">Scope and non-goals</h3>
+<p><strong>In scope (v1 = plan Phases 0–3):</strong></p>
+<ul>
+<li>guardrails and hooks;</li>
+<li>hardening the existing lanes: fixtures, run ledger, reconciliation,
+heartbeats, retries;</li>
+<li>the CoS orchestrator and morning brief (HTML + audio + iMessage
+ping);</li>
+<li>the approvals queue;</li>
+<li>the commitment ledger, EOD wrap and Friday review.</li>
+</ul>
+<p><strong>Non-goals (v1):</strong></p>
+<ul>
+<li>Calendar <strong>writes</strong> of any kind (Phase 4, after 2 weeks
+of clean briefs).</li>
+<li>Cortex fleet lane.</li>
+<li>Parallel sub-agents.</li>
+<li>Replying to approvals by iMessage.</li>
+<li>Auto-sending anything.</li>
+<li>Changing the triage labeling policy itself.</li>
+<li>Teaching Ops as a scheduled lane (it stays on demand).</li>
+<li>The Apple Notes briefing: retired, and its modules kept.</li>
+</ul>
+<h3 id="behavior-and-contracts">Behavior and contracts</h3>
+<p><strong>Lanes</strong> (existing jobs keep running as they do
+today):</p>
+<table>
+<thead>
+<tr>
+<th>Lane</th>
+<th>Producer</th>
+<th>Schedule</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>inbox</code></td>
+<td>Gmail triage</td>
+<td>hourly</td>
+</tr>
+<tr>
+<td><code>tasks</code></td>
+<td>task-capture</td>
+<td>08:00 / 18:00</td>
+</tr>
+<tr>
+<td><code>flights</code></td>
+<td>cron-flight-check</td>
+<td><strong>moved to 07:20</strong></td>
+</tr>
+<tr>
+<td><code>deals</code></td>
+<td>deal-watch</td>
+<td>07:18</td>
+</tr>
+<tr>
+<td><code>yt</code></td>
+<td>youtube daily brief</td>
+<td>07:03</td>
+</tr>
+<tr>
+<td><code>calendar</code></td>
+<td>read-only via <code>src/calendar/apple.ts</code></td>
+<td>at brief time</td>
+</tr>
+<tr>
+<td><code>commitments</code></td>
+<td>new ledger</td>
+<td>at brief/EOD</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Run record contract.</strong> Every lane appends one JSON
+line per run to
+<code>~/Library/Application Support/assistance/ledger/&lt;lane&gt;.jsonl</code>:</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode json"><code class="sourceCode json"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span><span class="dt">&quot;lane&quot;</span><span class="fu">:</span><span class="st">&quot;inbox&quot;</span><span class="fu">,</span><span class="dt">&quot;run_id&quot;</span><span class="fu">:</span><span class="st">&quot;…&quot;</span><span class="fu">,</span><span class="dt">&quot;status&quot;</span><span class="fu">:</span><span class="st">&quot;ok|partial|failed&quot;</span><span class="fu">,</span><span class="dt">&quot;started_at&quot;</span><span class="fu">:</span><span class="st">&quot;ISO&quot;</span><span class="fu">,</span><span class="dt">&quot;finished_at&quot;</span><span class="fu">:</span><span class="st">&quot;ISO&quot;</span><span class="fu">,</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a> <span class="dt">&quot;items_in&quot;</span><span class="fu">:</span><span class="dv">16</span><span class="fu">,</span><span class="dt">&quot;items_out&quot;</span><span class="fu">:{</span><span class="dt">&quot;archived&quot;</span><span class="fu">:</span><span class="dv">9</span><span class="fu">,</span><span class="dt">&quot;starred&quot;</span><span class="fu">:</span><span class="dv">2</span><span class="fu">,</span><span class="dt">&quot;kept&quot;</span><span class="fu">:</span><span class="dv">5</span><span class="fu">},</span><span class="dt">&quot;artifacts&quot;</span><span class="fu">:</span><span class="ot">[</span><span class="st">&quot;/abs/path&quot;</span><span class="ot">]</span><span class="fu">,</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a> <span class="dt">&quot;findings&quot;</span><span class="fu">:</span><span class="ot">[</span><span class="fu">{</span><span class="dt">&quot;claim&quot;</span><span class="fu">:</span><span class="st">&quot;…&quot;</span><span class="fu">,</span><span class="dt">&quot;source_ref&quot;</span><span class="fu">:</span><span class="st">&quot;gmail:MSG_ID&quot;</span><span class="fu">}</span><span class="ot">]</span><span class="fu">,</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a> <span class="dt">&quot;proposed_actions&quot;</span><span class="fu">:</span><span class="ot">[</span><span class="fu">{</span><span class="dt">&quot;id&quot;</span><span class="fu">:</span><span class="st">&quot;…&quot;</span><span class="fu">,</span><span class="dt">&quot;action&quot;</span><span class="fu">:</span><span class="st">&quot;…&quot;</span><span class="fu">,</span><span class="dt">&quot;risk_tier&quot;</span><span class="fu">:</span><span class="st">&quot;A2|A3&quot;</span><span class="fu">,</span><span class="dt">&quot;source_ref&quot;</span><span class="fu">:</span><span class="st">&quot;…&quot;</span><span class="fu">,</span><span class="dt">&quot;payload&quot;</span><span class="fu">:{}}</span><span class="ot">]</span><span class="fu">,</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a> <span class="dt">&quot;open_questions&quot;</span><span class="fu">:</span><span class="ot">[</span><span class="st">&quot;…&quot;</span><span class="ot">]</span><span class="fu">,</span><span class="dt">&quot;gaps&quot;</span><span class="fu">:</span><span class="ot">[</span><span class="st">&quot;…&quot;</span><span class="ot">]</span><span class="fu">,</span><span class="dt">&quot;cost_usd&quot;</span><span class="fu">:</span><span class="fl">0.12</span><span class="fu">}</span></span></code></pre></div>
+<p>Existing prompt-driven lanes emit this record with a wrapper step
+(the lane writes a JSON summary; the wrapper validates it and appends
+it). Records that fail validation are logged as
+<code>status:&quot;failed&quot;</code> with reason
+<code>invalid_record</code>.</p>
+<p><strong>Invariants, checked by the <code>cos</code> runner and
+wrappers:</strong></p>
+<ul>
+<li><strong>Reconcile:</strong> <code>items_in == sum(items_out)</code>.
+Otherwise the run is re-labeled <code>failed</code> with gap
+<code>reconciliation: in=X out=Y</code>.</li>
+<li><strong>Artifacts:</strong> every path in <code>artifacts</code>
+exists and is non-empty. Otherwise <code>failed</code> with gap
+<code>missing_artifact: &lt;path&gt;</code>.</li>
+<li><strong>Heartbeat:</strong> each lane has an expected cadence in
+<code>cos/lanes.json</code>. A lane without a record inside its window +
+grace period shows as an Escalation
+<code>stale: &lt;lane&gt; last=&lt;ts&gt;</code>.</li>
+<li><strong>Gmail queries:</strong> time windows use
+<code>after:&lt;epoch&gt;</code> / <code>before:&lt;epoch&gt;</code>
+only. <code>newer_than:&lt;n&gt;m</code> and
+<code>older_than:&lt;n&gt;m</code> are forbidden (lint gate).</li>
+<li><strong>Text output:</strong> written through JSON serialization or
+quoted heredocs only.</li>
+</ul>
+<p><strong>CoS runner:</strong>
+<code>npm run cos -- &lt;morning|eod|weekly|health|approve|send|skip|queue&gt;</code>.</p>
+<ul>
+<li><p><code>morning</code> reads today&#39;s lane records plus yesterday&#39;s
+EOD, then:</p>
+<ol type="1">
+<li>verifies every proposed action&#39;s date, time, amount and person by
+re-fetching its <code>source_ref</code> (Gmail message metadata;
+calendar event by UID);</li>
+<li>dedupes across lanes;</li>
+<li>retries a failed lane once, then escalates;</li>
+<li>writes <code>briefs/YYYY-MM-DD.md</code>, <code>.html</code> and
+<code>.mp3</code> (in
+<code>~/Library/Application Support/assistance/briefs/</code>), inserts
+approvals, and sends the iMessage ping.</li>
+</ol>
+<p>A proposed action whose source can&#39;t be verified is
+<strong>not</strong> put in Decide. It goes to Escalations.</p></li>
+<li><p><strong>Brief sections, in order:</strong> Status (CLEAR / WATCH
+/ CRITICAL), Decide (numbered), Critical path (≤5), Meetings needing
+prep, Replies owed, Waiting on others, Deadlines (7–14 days), FYI,
+Escalations, One first move, Cost today.</p></li>
+<li><p><strong>Approvals</strong> live in the SQLite table
+<code>cos_approvals</code> (id, created_at, expires_at, action,
+risk_tier, source_ref, payload_json, status
+pending|approved|sent|skipped|expired, decided_at).</p>
+<ul>
+<li><code>approve N</code> runs a non-send action.</li>
+<li><code>send N</code> prints the final recipients and body, then sends
+only that draft via <code>gws gmail users drafts send</code>.</li>
+<li><code>skip N</code> closes the item.</li>
+<li>Items expire at 23:59 local time with status <code>expired</code>
+and no side effect (fail closed).</li>
+<li>The inbox lane never gets send capability.</li>
+</ul></li>
+<li><p><strong>Commitments</strong> live in the SQLite table
+<code>cos_commitments</code> (id, owner me|them, counterparty, what,
+due_quote, due_at nullable, source_ref, status open|closed,
+closed_evidence, created_at, updated_at).</p>
+<ul>
+<li><code>due_at</code> is set only when <code>due_quote</code> contains
+an explicit date or weekday tied to the source message&#39;s date. Vague
+phrases leave <code>due_at</code> null and add an open question.</li>
+<li>Closing requires evidence: a sent-message ID, event UID or completed
+task ID.</li>
+</ul></li>
+<li><p><strong>EOD (17:30)</strong> writes
+<code>eod/YYYY-MM-DD.json</code> (done, slipped, decisions,
+carry-forward). <code>morning</code> must read the prior EOD, or
+escalate <code>missing_eod</code>.</p></li>
+<li><p><strong>Weekly (Fri 15:00)</strong> writes the scorecard: dropped
+balls, caught errors (from <code>feedback</code>), approvals per day and
+unchanged rate, decision latency, cost. It also lists autonomy-promotion
+candidates. It never promotes automatically.</p></li>
+</ul>
+<p><strong>Charter:</strong> <code>cos/CLAUDE.md</code> holds the role,
+the autonomy matrix (PLAN.md §5) and the never-list. It is loaded by
+every CoS <code>claude -p</code> call via
+<code>--append-system-prompt-file</code>. Rules that must hold are
+enforced in code and hooks. The charter is context only.</p>
+<p><strong>Hooks (repo <code>.claude/settings.json</code> + triage run
+dir):</strong></p>
+<ul>
+<li>PreToolUse(Bash) blocks commit messages containing
+<code>Co-Authored-By</code>.</li>
+<li>PreToolUse(Bash) in the triage context blocks
+<code>gws gmail users messages send</code> and
+<code>gws gmail users drafts send</code>.</li>
+</ul>
+<h3 id="acceptance">Acceptance</h3>
+<table>
+<thead>
+<tr>
+<th>ID</th>
+<th>Trigger and expected behavior</th>
+<th>Automated gate or live evidence</th>
+<th>Verification state</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Phase 0: guardrails</strong></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>AC-01</td>
+<td>A <code>git commit</code> whose message contains
+<code>Co-Authored-By</code> from a Claude session in this repo is
+blocked with exit 2</td>
+<td><code>gate:hook-coauthor</code>: feeds hook JSON for a violating
+commit (expects block) and a clean one (expects allow)</td>
+<td>not_run</td>
+</tr>
+<tr>
+<td>AC-02</td>
+<td>Any
+<code>newer_than:&lt;n&gt;m</code>/<code>older_than:&lt;n&gt;m</code> in
+<code>prompts/</code>, deployed prompts or <code>src/</code> fails the
+lint. Triage uses <code>after:&lt;epoch&gt;</code> computed at run
+time</td>
+<td><code>gate:gmail-query-lint</code> with a negative fixture; live
+triage log shows an <code>after:</code> query</td>
+<td>not_run</td>
+</tr>
+<tr>
+<td>AC-03</td>
+<td>The repo prompt is the single source. Deploy copies it, and a drift
+check compares sha256 of repo vs deployed</td>
+<td><code>gate:prompt-drift</code> (fails on an intentionally edited
+deployed copy); the live prompt is first reconciled into the repo</td>
+<td>not_run</td>
+</tr>
+<tr>
+<td>AC-04</td>
+<td>The triage context cannot send mail: <code>messages send</code> /
+<code>drafts send</code> are blocked; drafts create/label/archive still
+work</td>
+<td><code>gate:inbox-no-send</code> (hook negative test); one live
+triage run completes normally</td>
+<td>not_run</td>
+</tr>
+<tr>
+<td>AC-05</td>
+<td><code>cos/CLAUDE.md</code> charter exists with the autonomy matrix
+and never-list and is passed to every CoS <code>claude -p</code>
+call</td>
+<td><code>gate:charter-wired</code> (asserts the flag in the runner&#39;s
+command construction)</td>
+<td>not_run</td>
+</tr>
+<tr>
+<td><strong>Phase 1: harden lanes</strong></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>AC-06</td>
+<td>Fixture suite of ≥40 labeled emails (newsletter, receipt, shipping,
+finance, school, payment failure, client ask, invite, personal) with
+expected lane and action</td>
+<td><code>gate:triage-fixtures</code>: dry-run classification, 100%
+match on 2 consecutive runs (see A1)</td>
+<td>not_run</td>
+</tr>
+<tr>
+<td>AC-07</td>
+<td>Every lane appends a schema-valid run record; invalid records are
+logged as <code>failed/invalid_record</code></td>
+<td><code>gate:ledger-schema</code> with valid and invalid fixtures;
+live records from all 5 existing lanes</td>
+<td>not_run</td>
+</tr>
+<tr>
+<td>AC-08</td>
+<td>Reconciliation mismatch marks the run <code>failed</code> and
+surfaces in Escalations</td>
+<td><code>gate:reconcile</code> with an injected 17-vs-16 fixture</td>
+<td>not_run</td>
+</tr>
+<tr>
+<td>AC-09</td>
+<td>A missing or empty claimed artifact marks the run
+<code>failed</code></td>
+<td><code>gate:artifacts</code> with an injected missing path</td>
+<td>not_run</td>
+</tr>
+<tr>
+<td>AC-10</td>
+<td><code>cos health</code> lists lanes past their window + grace
+period</td>
+<td><code>gate:heartbeat</code> with fixture ledgers;
+<strong>live:</strong> it flags the current <code>yt</code> staleness
+until that&#39;s fixed</td>
+<td>not_run</td>
+</tr>
+<tr>
+<td>AC-11</td>
+<td>Launchd wrappers use absolute paths and retry 3× with backoff; the
+YT <code>maxfiles</code> failure is fixed or escalated</td>
+<td><code>gate:launchd-lint</code> over the plists/scripts; live yt
+record <code>ok</code></td>
+<td>not_run</td>
+</tr>
+<tr>
+<td><strong>Phase 2: orchestrator and brief</strong></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>AC-12</td>
+<td><code>cos morning</code> writes md, html and mp3 briefs with the
+sections in the specified order; every Decide item has a
+<code>source_ref</code></td>
+<td><code>gate:brief-shape</code> over fixture ledgers</td>
+<td>not_run</td>
+</tr>
+<tr>
+<td>AC-13</td>
+<td>A proposed action whose date doesn&#39;t match its re-fetched source
+goes to Escalations, not Decide</td>
+<td><code>gate:verify-source</code> with a mismatched fixture (stubbed
+fetcher)</td>
+<td>not_run</td>
+</tr>
+<tr>
+<td>AC-14</td>
+<td>Approvals: <code>approve</code>/<code>send</code>/<code>skip</code>
+change state; <code>send</code> shows the recipients and body and sends
+only that draft; unanswered items expire with no side effect</td>
+<td><code>gate:approvals</code> (stubbed gws) including an expiry test;
+live: 1 real <code>send</code> of a self-addressed test draft</td>
+<td>not_run</td>
+</tr>
+<tr>
+<td>AC-15</td>
+<td>After <code>morning</code>, a one-line iMessage (status + count of
+Decide items + brief path) reaches the principal&#39;s own handle</td>
+<td>Live evidence (screenshot/log). Fallback per A2</td>
+<td>not_run</td>
+</tr>
+<tr>
+<td>AC-16</td>
+<td>Daily cost is tallied; when it passes $5 the remaining CoS calls are
+skipped and escalated</td>
+<td><code>gate:budget</code> with a fixture over budget</td>
+<td>not_run</td>
+</tr>
+<tr>
+<td>AC-17</td>
+<td>launchd <code>com.assistance.cos-morning</code> 07:30 weekdays;
+flights moved to 07:20; wake schedule set</td>
+<td><code>gate:launchd-lint</code>; <strong>live:</strong> 5 consecutive
+weekday briefs with reconciled counts and 0 unverifiable Decide
+items</td>
+<td>not_run</td>
+</tr>
+<tr>
+<td><strong>Phase 3: commitments, EOD, weekly</strong></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>AC-18</td>
+<td>Commitments are captured with <code>source_ref</code> and
+<code>due_quote</code>; vague due phrases leave <code>due_at</code> null
+and add an open question</td>
+<td><code>gate:commitments-dates</code> (fixtures incl. &quot;by Friday&quot;,
+&quot;next next week&quot;, &quot;soon&quot;)</td>
+<td>not_run</td>
+</tr>
+<tr>
+<td>AC-19</td>
+<td>A commitment closes only with evidence (sent ID, event UID or task
+ID)</td>
+<td><code>gate:commitment-close</code> negative test</td>
+<td>not_run</td>
+</tr>
+<tr>
+<td>AC-20</td>
+<td>Duplicate commitments across lanes merge into one</td>
+<td><code>gate:dedupe</code> fixture (same promise in email and
+SMS)</td>
+<td>not_run</td>
+</tr>
+<tr>
+<td>AC-21</td>
+<td><code>cos eod</code> at 17:30 writes EOD JSON; the next
+<code>morning</code> consumes it, or escalates
+<code>missing_eod</code></td>
+<td><code>gate:eod-handoff</code>; live 2-day chain</td>
+<td>not_run</td>
+</tr>
+<tr>
+<td>AC-22</td>
+<td><code>cos weekly</code> (Fri 15:00) writes a scorecard with the 5
+metrics and promotion candidates, and never changes autonomy by
+itself</td>
+<td><code>gate:weekly-shape</code>; live Friday run</td>
+<td>not_run</td>
+</tr>
+</tbody>
+</table>
+<p>All gates are registered in <code>cos/gates.json</code> (tier,
+command, script sha256, assertion-file sha256). They run with
+<code>npm run gates</code>, and each gate is proven to fail on its
+negative fixture before it counts.</p>
+<h3 id="delivery">Delivery</h3>
+<ul>
+<li><strong>Repo:</strong> <code>jwatkins0101/personal</code> (local
+<code>~/Documents/Sites/assistance</code>), branch
+<code>feature/ai-chief-of-staff</code> in its own worktree.</li>
+<li><strong>Deployment units:</strong>
+<ul>
+<li>launchd agents: <code>com.assistance.gmail-triage</code> (updated),
+<code>com.assistance.cos-morning</code>,
+<code>com.assistance.cos-eod</code>,
+<code>com.assistance.cos-weekly</code>,
+<code>com.assistance.flight-check</code> (time change);</li>
+<li>deployed prompt/runner copies in
+<code>~/Library/Application Support/assistance/</code>.</li>
+</ul></li>
+<li><strong>Rollback:</strong>
+<code>launchctl bootout gui/$UID/&lt;label&gt;</code> for the new
+agents; redeploy the previous prompt from git
+(<code>scripts/deploy-triage-launchd.sh</code> at the prior SHA). The DB
+tables are additive.</li>
+<li><strong>CI:</strong> none exists. Gates run locally via
+<code>npm run gates</code> (owner decision OD-1). The release record is
+the local gate output + commit SHA + live evidence.</li>
+<li><strong>States tracked separately in feature.json:</strong>
+implemented, verified, deployed, live_verified.</li>
+<li><strong>External actions needing explicit approval at
+runtime:</strong> any email send (<code>send N</code>) and the iMessage
+to self (covered by D2 approval).</li>
+</ul>
+<h2 id="decision-history">Decision history</h2>
+<p>See DECISIONS.md.</p>
+</body>
+</html>

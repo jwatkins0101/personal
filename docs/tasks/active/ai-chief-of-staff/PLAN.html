@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>AI Chief of Staff Plan</title>
+  <style>
+
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+
+ul.task-list[class]{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+font-size: inherit;
+width: 0.8em;
+margin: 0 0.8em 0.2em -1.6em;
+vertical-align: middle;
+}
+.display.math{display: block; text-align: center; margin: 0.5rem auto;}
+</style>
+  <style type="text/css">:root{--bg:#f7f6f2;--ink:#1c1b18;--ink2:#55524a;--line:#e2dfd6;--surface:#fff;--accent:#2f5d50}
+@media (prefers-color-scheme:dark){:root{--bg:#141412;--ink:#ecebe6;--ink2:#b5b1a7;--line:#34322d;--surface:#1d1c1a;--accent:#7fc3ab}}
+body{background:var(--bg);color:var(--ink);font:16px/1.65 -apple-system,Inter,system-ui,sans-serif;max-width:980px;margin:0 auto;padding:40px 16px 80px}
+h1{font:600 38px/1.15 Georgia,serif;margin:0 0 16px}h2{font:600 26px/1.2 Georgia,serif;margin:48px 0 12px;padding-top:12px;border-top:1px solid var(--line)}h3{margin:28px 0 8px}
+a{color:var(--accent)}table{border-collapse:collapse;width:100%;font-size:14px;display:block;overflow-x:auto;background:var(--surface);border:1px solid var(--line);border-radius:10px}
+th,td{text-align:left;vertical-align:top;padding:9px 12px;border-bottom:1px solid var(--line)}th{white-space:nowrap}
+pre{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:14px;overflow:auto;font-size:12.5px;line-height:1.35}
+code{font-family:ui-monospace,Menlo,monospace;font-size:.9em}hr{border:0;border-top:1px solid var(--line)}
+</style>
+</head>
+<body>
+<header id="title-block-header">
+<h1 class="title">AI Chief of Staff Plan</h1>
+</header>
+<h1 id="ai-chief-of-staff-build-plan-for-review">AI Chief of Staff:
+Build Plan (for review)</h1>
+<p><strong>Status:</strong> DRAFT for your review. Nothing will be built
+until you approve it. <strong>Date:</strong> 2026-09-24
+<strong>Inputs:</strong> Perplexity research report
+(<code>Sites/ai-chief-of-staff-report/</code>), your Claude Code
+insights report (69 sessions, 2026-05 to 2026-09), and a read-through of
+what already runs on this Mac. <strong>After approval:</strong> this
+plan becomes <code>PRD.md</code> in this folder via your Ralph workflow
+(with AC IDs and evidence targets). The stories are then built with
+gates.</p>
+<hr />
+<h2 id="1-the-one-paragraph-version">1. The one-paragraph version</h2>
+<p>Don&#39;t start from scratch. The <code>assistance</code> repo already
+has most of the parts: hourly Gmail triage (live, last run 9:00 PM
+tonight), Apple Calendar via AppleScript, iMessage/SMS capture, Google
+Tasks capture, a people graph (3,082 people), a SQLite store (9,515
+items), a pipeline orchestrator with retries, and flight checks.
+Separately you run deal-watch, the YouTube daily brief and a Teaching
+Ops agent. The chief of staff (CoS) is a <strong>thin orchestrator on
+top of these existing jobs</strong>. It reads what they produce,
+verifies it, adds the missing pieces (a commitment ledger, an end-of-day
+wrap, one approvals queue, and a calendar writer with enforced dedupe),
+and hands you <strong>one brief a day with three buckets: Decide / FYI /
+Escalations</strong>. It interrupts you only for sends, payments and
+sign-ins, which is how you already work.</p>
+<hr />
+<h2 id="2-how-your-working-style-shapes-the-design">2. How your working
+style shapes the design</h2>
+<table>
+<thead>
+<tr>
+<th>What the insights showed</th>
+<th>What the CoS does about it</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>You delegate outcome-level goals and walk away; 959 messages vs
+4,500+ Bash calls</td>
+<td>Runs headless on launchd. Everything that needs you lands in
+<strong>one</strong> Approvals block, not a stream of pings</td>
+</tr>
+<tr>
+<td>Your go-ahead is a short word like &quot;send&quot;</td>
+<td>Approvals use short commands: <code>approve 3</code>,
+<code>send 2</code>, <code>skip 4</code>. Fail closed: no answer means
+nothing happens</td>
+</tr>
+<tr>
+<td>Top frictions are <strong>wrong_approach (29)</strong> and
+<strong>misunderstood_request (14)</strong>, mostly from ignoring your
+conventions</td>
+<td>Conventions are enforced in code and hooks, not just written in
+prompts. The research is explicit that CLAUDE.md is &quot;context, not
+enforced configuration&quot;</td>
+</tr>
+<tr>
+<td>Gmail <code>newer_than:90m</code> was read as <strong>90
+months</strong> (and it&#39;s <strong>still in
+<code>prompts/gmail-triage.md</code> today</strong>)</td>
+<td>Epoch-bounded queries only (<code>after:&lt;epoch&gt;</code>). A
+fixture test fails the build if <code>newer_than:\d+m</code>
+appears</td>
+</tr>
+<tr>
+<td>Digest counts didn&#39;t reconcile (17 in the lanes vs 16 triaged);
+&quot;saved 5 PDFs&quot; when only 1 existed</td>
+<td>Every run ends with a reconciliation check: lane totals must equal
+items processed, and every file claimed must exist on disk. A failure
+moves the run to Escalations</td>
+</tr>
+<tr>
+<td>Unescaped <code>&#39;</code> broke a digest</td>
+<td>All output goes through JSON serialization or quoted heredocs. No
+hand-escaped strings</td>
+</tr>
+<tr>
+<td>Pasted threads with no instructions led to wrong guesses</td>
+<td>For any item with an unclear ask, the CoS proposes the intent (reply
+/ withdraw / follow up / summarize) as a one-line Decide item instead of
+drafting</td>
+</tr>
+<tr>
+<td>Browser automation is brittle (Sheets misclicks, wrong signed-in
+account, OAuth in the wrong profile)</td>
+<td>APIs and CLIs first (<code>gws</code>, AppleScript, SQLite). The
+browser is used only where there&#39;s no API (Blackboard, Canva). A missing
+sign-in or scope becomes an Escalation with the exact re-auth
+command</td>
+</tr>
+<tr>
+<td>Scheduled runs failed silently (a bad <code>run.sh</code> path, an
+API error killed triage)</td>
+<td>Every job gets retries, absolute paths, a run ledger, and a
+<strong>heartbeat check</strong>. The brief lists any lane that didn&#39;t
+report (&quot;deal-watch: no run since 07:18 yesterday&quot;)</td>
+</tr>
+<tr>
+<td>Your rules: Family iCloud calendar, dedupe before writing, never
+infer dates, no Co-Authored-By</td>
+<td>Built into the tools. <code>create_event</code>
+<strong>refuses</strong> to run without a fresh dedupe listing and a
+cited source message. A hook blocks Co-Authored-By</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="3-what-already-exists-and-how-the-cos-uses-it">3. What already
+exists, and how the CoS uses it</h2>
+<table>
+<thead>
+<tr>
+<th>Existing piece</th>
+<th>Where it lives</th>
+<th>Status</th>
+<th>Role in the CoS</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Gmail triage (hourly, labels/archives, stars, heads-up draft)</td>
+<td><code>~/Library/Application Support/assistance/triage/</code> +
+<code>com.assistance.gmail-triage</code></td>
+<td><strong>Live</strong></td>
+<td><strong>Inbox lane.</strong> Keeps running as is. The CoS reads its
+run log. Fix the <code>newer_than:90m</code> bug first</td>
+</tr>
+<tr>
+<td>Task capture (email + SMS → Google Tasks, 8am/6pm)</td>
+<td><code>task-capture/</code> + launchd</td>
+<td>Live</td>
+<td>Feeds the <strong>commitment ledger</strong></td>
+</tr>
+<tr>
+<td>Flight checks (7:43am)</td>
+<td><code>scripts/cron-flight-check.sh</code></td>
+<td>Live</td>
+<td>FYI lane</td>
+</tr>
+<tr>
+<td>Deal-watch (7:18am)</td>
+<td><code>Sites/deal-watch</code></td>
+<td>Live</td>
+<td>FYI lane (deals only when they cross a threshold)</td>
+</tr>
+<tr>
+<td>YouTube daily brief (7:03am)</td>
+<td><code>Sites/youtube-knowledge</code></td>
+<td>Live</td>
+<td>Its &quot;headline&quot; line goes into FYI</td>
+</tr>
+<tr>
+<td>Teaching Ops agent</td>
+<td><code>~/.claude/agents/teaching-ops.md</code></td>
+<td>On demand</td>
+<td><strong>Teaching lane</strong>, drafts only, FERPA rules kept</td>
+</tr>
+<tr>
+<td>Apple Calendar reader</td>
+<td><code>src/calendar/apple.ts</code>,
+<code>scripts/get-calendar-events.sh</code></td>
+<td>Works</td>
+<td><strong>Calendar lane</strong> (read). Base for the new gated
+writer</td>
+</tr>
+<tr>
+<td>People graph + nudges</td>
+<td><code>src/people/</code></td>
+<td>Works</td>
+<td>Meeting-prep context, &quot;people to reconnect with&quot;</td>
+</tr>
+<tr>
+<td>Pipeline orchestrator (ingest → sort → route → briefing)</td>
+<td><code>src/pipeline/</code></td>
+<td><strong>Dormant since Feb 2026</strong></td>
+<td>Reuse its retry, preflight and run-history code for the CoS runner.
+Retire the Apple Notes briefing in favor of the CoS brief
+(<strong>decision D3</strong>)</td>
+</tr>
+<tr>
+<td>Classifier + bouncer (≥0.85 auto, 0.60–0.84 review)</td>
+<td><code>src/classifier/</code></td>
+<td>Works</td>
+<td>Reused as is for the Decide vs FYI split</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="4-target-architecture">4. Target architecture</h2>
+<pre><code>                              YOU
+             approve / send / skip  ▲  one brief: Decide | FYI | Escalations
+                                    │  (HTML + audio + short push)
+                    ┌───────────────┴────────────────┐
+                    │   CHIEF OF STAFF (orchestrator) │  headless `claude -p` on launchd
+                    │   plan → dispatch → VERIFY →    │  owns the brief + the Approvals queue
+                    │   reconcile → merge → report    │  only component that can request A3 actions
+                    └───────────────┬────────────────┘
+      ┌──────────┬──────────┬───────┴─────┬─────────────┬──────────────┐
+      ▼          ▼          ▼             ▼             ▼              ▼
+   INBOX     CALENDAR   COMMITMENTS    TEACHING      RESEARCH     FYI FEEDS
+ (existing  (read now;   (new ledger;   (Teaching    (Perplexity  (flights, deals,
+  triage)   gated writer  task-capture   Ops agent,   on demand)   YT brief, and later
+            later)        feeds it)      drafts only)              the Cortex fleet)</code></pre>
+<p><strong>Contract every lane returns</strong> (structured JSON, never
+free text):
+<code>{lane, status: ok|partial|failed, ran_at, items_in, items_out, findings[{claim, source_ref}], proposed_actions[{id, action, risk_tier, source_ref}], open_questions[], gaps[]}</code></p>
+<p><strong>The CoS verifies before reporting up:</strong></p>
+<ol type="1">
+<li>Re-reads the source (Gmail message ID / calendar event ID) for every
+date, time, amount and name attached to a proposed action.</li>
+<li>Removes duplicates across lanes (the same commitment from email and
+SMS).</li>
+<li>Reconciles counts (items in = sum of items out per lane).</li>
+<li>Retries a failed lane <strong>once</strong> with the error in
+context. After that it goes to Escalations as &quot;couldn&#39;t verify X&quot;. It
+never fills the gap.</li>
+<li>Only structured fields cross between lanes, so email text can&#39;t
+change another lane&#39;s instructions.</li>
+</ol>
+<p><strong>v1 runs the lanes one after another in one session.</strong>
+Parallel sub-agents come later, only if they&#39;re needed (the research
+puts them at about 15x the tokens).</p>
+<hr />
+<h2 id="5-autonomy-matrix-from-the-research-adapted-to-your-rules">5.
+Autonomy matrix (from the research, adapted to your rules)</h2>
+<table>
+<thead>
+<tr>
+<th>Action</th>
+<th>Level</th>
+<th>Rule</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Read mail, calendar, tasks, SMS, notes for briefs</td>
+<td>A4 auto</td>
+<td>Read-only. The inbox lane has no send tool</td>
+</tr>
+<tr>
+<td>Label/archive/star mail (existing triage)</td>
+<td>A4 auto</td>
+<td>As today. Weekly spot-check of 10</td>
+</tr>
+<tr>
+<td>Write the brief, EOD summary, ledger, run log</td>
+<td>A4 auto</td>
+<td>Your own files, git-versioned</td>
+</tr>
+<tr>
+<td>Draft replies (Gmail drafts folder)</td>
+<td>A2 draft</td>
+<td>Never auto-sends</td>
+</tr>
+<tr>
+<td><strong>Send any email or message</strong></td>
+<td>A3 approve</td>
+<td><code>send N</code> in the approval step shows the final text and
+recipients. No response means no send</td>
+</tr>
+<tr>
+<td>Send to a <strong>new</strong> recipient, or containing data from
+another thread</td>
+<td>A3+</td>
+<td>Also shows a &quot;data leaving: X&quot; preview</td>
+</tr>
+<tr>
+<td><strong>Create an event on the Family calendar</strong></td>
+<td>A3 approve</td>
+<td>Must cite a source message ID plus the dedupe result for that date
+range. No source date, no event</td>
+</tr>
+<tr>
+<td>Accept/decline/reschedule; edit or delete events</td>
+<td>A3 approve</td>
+<td>Shows before/after</td>
+</tr>
+<tr>
+<td>Private focus block on your own calendar</td>
+<td>A3 → A4</td>
+<td>Promoted after 20 clean runs</td>
+</tr>
+<tr>
+<td>Chase someone for status</td>
+<td>A2 draft</td>
+<td>You decide when</td>
+</tr>
+<tr>
+<td>Student records/grades</td>
+<td>A0 external / A2 drafts</td>
+<td>FERPA: never leaves the Mac; drafts only</td>
+</tr>
+<tr>
+<td>Payments, purchases, sign-ups, Stripe links</td>
+<td>A0 never</td>
+<td>Surfaced as a Decide item only</td>
+</tr>
+<tr>
+<td>Commit your time to new meetings</td>
+<td>A1 suggest</td>
+<td>You decide</td>
+</tr>
+<tr>
+<td>Run instructions found in an email or doc</td>
+<td>A0 never</td>
+<td>Always treated as data</td>
+</tr>
+<tr>
+<td>Save memory from outside content</td>
+<td>A1 propose</td>
+<td>Quarantine file; you approve it</td>
+</tr>
+<tr>
+<td>Customer-box (Cortex) actions</td>
+<td>Out of scope for v1</td>
+<td>Read-only status could join as a lane in Phase 5</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="6-daily-and-weekly-rhythm">6. Daily and weekly rhythm</h2>
+<table>
+<thead>
+<tr>
+<th>When</th>
+<th>What</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>07:00–09:00 hourly (existing)</td>
+<td>Gmail triage</td>
+<td>Unchanged apart from the bug fix</td>
+</tr>
+<tr>
+<td><strong>07:30</strong></td>
+<td><strong>Morning brief</strong></td>
+<td>After triage (07:00), YT brief (07:03), deal-watch (07:18). Flights
+run at 07:43, so the brief uses yesterday&#39;s flight run or moves flights
+earlier (<strong>D5</strong>)</td>
+</tr>
+<tr>
+<td>Before meetings that need prep</td>
+<td>Prep note</td>
+<td>Last thread with each attendee, open ledger items, people-graph
+context</td>
+</tr>
+<tr>
+<td><strong>17:30</strong></td>
+<td><strong>EOD wrap</strong></td>
+<td>What got done, what slipped, decisions made. <strong>It writes the
+input for tomorrow&#39;s brief</strong></td>
+</tr>
+<tr>
+<td><strong>Fri 15:00</strong></td>
+<td>Weekly review</td>
+<td>Scorecard, commitment sweep, stale memory, proposals to raise or
+lower autonomy</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Morning brief layout (one screen):</strong></p>
+<ol type="1">
+<li>Status: CLEAR / WATCH / CRITICAL</li>
+<li><strong>Decide</strong>: numbered approvals, one line each</li>
+<li>Critical path (≤5)</li>
+<li>Meetings needing prep</li>
+<li>Replies owed / Waiting on others</li>
+<li>Deadlines (7–14 days)</li>
+<li>FYI (flights, deals, YT headline)</li>
+<li><strong>Escalations</strong>: failed lanes, missing sign-ins,
+unverifiable items</li>
+<li>One first move</li>
+</ol>
+<hr />
+<h2 id="7-build-phases">7. Build phases</h2>
+<p>Each phase ends with gates run and the output pasted, the change live
+on this Mac, the result checked in a real run, and earlier issues
+rechecked. That&#39;s your &quot;Done&quot; definition.</p>
+<h3 id="phase-0-charter-and-guardrails-small-can-start-right-after-approval">Phase
+0: Charter and guardrails (small; can start right after approval)</h3>
+<ul>
+<li><code>cos/CLAUDE.md</code> charter: role, decision rights, the
+autonomy matrix above, and the never-list.</li>
+<li><strong>Hooks:</strong> block <code>Co-Authored-By</code> in
+commits; block <code>newer_than:\d+m</code> in Gmail queries; typecheck
+on edit.</li>
+<li>Fix the live <code>newer_than:90m</code> bug in
+<code>prompts/gmail-triage.md</code> →
+<code>after:&lt;epoch&gt;</code>.</li>
+<li><strong>Gate:</strong> each hook proven with a deliberately failing
+case (your &quot;prove the watcher&quot; rule).</li>
+</ul>
+<h3 id="phase-1-harden-the-existing-lanes">Phase 1: Harden the existing
+lanes</h3>
+<ul>
+<li>Add a <strong>fixture suite</strong> of about 40 labeled sample
+emails (newsletters, payment failures, client asks, invites, receipts,
+school). Triage must route 100% correctly before any change ships.</li>
+<li>Count reconciliation plus a file-existence check at the end of every
+run.</li>
+<li>Standard run ledger for every lane
+(<code>ran_at, status, in, out, gaps</code>) and a heartbeat check.</li>
+<li>Retries (3x with backoff) and absolute paths in every launchd
+script.</li>
+<li><strong>Gate:</strong> fixtures 100%; a reconciliation failure is
+caught when deliberately injected; a killed job shows up as a missing
+heartbeat.</li>
+</ul>
+<h3 id="phase-2-the-cos-orchestrator-and-morning-brief">Phase 2: The CoS
+orchestrator and morning brief</h3>
+<ul>
+<li><code>npm run cos -- morning</code>: reads every lane&#39;s ledger,
+verifies, reconciles, merges, writes the brief.</li>
+<li>Output: HTML brief (same style and audio narration as the research
+report) + markdown in git + a short push notification
+(<strong>D2</strong>).</li>
+<li>The Approvals queue is stored in SQLite (reuses the
+<code>action_logs</code> table). You act on it with
+<code>npm run cos -- approve 3</code> / <code>send 2</code> /
+<code>skip 4</code>, or by typing the same words in a Claude Code
+session.</li>
+<li><strong>Gate:</strong> 5 consecutive live mornings with correct
+counts, no invented dates, and every Decide item citing a source
+ID.</li>
+</ul>
+<h3 id="phase-3-commitment-ledger-eod-wrap-weekly-review">Phase 3:
+Commitment ledger, EOD wrap, weekly review</h3>
+<ul>
+<li>The ledger captures &quot;I&#39;ll send X by Friday&quot; (yours and others&#39;) from
+email, SMS and task-capture. A loop only closes with evidence: sent
+mail, an event, or a completed task.</li>
+<li>The 17:30 EOD wrap feeds the next morning. The Friday review runs
+the scorecard (dropped balls, caught errors, approvals per day, decision
+latency, net time, cost).</li>
+<li><strong>Gate:</strong> seeded test commitments open and close
+correctly; the EOD output shows up in the next brief.</li>
+</ul>
+<h3 id="phase-4-gated-calendar-writer-and-meeting-prep">Phase 4: Gated
+calendar writer and meeting prep</h3>
+<ul>
+<li>A <code>create_event</code> tool on top of AppleScript that writes
+only to the Family iCloud calendar (picked by event count). It
+<strong>refuses</strong> to run without a fresh <code>list_events</code>
+for the range, a source message ID, and your approval.</li>
+<li>Meeting prep notes from the people graph and recent threads.</li>
+<li><strong>Gate:</strong> trying to write without a dedupe listing is
+refused (tested); a duplicate invite is detected (tested); one real
+approved event is written and checked in Calendar.app.</li>
+</ul>
+<h3 id="phase-5-optional-lanes-each-one-is-your-call">Phase 5: Optional
+lanes (each one is your call)</h3>
+<ul>
+<li>Teaching Ops as a scheduled lane (drafts only).</li>
+<li><strong>Cortex fleet status</strong> as a read-only lane
+(heartbeats, TLS/routing-policy expiry, paused pollers). It flags
+issues; it never deploys.</li>
+<li>SOW hours tally and invoice reminders.</li>
+<li>Parallel sub-agents, only if the one-after-another runtime becomes
+too slow.</li>
+</ul>
+<hr />
+<h2 id="8-decisions-i-need-from-you">8. Decisions I need from you</h2>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Decision</th>
+<th>My recommendation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>D1</strong></td>
+<td>Where it lives</td>
+<td><strong>Extend the <code>assistance</code> repo</strong> (the
+reusable code is already here) rather than start a new repo</td>
+</tr>
+<tr>
+<td><strong>D2</strong></td>
+<td>How the brief reaches you</td>
+<td><strong>HTML + audio page</strong> (like the research report) plus a
+<strong>one-line iMessage to yourself</strong> with the status and
+number of approvals. Alternatives: email to yourself, Apple Notes
+(current)</td>
+</tr>
+<tr>
+<td><strong>D3</strong></td>
+<td>The dormant Apple Notes briefing pipeline</td>
+<td><strong>Retire it</strong>, keep its modules, and replace it with
+the CoS brief</td>
+</tr>
+<tr>
+<td><strong>D4</strong></td>
+<td>How you approve</td>
+<td><strong>CLI/Claude Code first</strong> (<code>approve 3</code>,
+<code>send 2</code>). Replying by iMessage is possible later but adds an
+injection risk to design around</td>
+</tr>
+<tr>
+<td><strong>D5</strong></td>
+<td>Flight-check timing</td>
+<td>Move it to 07:20 so the 07:30 brief has today&#39;s data</td>
+</tr>
+<tr>
+<td><strong>D6</strong></td>
+<td>Scope of v1</td>
+<td>Phases 0–3 (charter, hardening, brief, ledger/EOD). The calendar
+writer (Phase 4) comes after 2 weeks of clean briefs</td>
+</tr>
+<tr>
+<td><strong>D7</strong></td>
+<td>Cost ceiling</td>
+<td>Daily token/$ budget for headless runs, e.g. <strong>$5/day</strong>
+to start. The brief shows actual spend</td>
+</tr>
+<tr>
+<td><strong>D8</strong></td>
+<td>Cortex fleet lane</td>
+<td>Not in v1. Revisit in Phase 5</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="9-risks-and-how-theyre-handled">9. Risks and how they&#39;re
+handled</h2>
+<table>
+<thead>
+<tr>
+<th>Risk</th>
+<th>How it&#39;s handled</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Prompt injection through email (&quot;lethal trifecta&quot;)</td>
+<td>The inbox lane can&#39;t send or fetch URLs. Sends happen only through
+your approval step. Email content never becomes instructions</td>
+</tr>
+<tr>
+<td>Approval fatigue</td>
+<td>≤ about 5 Decide items a day. Anything you approve unchanged 20
+times becomes a candidate for more autonomy</td>
+</tr>
+<tr>
+<td>Silent failures</td>
+<td>Heartbeats + an Escalations section that always lists missing
+lanes</td>
+</tr>
+<tr>
+<td>Stale or poisoned memory</td>
+<td>Every fact has a source and a last-verified date. Anything from
+outside content goes into a quarantine file you review on Fridays</td>
+</tr>
+<tr>
+<td>Cost creep</td>
+<td>Daily budget, sequential lanes, spend shown in the brief</td>
+</tr>
+<tr>
+<td>Mac asleep at 07:30</td>
+<td><code>pmset</code> wake schedule or launchd catch-up on wake. The
+brief notes when it ran late</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="10-what-happens-after-you-approve">10. What happens after you
+approve</h2>
+<ol type="1">
+<li>You mark up this plan (change any decision D1–D8).</li>
+<li>I turn it into
+<code>docs/tasks/active/ai-chief-of-staff/PRD.md</code> using your Ralph
+PRD template, with AC IDs and evidence targets, and record the decisions
+in <code>DECISIONS.md</code>.</li>
+<li>Optional: a <code>/fusion</code> review round on the PRD.</li>
+<li>Build Phase 0 → 1 → 2 → 3 through Ralph stories. Each phase stops
+for your sign-off with pasted gate output and live evidence.</li>
+</ol>
+</body>
+</html>

@@ -1,0 +1,143 @@
+{
+  "gates": [
+    {
+      "id": "hook-coauthor",
+      "story": "S0-1",
+      "tier": "unit",
+      "acceptance": [
+        "AC-01"
+      ],
+      "command": [
+        "bash",
+        "tests/gates/hook-coauthor.sh"
+      ],
+      "script": "tests/gates/hook-coauthor.sh",
+      "assertion_files": [
+        ".claude/hooks/block-coauthor.sh",
+        ".claude/settings.json",
+        "tests/gates/lib.sh"
+      ],
+      "negative": {
+        "env": {
+          "HOOK": "/usr/bin/true"
+        },
+        "reason": "a no-op hook must fail the gate"
+      },
+      "script_sha256": "59aa37baf7f4a63708863a848500ce89c584a8f9b89028a7b9d573b3d552fea0",
+      "assertion_sha256": {
+        ".claude/hooks/block-coauthor.sh": "737fc161028cd754764fd0a559e4823c1ca292ce288df5d30cfc9398e100b6a2",
+        ".claude/settings.json": "d9831cb08bab0c9c8acdaaf395d49f56f7d2f4a02ae854cb67bf35524796df61",
+        "tests/gates/lib.sh": "aceb8cfdbc4775901c99fa0d548ae6f6d4009ede608314e40b1cdbad950606ac"
+      }
+    },
+    {
+      "id": "gmail-query-lint",
+      "story": "S0-2",
+      "tier": "lint",
+      "acceptance": [
+        "AC-02"
+      ],
+      "command": [
+        "bash",
+        "tests/gates/gmail-query-lint.sh"
+      ],
+      "script": "tests/gates/gmail-query-lint.sh",
+      "assertion_files": [
+        "tests/fixtures/gates/bad-gmail-query.txt"
+      ],
+      "negative": {
+        "env": {
+          "LINT_EXTRA": "tests/fixtures/gates/bad-gmail-query.txt"
+        },
+        "reason": "a minutes-style Gmail window (read as months) must be caught"
+      },
+      "script_sha256": "9a7f1e3c3bb84c96583aa4d7e1c88c86f13b6302be65dda257cd92ab1bd8e696",
+      "assertion_sha256": {
+        "tests/fixtures/gates/bad-gmail-query.txt": "5c8d3404aba7ca4c59049c3eb22f80dfbd96f73c79395a90ed426332d2852815"
+      }
+    },
+    {
+      "id": "prompt-drift",
+      "story": "S0-3",
+      "tier": "deploy",
+      "acceptance": [
+        "AC-03"
+      ],
+      "command": [
+        "bash",
+        "tests/gates/prompt-drift.sh"
+      ],
+      "script": "tests/gates/prompt-drift.sh",
+      "assertion_files": [
+        "tests/fixtures/gates/drifted-prompt.md"
+      ],
+      "negative": {
+        "env": {
+          "DEPLOYED": "tests/fixtures/gates/drifted-prompt.md"
+        },
+        "reason": "an edited deployed copy must be caught"
+      },
+      "script_sha256": "d144fd73d3221530b88072470808d33e662948bf81af8568593904111bc57dc0",
+      "assertion_sha256": {
+        "tests/fixtures/gates/drifted-prompt.md": "8108d7f79edce01907c0b8fbd03091fb24e026fe5e7b090a294e6d84ef638510"
+      }
+    },
+    {
+      "id": "inbox-no-send",
+      "story": "S0-4",
+      "tier": "unit",
+      "acceptance": [
+        "AC-04"
+      ],
+      "command": [
+        "bash",
+        "tests/gates/inbox-no-send.sh"
+      ],
+      "script": "tests/gates/inbox-no-send.sh",
+      "assertion_files": [
+        "cos/hooks/inbox-no-send.sh",
+        "tests/gates/lib.sh"
+      ],
+      "negative": {
+        "env": {
+          "HOOK": "/usr/bin/true"
+        },
+        "reason": "a no-op hook must fail the gate"
+      },
+      "script_sha256": "66446270780b31455f11658b3c32d42d06a687b862520f83209fbe8a4c8a70ad",
+      "assertion_sha256": {
+        "cos/hooks/inbox-no-send.sh": "72129645ca46616c77c0298d93e223ca55f70b0ae9a657a4a2997240bf14ff78",
+        "tests/gates/lib.sh": "aceb8cfdbc4775901c99fa0d548ae6f6d4009ede608314e40b1cdbad950606ac"
+      }
+    },
+    {
+      "id": "charter-wired",
+      "story": "S0-5",
+      "tier": "unit",
+      "acceptance": [
+        "AC-05"
+      ],
+      "command": [
+        "npx",
+        "tsx",
+        "tests/gates/charter-wired.ts"
+      ],
+      "script": "tests/gates/charter-wired.ts",
+      "assertion_files": [
+        "cos/CLAUDE.md",
+        "src/cos/claude.ts"
+      ],
+      "negative": {
+        "env": {
+          "COS_CHARTER_PATH": "/nonexistent/charter.md"
+        },
+        "reason": "a missing charter must fail the gate"
+      },
+      "script_sha256": "824aecf9d40a634fcd39f67a041b94bd548b4f113a8a3c5433d94fa7b8763cb2",
+      "assertion_sha256": {
+        "cos/CLAUDE.md": "aa2fa40e2fdd4868ce8f82fa3c44055fa943b9d0664796d882f084a39e1f56bf",
+        "src/cos/claude.ts": "316c9dd2299d338d7eed72bde58e979a5598ff5fe10904224b609027be21dc67"
+      }
+    }
+  ]
+}

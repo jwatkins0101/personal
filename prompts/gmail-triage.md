@@ -17,9 +17,9 @@ If a school label ID ever returns "not found", re-resolve by name with `gws gmai
 
 ## Useful gws recipes
 
-List new inbox messages from the last 90 min:
+List new inbox messages from the last 90 minutes. `{{SINCE_EPOCH}}` is filled in by the runner (Unix seconds, now − 90 min). Never use a `newer_than` minutes window: in Gmail search the `m` unit means **months**.
 ```
-gws gmail users messages list --params '{"userId":"me","q":"in:inbox newer_than:90m","maxResults":50}'
+gws gmail users messages list --params '{"userId":"me","q":"in:inbox after:{{SINCE_EPOCH}}","maxResults":50}'
 ```
 
 Get a message with metadata only (sender/subject/date — faster than full):
@@ -49,7 +49,7 @@ gws gmail users drafts create --json '{"message":{"raw":"<BASE64URL>"}}'
 
 ## TASK THIS RUN
 
-1. List messages from `in:inbox newer_than:90m`.
+1. List messages from `in:inbox after:{{SINCE_EPOCH}}`.
 2. For each message:
    - Get metadata (From, Subject, Date, List-Unsubscribe).
    - If the thread has prior outbound replies from `jermainewatkins@gmail.com`, treat as "known contact reply chain" → leave in inbox (ACTION). Skip archival regardless of category.
