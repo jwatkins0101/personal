@@ -1,0 +1,31 @@
+{
+  "gate": "hook-coauthor",
+  "story": "S0-1",
+  "tier": "unit",
+  "acceptance": [
+    "AC-01"
+  ],
+  "passed": true,
+  "problems": [],
+  "tested_commit": "3be0b0f19b6c62fcbbc8e5c15c06a042d4c58a92",
+  "worktree_dirty": false,
+  "prd_revision": 1,
+  "gate_sha256": "59aa37baf7f4a63708863a848500ce89c584a8f9b89028a7b9d573b3d552fea0",
+  "assertion_sha256": {
+    ".claude/hooks/block-coauthor.sh": "737fc161028cd754764fd0a559e4823c1ca292ce288df5d30cfc9398e100b6a2",
+    ".claude/settings.json": "d9831cb08bab0c9c8acdaaf395d49f56f7d2f4a02ae854cb67bf35524796df61",
+    "tests/gates/lib.sh": "aceb8cfdbc4775901c99fa0d548ae6f6d4009ede608314e40b1cdbad950606ac"
+  },
+  "command": "bash tests/gates/hook-coauthor.sh",
+  "exit_code": 0,
+  "output": "PASS inline trailer blocked (exit 2)\nPASS lowercase trailer blocked (exit 2)\nPASS -F message file blocked (exit 2)\nPASS git -C path commit blocked (exit 2)\nPASS clean commit allowed (exit 0)\nPASS non-commit command allowed (exit 0)\nPASS unparseable input blocked (exit 2)\nPASS hook registered in .claude/settings.json",
+  "negative_validation": {
+    "env": {
+      "HOOK": "/usr/bin/true"
+    },
+    "reason": "a no-op hook must fail the gate",
+    "exit_code": 1,
+    "output": "FAIL inline trailer blocked (want 2, got 0)\nFAIL lowercase trailer blocked (want 2, got 0)\nFAIL -F message file blocked (want 2, got 0)\nFAIL git -C path commit blocked (want 2, got 0)\nPASS clean commit allowed (exit 0)\nPASS non-commit command allowed (exit 0)\nFAIL unparseable input blocked (want 2, got 0)\nPASS hook registered in .claude/settings.json\nException ignored while flushing sys.stdout:\nBrokenPipeError: [Errno 32] Broken pipe\nException ignored while flushing sys.stdout:\nBrokenPipeError: [Errno 32] Broken pipe\nException ignored while flushing sys.stdout:\nBrokenPipeError: [Errno 32] Broken pipe\nException ignored while flushing sys.stdout:\nBrokenPipeError: [Errno 32] Broken pipe\nException ignored while flushing sys.stdout:\nBrokenPipeError: [Errno 32] Broken pipe\nException ignored while flushing sys.stdout:\nBrokenPipeError: [Errno 32] Broken pipe"
+  },
+  "timestamp": "2026-09-25T02:29:02.495Z"
+}

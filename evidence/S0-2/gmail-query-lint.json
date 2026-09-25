@@ -1,0 +1,29 @@
+{
+  "gate": "gmail-query-lint",
+  "story": "S0-2",
+  "tier": "lint",
+  "acceptance": [
+    "AC-02"
+  ],
+  "passed": true,
+  "problems": [],
+  "tested_commit": "3be0b0f19b6c62fcbbc8e5c15c06a042d4c58a92",
+  "worktree_dirty": false,
+  "prd_revision": 1,
+  "gate_sha256": "9a7f1e3c3bb84c96583aa4d7e1c88c86f13b6302be65dda257cd92ab1bd8e696",
+  "assertion_sha256": {
+    "tests/fixtures/gates/bad-gmail-query.txt": "5c8d3404aba7ca4c59049c3eb22f80dfbd96f73c79395a90ed426332d2852815"
+  },
+  "command": "bash tests/gates/gmail-query-lint.sh",
+  "exit_code": 0,
+  "output": "PASS no newer_than/older_than with m unit\nPASS triage prompt uses after:{{SINCE_EPOCH}}\nPASS runner computes a 90-minute epoch\nPASS runner aborts on unrendered placeholder",
+  "negative_validation": {
+    "env": {
+      "LINT_EXTRA": "tests/fixtures/gates/bad-gmail-query.txt"
+    },
+    "reason": "a minutes-style Gmail window (read as months) must be caught",
+    "exit_code": 1,
+    "output": "FAIL minute-looking Gmail windows (m = months):\ntests/fixtures/gates/bad-gmail-query.txt:1:q: \"in:inbox newer_than:90m\"\nPASS triage prompt uses after:{{SINCE_EPOCH}}\nPASS runner computes a 90-minute epoch\nPASS runner aborts on unrendered placeholder"
+  },
+  "timestamp": "2026-09-25T02:29:02.565Z"
+}

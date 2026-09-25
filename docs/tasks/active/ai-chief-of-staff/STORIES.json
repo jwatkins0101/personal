@@ -1,0 +1,45 @@
+{
+  "feature": "ai-chief-of-staff",
+  "stories": [
+    {
+      "id": "S0-1",
+      "title": "Co-Authored-By commit hook",
+      "acceptance": [
+        "AC-01"
+      ],
+      "status": "verified"
+    },
+    {
+      "id": "S0-2",
+      "title": "Epoch Gmail window + query lint",
+      "acceptance": [
+        "AC-02"
+      ],
+      "status": "live_verified"
+    },
+    {
+      "id": "S0-3",
+      "title": "Repo prompt canonical + drift gate",
+      "acceptance": [
+        "AC-03"
+      ],
+      "status": "live_verified"
+    },
+    {
+      "id": "S0-4",
+      "title": "Inbox lane cannot send",
+      "acceptance": [
+        "AC-04"
+      ],
+      "status": "live_verified"
+    },
+    {
+      "id": "S0-5",
+      "title": "Charter wired into CoS calls",
+      "acceptance": [
+        "AC-05"
+      ],
+      "status": "verified"
+    }
+  ]
+}

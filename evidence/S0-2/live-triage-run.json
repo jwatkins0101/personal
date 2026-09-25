@@ -1,0 +1,49 @@
+{
+  "gate": "live-triage-run",
+  "story": "S0-2",
+  "acceptance": [
+    "AC-02",
+    "AC-03",
+    "AC-04"
+  ],
+  "tested_commit": "3be0b0f19b6c62fcbbc8e5c15c06a042d4c58a92",
+  "command": "launchctl kickstart gui/$UID/com.assistance.gmail-triage (after scripts/deploy-triage-launchd.sh)",
+  "exit_code": 0,
+  "window_line": "window: after:1790297886 (Thu Sep 24 20:58:06 EDT 2026)",
+  "reconciliation": {
+    "items_in": 11,
+    "items_out": {
+      "newsletters": 9,
+      "notifications": 2,
+      "action": 0
+    },
+    "reconciled": true
+  },
+  "log_excerpt": [
+    "",
+    "=== Gmail triage: Thu Sep 24 22:28:06 EDT 2026 ===",
+    "window: after:1790297886 (Thu Sep 24 20:58:06 EDT 2026)",
+    "I triaged 11 new messages from about 8:58\u201310:28pm ET. All of them were bulk mail, so everything was archived and nothing new stayed in the inbox. After archiving, the inbox check for this window returned 0 messages, and a spot-check showed the DCCC email now carries the \ud83d\udcf0 label.",
+    "",
+    "**By lane**",
+    "- \ud83d\udcf0 Newsletters (9): Flipboard, the Dreamstime blog, 49ers Fan Recap, Amazon Fan Shop, DCCC, Sherrod Brown, Billy Gene, Essence, and the robly \"Crime Report\"",
+    "- \ud83d\udd14 Notifications (2): a LinkedIn job alert (Humana Lead Full Stack Engineer) and a Zillow saved-search result",
+    "- \ud83d\udce5 Receipts, \ud83d\udce6 Shipping and \ud83d\udcb0 Finance: none",
+    "- Action: none. No messages were in a thread you had already replied to, so nothing was kept for that reason.",
+    "",
+    "**School**",
+    "- Jada 0, Jackson 0, unattributed 0. Nothing stayed in the inbox as action.",
+    "- No Toddle evaluations came in this run.",
+    "- There were no school senders I couldn't match to a kid.",
+    "",
+    "**Senders that keep showing up:** LinkedIn job alerts, the robly newsletters, DCCC and Sherrod Brown were all already on the lists and appeared again. None of them is a new candidate for a filter rule.",
+    "",
+    "**Heads-up draft:** skipped, because it was 10:28pm ET and the draft only runs between 7:00 and 7:59am.",
+    "",
+    "I've added this run to the top of the triage memory log.",
+    "=== Done: Thu Sep 24 22:28:45 EDT 2026 ==="
+  ],
+  "rollback_backup": "~/Library/Application Support/assistance/triage/backup-20260924-222759",
+  "passed": true,
+  "timestamp": "2026-09-25T02:29:19.435592+00:00"
+}
