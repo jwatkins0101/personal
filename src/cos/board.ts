@@ -38,6 +38,7 @@ export interface CompletedItem { at: string; kind: "sent" | "approved" | "skippe
 export interface BoardState {
   generated_at: string; date: string;
   decide: { date: string; n: number; kind: string; title: string; detail: string; source_ref: string; link?: string; to?: string; draft_body?: string; has_placeholder: boolean; expires_at: string;
+    elsewhere: { app: string; link: string; mailbox: string; suggested: string | null } | null;
     agent: { id: number; status: string; started_at: string | null; finished_at: string | null; summary: string | null; needs_from_you: string[]; findings: { claim: string; source_ref: string }[]; gaps: string[]; drafted: boolean; cost_usd: number | null; error: string | null } | null }[];
   completed: { today: CompletedItem[]; week: CompletedItem[] };
   commitments: { id: number; owner: string; counterparty: string; what: string; due_at: string | null; overdue: boolean; open_question: string | null; sources: string[] }[];
@@ -93,12 +94,13 @@ export async function buildState(deps: BoardDeps): Promise<BoardState> {
   type Row = { brief_date: string; day_index: number; kind: string; title: string; detail: string; source_ref: string; payload_json: string; status: string; expires_at: string; decided_at: string | null; result: string | null };
   const pending = db.prepare("SELECT * FROM cos_approvals WHERE status='pending' ORDER BY brief_date, day_index").all() as Row[];
   const decide = pending.map((r) => {
-    const p = JSON.parse(r.payload_json || "{}") as { to?: string; draft_body?: string };
+    const p = JSON.parse(r.payload_json || "{}") as { to?: string; draft_body?: string; suggested_reply?: string; reply_via?: string; reply_link?: string; reply_mailbox?: string };
     const j: Job | undefined = jobsForItem(db, r.brief_date, r.day_index).at(-1);
     const agent = j ? { id: j.id, status: j.status, started_at: j.started_at, finished_at: j.finished_at, summary: j.summary, needs_from_you: j.result?.needs_from_you ?? [],
       findings: j.result?.findings ?? [], gaps: j.result?.gaps ?? [], drafted: !!j.draft_id, cost_usd: j.cost_usd, error: j.error } : null;
     return { date: r.brief_date, n: r.day_index, kind: r.kind, title: r.title, detail: r.detail, source_ref: r.source_ref, link: gmailLink(r.source_ref),
-      to: p.to, draft_body: p.draft_body, has_placeholder: !!p.draft_body && PLACEHOLDER.test(p.draft_body), expires_at: r.expires_at, agent };
+      to: p.to, draft_body: p.draft_body, has_placeholder: !!p.draft_body && PLACEHOLDER.test(p.draft_body), expires_at: r.expires_at, agent,
+      elsewhere: p.reply_via ? { app: p.reply_via, link: p.reply_link ?? "", mailbox: p.reply_mailbox ?? "", suggested: p.suggested_reply ?? null } : null };
   });
 
   const completed: CompletedItem[] = [];
@@ -273,7 +275,7 @@ let busy=false,openPreview=null,openAgent=null,lastOk=0;
 function toast(t){const m=$('msg');m.textContent=t;m.style.display='block';clearTimeout(toast.h);toast.h=setTimeout(()=>m.style.display='none',4000)}
 async function api(path,body){const r=await fetch(path,{method:body?'POST':'GET',headers:{'x-cos-token':T,...(body?{'content-type':'application/json'}:{})},body:body?JSON.stringify(body):undefined});return r.json()}
 const time=iso=>new Date(iso).toLocaleTimeString([], {hour:'numeric',minute:'2-digit'});const day=iso=>new Date(iso).toLocaleDateString([], {weekday:'short',month:'short',day:'numeric'});
-function render(s){
+function render(s){window.__s=s;
  $('upd').textContent='updated '+time(s.generated_at);$('cost').textContent='$'+s.cost_today.toFixed(2)+' of $'+s.budget.toFixed(2);
  $('brief').href=s.brief.exists?'/brief/'+s.date+'.html?t='+T:'#';$('brief').style.display=s.brief.exists?'':'none';
  $('warn').innerHTML=s.warnings.map(w=>'<div class="warn">'+esc(w)+'</div>').join('');
@@ -281,7 +283,7 @@ function render(s){
  if(!(busy||openPreview||openAgent)) $('decide').innerHTML=s.decide.length?s.decide.map(d=>{const id=d.date+'/'+d.n;return '<div class="item" data-id="'+id+'"><div class="t">'+d.n+'. '+esc(d.title)+'</div>'+
   (d.detail?'<div class="m">'+esc(d.detail)+'</div>':'')+'<div class="m">'+esc(d.source_ref)+(d.link?' · <a href="'+esc(d.link)+'" target="_blank" rel="noreferrer">source</a>':'')+(d.date!==s.date?' · from '+esc(d.date):'')+'</div>'+
   (d.kind==='reply'&&d.draft_body?'<div class="preview"><div class="m">Draft to '+esc(d.to)+'</div><pre>'+esc(d.draft_body)+'</pre>'+(d.has_placeholder?'<div class="warn">Has placeholder text: edit it in Gmail before sending.</div>':'')+'</div>':'')+
-  agentBlock(d)+'<div class="btns">'+(d.kind==='reply'?'<button class="primary" onclick="preview(\\''+id+'\\')">Review &amp; send…</button>':'<button class="primary" onclick="act(\\''+id+'\\',\\'approve\\')">Approve</button>')+
+  elsewhereBlock(d)+agentBlock(d)+'<div class="btns">'+(d.kind==='reply'?'<button class="primary" onclick="preview(\\''+id+'\\')">Review &amp; send…</button>':'<button class="primary" onclick="act(\\''+id+'\\',\\'approve\\')">Approve</button>')+
   (d.agent&&(d.agent.status==='queued'||d.agent.status==='running')?'':'<button data-agent="'+id+'">'+(d.agent&&d.agent.status==='ready'?'Ask agent again':'Hand to agent')+'</button>')+
   '<button onclick="act(\\''+id+'\\',\\'done\\')">Done already</button><button onclick="act(\\''+id+'\\',\\'skip\\')">Skip</button></div><div id="ag-'+id.replace('/','-')+'"></div><div id="pv-'+id.replace('/','-')+'"></div></div>'}).join(''):'<div class="empty">Nothing waiting on you.</div>';
  const done=xs=>xs.length?xs.map(c=>'<div class="item"><span class="pill '+c.kind+'">'+c.kind+'</span>'+esc(c.text)+'<div class="m">'+(c.at?day(c.at)+' '+time(c.at):'')+(c.detail?' · '+esc(c.detail):'')+'</div></div>').join(''):'<div class="empty">Nothing yet.</div>';
@@ -302,6 +304,9 @@ function cancelPv(id){openPreview=null;$('pv-'+id.replace('/','-')).innerHTML=''
 async function sendNow(id){const[d,n]=id.split('/');busy=true;const r=await api('/api/approvals/'+d+'/'+n+'/send',{confirm:true});busy=false;openPreview=null;toast(r.ok?r.message:r.error);refresh()}
 async function closeC(id){const ev=$('ev-'+id).value.trim();const r=await api('/api/commitments/'+id+'/close',{evidence:ev});toast(r.ok?r.message:r.error);refresh()}
 function mins(a,b){const m=Math.max(0,Math.round(((b?new Date(b):new Date())-new Date(a))/60000));return m<1?'<1 min':m+' min'}
+function elsewhereBlock(d){const e=d.elsewhere;if(!e)return'';
+ return '<div class="preview"><div class="t">✉ Reply from '+esc(e.app)+' ('+esc(e.mailbox)+' address)</div><div class="m">This came to your '+esc(e.mailbox)+' address. A Gmail reply would come from your Gmail address, so no draft was made.</div>'+
+  (e.suggested?'<pre>'+esc(e.suggested)+'</pre>':'')+'<div class="btns"><a href="'+esc(e.link)+'" target="_blank" rel="noreferrer"><button>Open '+esc(e.app)+'</button></a>'+(e.suggested?'<button data-copy="'+d.date+'/'+d.n+'">Copy text</button>':'')+'</div></div>'}
 function agentBlock(d){const a=d.agent;if(!a)return'';
  if(a.status==='queued'||a.status==='running')return '<div class="preview"><div class="t">🤖 Agent working…'+(a.started_at?' ('+mins(a.started_at)+')':' (starting)')+'</div><div class="m">Reading the thread and searching your mail. It prepares; you review.</div><div class="btns"><button data-stop="'+a.id+'">Stop</button></div></div>';
  if(a.status==='ready')return '<div class="preview"><div class="t">🤖 Ready for review</div><div>'+esc(a.summary)+'</div>'+
@@ -317,6 +322,7 @@ document.addEventListener('click',async e=>{const b=e.target.closest('button');i
  else if(b.dataset.start){const id=b.dataset.start;const[d,n]=id.split('/');const note=($('note-'+id.replace('/','-'))||{}).value||'';b.disabled=true;
   const r=await api('/api/approvals/'+d+'/'+n+'/agent',{note});openAgent=null;toast(r.ok?r.message:r.error);refresh()}
  else if(b.dataset.close){openAgent=null;refresh()}
+ else if(b.dataset.copy){const it=(window.__s&&window.__s.decide||[]).find(x=>x.date+'/'+x.n===b.dataset.copy);if(it&&it.elsewhere&&it.elsewhere.suggested){try{await navigator.clipboard.writeText(it.elsewhere.suggested);toast('Copied. Paste it into your reply in '+it.elsewhere.app+'.')}catch(e){toast('Could not copy: select the text instead.')}}}
  else if(b.dataset.stop){const r=await api('/api/agent/'+b.dataset.stop+'/cancel',{});toast(r.ok?r.message:r.error);refresh()}});
 refresh();setInterval(()=>{if(!document.hidden)refresh()},5000);document.addEventListener('visibilitychange',()=>{if(!document.hidden)refresh()});
 </script></body></html>`;

@@ -27,6 +27,7 @@ export interface GmailMeta {
   snippet: string;
   from: string;
   to: string;
+  cc: string;
   subject: string;
   date: string;
   listUnsub: boolean; // has a List-Unsubscribe header => bulk/marketing, not a personal action
@@ -54,7 +55,7 @@ export async function listMessageIds(query: string, max = Infinity): Promise<str
 /** Fetch header metadata + snippet for one message. */
 export async function getMessageMeta(id: string): Promise<GmailMeta> {
   const params = new URLSearchParams({ format: "metadata" });
-  ["From", "To", "Subject", "Date", "List-Unsubscribe"].forEach((h) => params.append("metadataHeaders", h));
+  ["From", "To", "Cc", "Subject", "Date", "List-Unsubscribe"].forEach((h) => params.append("metadataHeaders", h));
   const res = await gapi(`/messages/${id}?${params}`);
   if (!res.ok) throw new Error(`Gmail get failed (${res.status}): ${await res.text()}`);
   const json = (await res.json()) as {
@@ -73,6 +74,7 @@ export async function getMessageMeta(id: string): Promise<GmailMeta> {
     snippet: json.snippet || "",
     from: hdr["from"] || "",
     to: hdr["to"] || "",
+    cc: hdr["cc"] || "",
     subject: hdr["subject"] || "",
     date: hdr["date"] || "",
     listUnsub: !!hdr["list-unsubscribe"],

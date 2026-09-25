@@ -15,6 +15,7 @@ import { buildCosClaudeArgs } from "./claude.js";
 import { parseClaudeJsonOutput } from "../claude/result.js";
 import { remainingBudget } from "./budget.js";
 import { PLACEHOLDER } from "./approvals.js";
+import { replyElsewhere, elsewhereDetail } from "./mailboxes.js";
 
 const REPO_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "../..");
 export const AGENT_GUARD = process.env.COS_AGENT_GUARD ?? resolve(REPO_ROOT, "cos/hooks/agent-guard.sh");
@@ -87,7 +88,7 @@ Rules: a draft only if it can be sent as written. NEVER use placeholders like [d
 
 export interface RunDeps {
   runClaude: (prompt: string, maxBudgetUsd: number) => { text: string; cost_usd: number | null };
-  fetchSource: (ref: string) => Promise<{ from: string; subject: string; threadId: string } | null>;
+  fetchSource: (ref: string) => Promise<{ from: string; subject: string; threadId: string; to?: string; cc?: string } | null>;
   messageIdHeader: (gmailId: string) => Promise<string>;
   createReplyDraft: (o: { to: string; subject: string; body: string; threadId: string; inReplyTo?: string }) => Promise<string>;
   ledgerDir?: string;
@@ -163,12 +164,20 @@ export async function runJob(db: Database.Database, jobId: number, deps: RunDeps
       } else {
         const src = await deps.fetchSource(item.source_ref);
         if (!src) throw new Error(`could not re-read ${item.source_ref}`);
+        const elsewhere = replyElsewhere(`${src.to ?? ""} ${src.cc ?? ""}`);
+        if (elsewhere) {
+          // Forwarded work mail (e.g. UofL): keep the suggested text, make no Gmail draft (D22).
+          result.needs_from_you.push(elsewhereDetail(elsewhere));
+          const payload = { ...JSON.parse(item.payload_json || "{}"), suggested_reply: result.draft.body, reply_via: elsewhere.app, reply_link: elsewhere.link, reply_mailbox: elsewhere.name, prepared_by_agent: jobId };
+          db.prepare("UPDATE cos_approvals SET payload_json=? WHERE id=?").run(JSON.stringify(payload), item.id);
+        } else {
         const to = emailOf(src.from);                          // recipient is always the original sender
         const inReplyTo = await deps.messageIdHeader(item.source_ref.slice(6)).catch(() => "");
         draftId = await deps.createReplyDraft({ to, subject: result.draft.subject || src.subject, body: result.draft.body, threadId: src.threadId, inReplyTo });
         // The item becomes a reply the principal can Review & send (still A3).
         const payload = { ...JSON.parse(item.payload_json || "{}"), draft_id: draftId, to, draft_body: result.draft.body, prepared_by_agent: jobId };
         db.prepare("UPDATE cos_approvals SET kind='reply', risk_tier='A3', payload_json=? WHERE id=?").run(JSON.stringify(payload), item.id);
+        }
       }
     }
     // Re-check: cancelled while running? Don't overwrite.

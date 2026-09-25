@@ -16,6 +16,7 @@ import { pingSelf } from "./notify.js";
 import { writeLaneSummary } from "./summary.js";
 import { getMessageMeta, getMessageIdHeader, createReplyDraft } from "../mail/gmail-api.js";
 import { previousWorkday, readEod } from "./eod.js";
+import { replyElsewhere, elsewhereDetail } from "./mailboxes.js";
 import { listCommitments, overdue } from "./commitments.js";
 
 export const BRIEF_DIR = process.env.COS_BRIEF_DIR ?? join(homedir(), "Library/Application Support/assistance/briefs");
@@ -28,7 +29,7 @@ export function makeFetcher(inputs: BriefInputs): Fetcher {
   return async (ref) => {
     if (ref.startsWith("gmail:")) {
       const m = await getMessageMeta(ref.slice(6));
-      return { from: m.from, subject: m.subject, snippet: m.snippet, threadId: m.threadId };
+      return { from: m.from, subject: m.subject, snippet: m.snippet, threadId: m.threadId, to: m.to, cc: m.cc };
     }
     if (ref.startsWith("task:")) {
       const t = inputs.tasks.find((x) => `task:${x.id}` === ref);
@@ -104,6 +105,13 @@ export async function runMorning(now = new Date(), deps: { gather?: (now: Date) 
       try {
         const id = p.source_ref.slice(6);
         const src = await fetcher(p.source_ref);
+        const elsewhere = replyElsewhere(`${src?.to ?? ""} ${src?.cc ?? ""}`);
+        if (elsewhere) {
+          // Forwarded work mail (e.g. UofL): no Gmail draft; show the suggested text and where to reply (D22).
+          toQueue.push({ kind: "decide", title: p.title, detail: `${elsewhereDetail(elsewhere)}${p.detail ? ` ${p.detail}` : ""}`, risk_tier: "A1", source_ref: p.source_ref,
+            payload: { suggested_reply: p.draft_body, reply_via: elsewhere.app, reply_link: elsewhere.link, reply_mailbox: elsewhere.name } });
+          continue;
+        }
         const to = emailAddress(src?.from ?? "");
         const inReplyTo = await getMessageIdHeader(id).catch(() => "");
         const draftId = await draft({ to, subject: src?.subject ?? p.title, body: p.draft_body, threadId: src?.threadId ?? "", inReplyTo });

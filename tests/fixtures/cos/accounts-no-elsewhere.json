@@ -41,13 +41,5 @@
       "provider": "Microsoft Exchange",
       "note": "Forwarded to jermainewatkins@gmail.com, so its mail is covered by the personal profile. Gmail has no send-as for it: replies go out from the Gmail address."
     }
-  ],
-  "reply_elsewhere": [
-    {
-      "domain": "louisville.edu",
-      "name": "UofL",
-      "app": "Outlook",
-      "link": "https://outlook.office.com/mail/"
-    }
   ]
 }

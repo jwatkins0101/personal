@@ -1,6 +1,6 @@
 # Feature: AI Chief of Staff (v1)
 
-Revision: 7. Status: in progress. Feature ID: ai-chief-of-staff.
+Revision: 8. Status: in progress. Feature ID: ai-chief-of-staff.
 Source plan: `PLAN.md` (approved 2026-09-24, decisions D1–D8 = recommended). Harness: Ralph 2.0 @ `6d9f21ea27bb41662e1e69dd19ca1c483ad41c44`.
 
 ## Current specification
@@ -164,6 +164,7 @@ Existing prompt-driven lanes emit this record with a wrapper step (the lane writ
 | **Hand to agent (D19)** |||
 | AC-27 | "Hand to agent" on a board item starts a background, prepare-only agent (one per item, max 2 at once, <= $1.50/run within the $5/day budget, 10-min timeout, Stop button). It returns summary, findings with real message ids, needs-from-you and gaps; code (not the agent) creates the reply draft, only to the original sender in the original thread and never with placeholder text; the item becomes a pending reply that still needs Review & send; spend is logged | `gate:agent-flow` (negative: trusts agent recipient) | not_run |
 | AC-28 | The agent runs with the charter, tools Bash/Read/Grep/Glob only (no web, no edits) and a fail-closed allowlist hook: read-only Gmail (messages/threads get|list, labels list) and text utilities; no send, draft, modify, trash, calendar, network tools, interpreters, command substitution or writes outside /tmp | `gate:agent-guard` (negative: no-op guard) | not_run |
+| AC-29 | Email addressed to a reply-elsewhere mailbox (UofL: *@louisville.edu, forwarded into Gmail) never gets a Gmail reply draft from the brief or the agent; the item says "reply from Outlook", keeps the suggested text, and the board offers Open Outlook and Copy text | `gate:reply-elsewhere` (negative: rule removed) | not_run |
 
 All gates are registered in `cos/gates.json` (tier, command, script sha256, assertion-file sha256). They run with `npm run gates`, and each gate is proven to fail on its negative fixture before it counts.
 

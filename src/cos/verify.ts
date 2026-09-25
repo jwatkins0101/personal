@@ -14,7 +14,7 @@ export interface Proposal {
   draft_body?: string;           // reply only
 }
 
-export interface SourceView { from: string; subject: string; snippet: string; threadId?: string; messageIdHeader?: string }
+export interface SourceView { from: string; subject: string; snippet: string; threadId?: string; messageIdHeader?: string; to?: string; cc?: string }
 
 export type Fetcher = (ref: string) => Promise<SourceView | null>;
 

@@ -84,6 +84,38 @@ try {
     check(Number(args[args.indexOf("--max-budget-usd") + 1]) <= 1.5, "per-run budget capped at $1.50");
     const settings = JSON.parse(readFileSync(agent.agentSettings(), "utf8"));
     check(settings.hooks.PreToolUse[0].hooks[0].command.includes("agent-guard.sh"), "settings wire the agent guard");
+  } else if (which === "reply-elsewhere") {
+    const { replyElsewhere } = await import("../../src/cos/mailboxes.ts");
+    check(replyElsewhere("'Watkins, Jermaine' <jermaine.watkins@louisville.edu>, x@y.com")?.app === "Outlook", "mail to your UofL address is recognized");
+    check(replyElsewhere("dean@cob.louisville.edu")?.name === "UofL" && replyElsewhere("me@gmail.com") === null && replyElsewhere("a@louisville.edu.evil.com") === null, "UofL subdomains match; lookalike domains don't");
+    Object.assign(process.env, { COS_BRIEF_DIR: join(tmp, "briefs"), COS_NO_PING: "1", COS_NO_AUDIO: "1", COS_SYNTH_FIXTURE: resolve("tests/fixtures/cos/synthesis-uofl.json") });
+    const { runMorning } = await import("../../src/cos/morning.ts");
+    const { listApprovals } = await import("../../src/cos/approvals.ts");
+    const { getDb } = await import("../../src/storage/db.ts");
+    const inputs = JSON.parse(readFileSync("tests/fixtures/cos/inputs.json", "utf8"));
+    const src: Record<string, { from: string; subject: string; snippet: string; threadId: string; to: string; cc: string }> = {
+      "gmail:m1": { from: "Dana Client <dana@clientco.com>", subject: "SOW revisions", snippet: "review", threadId: "t1", to: "jermainewatkins@gmail.com", cc: "" },
+      "gmail:m2": { from: "Andrew Wright <andrew.wright@louisville.edu>", subject: "AACSB Faculty Qualifications", snippet: "status", threadId: "t2", to: "'Watkins, Jermaine' <jermaine.watkins@louisville.edu>, 28 others <x@louisville.edu>", cc: "" },
+    };
+    const drafted: string[] = [];
+    await runMorning(new Date(2026, 8, 25, 7, 30), { gather: async () => inputs, fetcher: () => async (r: string) => src[r] ?? null, draft: async (o: { to: string }) => { drafted.push(o.to); return `d-${drafted.length}`; } });
+    const q = listApprovals(getDb(), "2026-09-25");
+    const uofl = q.find((a) => a.source_ref === "gmail:m2");
+    check(drafted.join() === "dana@clientco.com", "brief drafts the Gmail reply only; no Gmail draft for the UofL email");
+    check(!!uofl && uofl.kind === "decide" && /reply from Outlook/.test(uofl.detail) && uofl.payload.reply_via === "Outlook" && /Participating faculty/.test(String(uofl.payload.suggested_reply)), "UofL item says reply from Outlook and keeps the suggested text");
+    const agent = await import("../../src/cos/agent.ts");
+    const { addApprovals } = await import("../../src/cos/approvals.ts");
+    addApprovals(getDb(), "2026-09-26", [{ kind: "decide", title: "UofL ask", risk_tier: "A1", source_ref: "gmail:m2" }]);
+    const job = agent.createJob(getDb(), "2026-09-26", 1, "", new Date(2026, 8, 26, 9, 0));
+    const agentDrafts: string[] = [];
+    const r = await agent.runJob(getDb(), job.id, {
+      runClaude: () => ({ text: JSON.stringify({ summary: "Andrew needs your status.", findings: [], needs_from_you: [], gaps: [], draft: { body: "Hi Andrew,\n\nMy status is SA.\n\nJermaine" } }), cost_usd: 0.1 }),
+      fetchSource: async () => src["gmail:m2"], messageIdHeader: async () => "", createReplyDraft: async (o) => { agentDrafts.push(o.to); return "x"; },
+    }, () => new Date(2026, 8, 26, 9, 1));
+    const item = listApprovals(getDb(), "2026-09-26")[0];
+    check(r.status === "ready" && agentDrafts.length === 0 && r.result!.needs_from_you.some((x) => /reply from Outlook/.test(x)) && item.kind === "decide" && item.payload.reply_via === "Outlook", "agent: no Gmail draft for UofL mail; says reply from Outlook; keeps suggestion");
+    const b = readFileSync("src/cos/board.ts", "utf8");
+    check(/function elsewhereBlock/.test(b) && /Open '\+esc\(e\.app\)/.test(b) && /data-copy=/.test(b), "board shows Open Outlook and Copy text for these items");
   } else check(false, `unknown gate ${which}`);
 } catch (e) { check(false, `threw: ${(e as Error).message}`); }
 finally { rmSync(tmp, { recursive: true, force: true }); }

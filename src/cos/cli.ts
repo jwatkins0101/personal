@@ -116,7 +116,7 @@ async function main(): Promise<number> {
       const { getMessageMeta, getMessageIdHeader, createReplyDraft } = await import("../mail/gmail-api.js");
       const j = await a.runJob(getDb(), n, {
         runClaude: process.env.COS_AGENT_FIXTURE ? () => a.readFixtureResult() : a.realRunClaude,
-        fetchSource: async (ref) => { const m = await getMessageMeta(ref.slice(6)); return { from: m.from, subject: m.subject, threadId: m.threadId }; },
+        fetchSource: async (ref) => { const m = await getMessageMeta(ref.slice(6)); return { from: m.from, subject: m.subject, threadId: m.threadId, to: m.to, cc: m.cc }; },
         messageIdHeader: getMessageIdHeader,
         createReplyDraft,
       });

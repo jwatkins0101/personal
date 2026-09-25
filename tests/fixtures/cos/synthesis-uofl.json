@@ -1,0 +1,4 @@
+{"status":"WATCH","status_line":"Two replies owed.","decide":[
+ {"kind":"reply","title":"Confirm SOW review","source_ref":"gmail:m1","claimed_from":"Dana Client","draft_body":"Hi Dana,\n\nI'll review and sign off by Friday.\n\nJermaine"},
+ {"kind":"reply","title":"AACSB status","source_ref":"gmail:m2","claimed_from":"Andrew Wright","draft_body":"Hi Andrew,\n\nMy status is SA and I'm Participating faculty.\n\nJermaine"}],
+ "critical_path":[],"meetings_prep":[],"replies_owed":[],"waiting_on":[],"deadlines":[],"fyi":[],"one_first_move":"Reply to Dana."}
