@@ -1,0 +1,31 @@
+{
+  "gate": "triage-rules",
+  "story": "S7-1",
+  "tier": "unit",
+  "acceptance": [
+    "AC-31"
+  ],
+  "passed": true,
+  "problems": [],
+  "tested_commit": "757eec3c0ee067aa0e048bae51b02631e60fc122",
+  "worktree_dirty": true,
+  "prd_revision": 10,
+  "gate_sha256": "5f10512576539b71a723cceb07f84f70a8539b764686c826bf08979e28ed64b8",
+  "assertion_sha256": {
+    "cos/triage-rules.json": "80558f426d3184fe83f7673ff61958c325a3d301c7b4f462c23a0ee245644fd7",
+    "src/cos/rules-triage.ts": "c7cfc870e6193e9bf7be2c5169251a2b1fb9974fdd533dadd14bb1ad8d8b3c94",
+    "tests/fixtures/cos/triage-rules-broken.json": "865fbafc83167e03f37929b28f7c088fad03036dee454ce65fc4fab168d7f796"
+  },
+  "command": "npx tsx tests/gates/cos-triage.ts triage-rules",
+  "exit_code": 0,
+  "output": "PASS owlthat: CI alert (RED) archived to CoS/CI (the brief tracks CI status)\nPASS owlthat: PitchBook newsletter archived\nPASS owlthat: failed Brex payment kept and starred\nPASS owlthat: Stripe receipt archived to notifications\nPASS owlthat: Brex 'limit reached, pay your balance' kept and starred\nPASS owlthat: collections notice kept and starred even from a newsletter sender\nPASS owlthat: AWS instance retirement kept\nPASS owlthat: legal notice (CSC) kept\nPASS owlthat: Canva app review kept\nPASS owlthat: security alert kept\nPASS owlthat: client you write to kept\nPASS owlthat: unknown person kept (no rule matched)\nPASS owlthat: starred mail never archived\nPASS techunify: Nextdoor archived to social\nPASS techunify: Kroger bulk archived\nPASS techunify: Stella's Venue newsletter archived\nPASS techunify: unknown person kept\nPASS techunify: promotions tab archived\nPASS techunify: Workspace security-risk notice kept\nPASS techunify: OAuth 'action advised' notice kept\nPASS techunify: account-deletion warning kept\nPASS techunify: new domain account notice kept\nPASS techunify: password-change notice kept\nPASS techunify: bounce notices archived (flagged separately)",
+  "negative_validation": {
+    "env": {
+      "COS_TRIAGE_RULES": "tests/fixtures/cos/triage-rules-broken.json"
+    },
+    "reason": "a rule set that archives everything must fail",
+    "exit_code": 1,
+    "output": "PASS owlthat: CI alert (RED) archived to CoS/CI (the brief tracks CI status)\nFAIL owlthat: PitchBook newsletter archived\nFAIL owlthat: failed Brex payment kept and starred\nFAIL owlthat: Stripe receipt archived to notifications\nFAIL owlthat: Brex 'limit reached, pay your balance' kept and starred\nFAIL owlthat: collections notice kept and starred even from a newsletter sender\nFAIL owlthat: AWS instance retirement kept\nFAIL owlthat: legal notice (CSC) kept\nFAIL owlthat: Canva app review kept\nFAIL owlthat: security alert kept\nPASS owlthat: client you write to kept\nFAIL owlthat: unknown person kept (no rule matched)\nPASS owlthat: starred mail never archived\nFAIL techunify: Nextdoor archived to social\nPASS techunify: Kroger bulk archived\nPASS techunify: Stella's Venue newsletter archived\nFAIL techunify: unknown person kept\nPASS techunify: promotions tab archived\nFAIL techunify: Workspace security-risk notice kept\nFAIL techunify: OAuth 'action advised' notice kept\nFAIL techunify: account-deletion warning kept\nFAIL techunify: new domain account notice kept\nFAIL techunify: password-change notice kept\nFAIL techunify: bounce notices archived (flagged separately)"
+  },
+  "timestamp": "2026-09-25T07:17:34.075Z"
+}

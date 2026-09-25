@@ -1,0 +1,33 @@
+{
+  "gate": "ci-status",
+  "story": "S7-3",
+  "tier": "unit",
+  "acceptance": [
+    "AC-33"
+  ],
+  "passed": true,
+  "problems": [],
+  "tested_commit": "757eec3c0ee067aa0e048bae51b02631e60fc122",
+  "worktree_dirty": true,
+  "prd_revision": 10,
+  "gate_sha256": "5f10512576539b71a723cceb07f84f70a8539b764686c826bf08979e28ed64b8",
+  "assertion_sha256": {
+    "src/cos/ci-status.ts": "6d4aa5c5a3115f1b442047a648f3022b0dd181f5556aa9af2c836db86a4e21eb",
+    "src/cos/gather.ts": "b6b7dc00898cd2be95a8c7984f462e5bae4cc6388b2c604b92a2f2d9bab8d9f4",
+    "src/cos/morning.ts": "0aebb34ab44ced2018df24097cf945397c494e00f425f418fb91428ee5d3c085",
+    "cos/triage-rules.json": "80558f426d3184fe83f7673ff61958c325a3d301c7b4f462c23a0ee245644fd7",
+    "tests/fixtures/cos/triage-rules-broken.json": "865fbafc83167e03f37929b28f7c088fad03036dee454ce65fc4fab168d7f796"
+  },
+  "command": "npx tsx tests/gates/cos-triage.ts ci-status",
+  "exit_code": 0,
+  "output": "PASS CI status source is configured (owlthat CI alerts)\nPASS latest result per workflow wins (checks.yml recovered; build-images still RED)\nPASS only the still-RED workflow escalates, linking its alert\nPASS the brief reads CI status and escalates RED builds",
+  "negative_validation": {
+    "env": {
+      "COS_TRIAGE_RULES": "tests/fixtures/cos/triage-rules-broken.json"
+    },
+    "reason": "without the CI source the brief cannot track RED builds",
+    "exit_code": 1,
+    "output": "FAIL CI status source is configured (owlthat CI alerts)\nFAIL latest result per workflow wins (checks.yml recovered; build-images still RED)\nFAIL only the still-RED workflow escalates, linking its alert\nPASS the brief reads CI status and escalates RED builds"
+  },
+  "timestamp": "2026-09-25T07:17:35.705Z"
+}

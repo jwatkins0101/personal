@@ -9,13 +9,32 @@
       },
       "rules": [
         {
-          "name": "failed payment or billing problem",
-          "subject": "(payment|charge|invoice).{0,30}(failed|declined|past due|overdue|unsuccessful)|card (was )?declined|action required.{0,20}(payment|billing)",
+          "name": "billing problem (failed payment, balance due, collections)",
+          "subject": "(payment|charge|invoice).{0,30}(failed|declined|past due|overdue|unsuccessful)|card (was )?declined|collections?\\b|past due|overdue|delinquen|final notice|limit reached|pay your balance|balance (is )?(due|overdue)|action required.{0,20}(payment|billing)|suspend",
           "action": "keep_star"
         },
         {
           "name": "security alert",
-          "subject": "security alert|new sign-in|suspicious|verify your (identity|account)|password (was )?changed|2-step|unusual activity",
+          "subject": "security (alert|risk|issue|notice)|new sign-in|suspicious|verify your (identity|account)|password.{0,40}(changed|reset)|2-step|unusual activity|compromised|unauthori[sz]ed",
+          "action": "keep"
+        },
+        {
+          "name": "infrastructure health (AWS Health, action needed)",
+          "from": [
+            "health@aws.com"
+          ],
+          "action": "keep"
+        },
+        {
+          "name": "infrastructure action required",
+          "subject": "action required|retirement|scheduled maintenance|deprecat|end of (life|support)",
+          "from_domain": [
+            "aws.com",
+            "amazonaws.com",
+            "google.com",
+            "atlassian.net",
+            "github.com"
+          ],
           "action": "keep"
         },
         {
@@ -97,7 +116,7 @@
         }
       ],
       "backlog": {
-        "older_than_days": 30,
+        "older_than_days": 0,
         "include_unread": true
       }
     },
@@ -109,13 +128,25 @@
       },
       "rules": [
         {
-          "name": "failed payment or billing problem",
-          "subject": "(payment|charge|invoice).{0,30}(failed|declined|past due|overdue|unsuccessful)|card (was )?declined",
+          "name": "billing problem (failed payment, balance due, collections)",
+          "subject": "(payment|charge|invoice).{0,30}(failed|declined|past due|overdue|unsuccessful)|card (was )?declined|collections?\\b|past due|overdue|delinquen|final notice|limit reached|pay your balance|balance (is )?(due|overdue)|action required.{0,20}(payment|billing)|suspend",
           "action": "keep_star"
         },
         {
           "name": "security alert",
-          "subject": "security alert|new sign-in|suspicious|verify your (identity|account)|password (was )?changed|unusual activity",
+          "subject": "security (alert|risk|issue|notice)|new sign-in|suspicious|verify your (identity|account)|password.{0,40}(changed|reset)|2-step|unusual activity|compromised|unauthori[sz]ed",
+          "action": "keep"
+        },
+        {
+          "name": "admin action or policy notice",
+          "subject": "action (required|advised)|\\[legal update\\]|terms of service|policy (update|change)|retirement|deprecat|will be (deleted|disabled|suspended)|urgent|sign in to your .{0,30}account|new google account|account (will|may) be (deleted|removed)",
+          "from_domain": [
+            "google.com",
+            "googledevelopers.com",
+            "amazonaws.com",
+            "aws.com",
+            "github.com"
+          ],
           "action": "keep"
         },
         {
@@ -164,7 +195,7 @@
         }
       ],
       "backlog": {
-        "older_than_days": 14,
+        "older_than_days": 0,
         "include_unread": true
       }
     }
@@ -178,8 +209,8 @@
       "older_than_days": 30,
       "rules": [
         {
-          "name": "failed payment or billing problem",
-          "subject": "(payment|charge|invoice).{0,30}(failed|declined|past due|overdue|unsuccessful)|card (was )?declined",
+          "name": "billing problem (failed payment, balance due, collections)",
+          "subject": "(payment|charge|invoice).{0,30}(failed|declined|past due|overdue|unsuccessful)|card (was )?declined|collections?\\b|past due|overdue|delinquen|final notice|limit reached|pay your balance|balance (is )?(due|overdue)|action required.{0,20}(payment|billing)|suspend",
           "action": "keep"
         },
         {

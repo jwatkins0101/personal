@@ -23,6 +23,9 @@ try {
       [msg("2", "PitchBook <news@pitchbook.com>", "The Daily Pitch", { bulk: true }), "archive", "CoS/Newsletters", "PitchBook newsletter archived"],
       [msg("3", "Brex <no-reply@brex.com>", "Your card payment failed"), "keep_star", undefined, "failed Brex payment kept and starred"],
       [msg("4", "Stripe <receipts@stripe.com>", "Your receipt from OwlThat"), "archive", "CoS/Notifications", "Stripe receipt archived to notifications"],
+      [msg("4b", "Brex <noreply@brex.com>", "Urgent: Limit reached - Pay your balance to keep spending"), "keep_star", undefined, "Brex 'limit reached, pay your balance' kept and starred"],
+      [msg("4c", "PitchBook Billing <billing@pitchbook.com>", "3rd Party Collections OwlThat Inc Q-64707", { bulk: true }), "keep_star", undefined, "collections notice kept and starred even from a newsletter sender"],
+      [msg("4d", "AWS Health <health@aws.com>", "[Notification] Upcoming routine retirement of your instance"), "keep", undefined, "AWS instance retirement kept"],
       [msg("5", "CSC <notices@cscglobal.com>", "Service of process received"), "keep", undefined, "legal notice (CSC) kept"],
       [msg("6", "Canva <apps@canva.com>", "APPS-54285 approved for release"), "keep", undefined, "Canva app review kept"],
       [msg("7", "Google <no-reply@accounts.google.com>", "Security alert: new sign-in"), "keep", undefined, "security alert kept"],
@@ -37,6 +40,12 @@ try {
       [msg("t3", "Stella's Venue <hello@stellasvenue.com>", "Fall events", { bulk: true }), "archive", "CoS/Newsletters", "Stella's Venue newsletter archived"],
       [msg("t4", "A Person <pat@someco.com>", "Question about the venue"), "keep", undefined, "unknown person kept"],
       [msg("t5", "Shop <deals@shop.com>", "Sale", { cat: "promotions" }), "archive", "CoS/Newsletters", "promotions tab archived"],
+      [msg("t6", "Google Workspace <workspace-noreply@google.com>", "[Notice] Possible unresolved security risks in your account"), "keep", undefined, "Workspace security-risk notice kept"],
+      [msg("t7", "Google <googledevelopers-noreply@google.com>", "[Action Advised] Manage your unused OAuth clients"), "keep", undefined, "OAuth 'action advised' notice kept"],
+      [msg("t9", "Google <no-reply@accounts.google.com>", "Urgent: Sign in to your Google Account if you want to keep it"), "keep", undefined, "account-deletion warning kept"],
+      [msg("t10", "Google Workspace <workspace-noreply@google.com>", "You have a new Google account for techunify.com"), "keep", undefined, "new domain account notice kept"],
+      [msg("t11", "Google Workspace <workspace-noreply@google.com>", "Your Google Account password for techunify.com has been changed"), "keep", undefined, "password-change notice kept"],
+      [msg("t8", "Mail Delivery <mailer-daemon@googlemail.com>", "Delivery Status Notification (Failure)"), "archive", "CoS/Notifications", "bounce notices archived (flagged separately)"],
     ];
     for (const [m, action, label, name] of tcases) { const d = t.decide(m as never, tu, new Set()); check(d.action === action && d.label === label, `techunify: ${name}`); }
   } else if (which === "triage-apply") {

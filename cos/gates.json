@@ -938,9 +938,9 @@
         },
         "reason": "a rule set that archives everything must fail"
       },
-      "script_sha256": "1986c9a1c5a9e1164ecc80c4aa69bb6db8aabe6bc3752d74cc59e833b4f7450c",
+      "script_sha256": "5f10512576539b71a723cceb07f84f70a8539b764686c826bf08979e28ed64b8",
       "assertion_sha256": {
-        "cos/triage-rules.json": "d7698b968a0eb76aa56c020507fbe94cb1adb63c1e3869f798208698fd593823",
+        "cos/triage-rules.json": "80558f426d3184fe83f7673ff61958c325a3d301c7b4f462c23a0ee245644fd7",
         "src/cos/rules-triage.ts": "c7cfc870e6193e9bf7be2c5169251a2b1fb9974fdd533dadd14bb1ad8d8b3c94",
         "tests/fixtures/cos/triage-rules-broken.json": "865fbafc83167e03f37929b28f7c088fad03036dee454ce65fc4fab168d7f796"
       }
@@ -970,10 +970,10 @@
         },
         "reason": "archiving unknown senders or protected mail must fail"
       },
-      "script_sha256": "1986c9a1c5a9e1164ecc80c4aa69bb6db8aabe6bc3752d74cc59e833b4f7450c",
+      "script_sha256": "5f10512576539b71a723cceb07f84f70a8539b764686c826bf08979e28ed64b8",
       "assertion_sha256": {
         "src/cos/rules-triage.ts": "c7cfc870e6193e9bf7be2c5169251a2b1fb9974fdd533dadd14bb1ad8d8b3c94",
-        "src/cos/rules-triage-run.ts": "b90397a3a69e98e272487c706f817ca75bb597a5d46801d0b5d5253a8cc73c74",
+        "src/cos/rules-triage-run.ts": "12dcc6eede3e1b5390bde9a92db45c7ea7e9212a5b03f9b0f4013e91a35b704b",
         "tests/fixtures/cos/triage-rules-broken.json": "865fbafc83167e03f37929b28f7c088fad03036dee454ce65fc4fab168d7f796"
       }
     },
@@ -1004,12 +1004,12 @@
         },
         "reason": "without the CI source the brief cannot track RED builds"
       },
-      "script_sha256": "1986c9a1c5a9e1164ecc80c4aa69bb6db8aabe6bc3752d74cc59e833b4f7450c",
+      "script_sha256": "5f10512576539b71a723cceb07f84f70a8539b764686c826bf08979e28ed64b8",
       "assertion_sha256": {
         "src/cos/ci-status.ts": "6d4aa5c5a3115f1b442047a648f3022b0dd181f5556aa9af2c836db86a4e21eb",
         "src/cos/gather.ts": "b6b7dc00898cd2be95a8c7984f462e5bae4cc6388b2c604b92a2f2d9bab8d9f4",
         "src/cos/morning.ts": "0aebb34ab44ced2018df24097cf945397c494e00f425f418fb91428ee5d3c085",
-        "cos/triage-rules.json": "d7698b968a0eb76aa56c020507fbe94cb1adb63c1e3869f798208698fd593823",
+        "cos/triage-rules.json": "80558f426d3184fe83f7673ff61958c325a3d301c7b4f462c23a0ee245644fd7",
         "tests/fixtures/cos/triage-rules-broken.json": "865fbafc83167e03f37929b28f7c088fad03036dee454ce65fc4fab168d7f796"
       }
     }

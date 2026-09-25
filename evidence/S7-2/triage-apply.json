@@ -1,0 +1,31 @@
+{
+  "gate": "triage-apply",
+  "story": "S7-2",
+  "tier": "unit",
+  "acceptance": [
+    "AC-32"
+  ],
+  "passed": true,
+  "problems": [],
+  "tested_commit": "757eec3c0ee067aa0e048bae51b02631e60fc122",
+  "worktree_dirty": true,
+  "prd_revision": 10,
+  "gate_sha256": "5f10512576539b71a723cceb07f84f70a8539b764686c826bf08979e28ed64b8",
+  "assertion_sha256": {
+    "src/cos/rules-triage.ts": "c7cfc870e6193e9bf7be2c5169251a2b1fb9974fdd533dadd14bb1ad8d8b3c94",
+    "src/cos/rules-triage-run.ts": "12dcc6eede3e1b5390bde9a92db45c7ea7e9212a5b03f9b0f4013e91a35b704b",
+    "tests/fixtures/cos/triage-rules-broken.json": "865fbafc83167e03f37929b28f7c088fad03036dee454ce65fc4fab168d7f796"
+  },
+  "command": "npx tsx tests/gates/cos-triage.ts triage-apply",
+  "exit_code": 0,
+  "output": "PASS dry run counts but changes nothing\nPASS archives by label group (CI, Newsletters) with the CoS label added\nPASS failed payment starred, left in inbox\nPASS unknown sender and starred mail untouched\nPASS every change is written to the undo log\nPASS undo puts both back in the inbox and removes the CoS labels\nPASS a sender you write to is kept even when a rule would archive it\nPASS hourly window is an epoch (never newer_than minutes)",
+  "negative_validation": {
+    "env": {
+      "COS_TRIAGE_RULES": "tests/fixtures/cos/triage-rules-broken.json"
+    },
+    "reason": "archiving unknown senders or protected mail must fail",
+    "exit_code": 1,
+    "output": "FAIL dry run counts but changes nothing\nFAIL archives by label group (CI, Newsletters) with the CoS label added\nFAIL failed payment starred, left in inbox\nFAIL unknown sender and starred mail untouched\nFAIL every change is written to the undo log\nFAIL undo puts both back in the inbox and removes the CoS labels\nPASS a sender you write to is kept even when a rule would archive it\nPASS hourly window is an epoch (never newer_than minutes)"
+  },
+  "timestamp": "2026-09-25T07:17:34.879Z"
+}
