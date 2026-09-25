@@ -243,9 +243,10 @@
     {
       "id": "AC-29",
       "implemented": true,
-      "verified": false,
-      "deployed": false,
-      "live_verified": false
+      "verified": true,
+      "deployed": true,
+      "live_verified": true,
+      "live_note": "real AACSB item (To: *@louisville.edu) marked reply-from-Outlook on the live board"
     }
   ],
   "release_record": null,

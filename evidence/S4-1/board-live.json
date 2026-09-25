@@ -7,25 +7,25 @@
   ],
   "passed": true,
   "problems": [],
-  "tested_commit": "ff7494076c42f2b9557814d67d35114b1a677e68",
+  "tested_commit": "e27d4b4c5a59e2f3357bdfa610d2cafa1caa03d8",
   "worktree_dirty": true,
-  "prd_revision": 7,
+  "prd_revision": 8,
   "gate_sha256": "5de534db0369835f730455c6a4d4f329cf9a4b234395ab637e002ed544313509",
   "assertion_sha256": {
-    "src/cos/board.ts": "035f4a87f1bf68d6b20a9f30bfe7285dcc209f8b7bf861128ac88ce4ab4be4bf",
+    "src/cos/board.ts": "7a10d52aac2d07fb9f0eea56d0f44ad53dff331193b3c39763dd401ed65436bb",
     "tests/fixtures/cos/board-frozen.ts": "7544e49410333ea6cdc198d57d511c3e364bd616ccab5815d809e6f6ee25149c",
     "src/cos/replied.ts": "06aa4cf473ded38e2b93880e46aa87cde5055756a1151b3cea06777562bcac57"
   },
   "command": "npx tsx tests/gates/cos-board.ts board-live",
   "exit_code": 0,
-  "output": "Running migration 1...\nMigration 1 complete.\nRunning migration 2...\nMigration 2 complete.\nRunning migration 3...\nMigration 3 complete.\nRunning migration 4...\nMigration 4 complete.\nRunning migration 5...\nMigration 5 complete.\nRunning migration 6...\nMigration 6 complete.\nRunning migration 7...\nMigration 7 complete.\nPASS Decide shows 4 pending (expired excluded; the one you already answered auto-completed)\nPASS auto-completed item shows in Completed with your sent message as evidence\nPASS Completed today shows checked-off Google Tasks and end-of-day done items\nPASS overdue commitment flagged\nPASS page renders and polls every 5 seconds\nPASS approve from the board\nPASS next poll: item moved from Decide to Completed\nPASS send preview shows exact recipient and body\nPASS send without explicit confirm is refused\nPASS confirmed send sends exactly that draft\nPASS next poll: sent reply shows in Completed\nPASS Done already from the board\nPASS next poll: manually done item in Completed\nPASS mark a commitment kept with evidence\nPASS next poll: commitment moved to Completed\n(node:43752) [DEP0205] DeprecationWarning: `module.register()` is deprecated. Use `module.registerHooks()` instead.\n(Use `node --trace-deprecation ...` to show where the warning was created)",
+  "output": "Running migration 1...\nMigration 1 complete.\nRunning migration 2...\nMigration 2 complete.\nRunning migration 3...\nMigration 3 complete.\nRunning migration 4...\nMigration 4 complete.\nRunning migration 5...\nMigration 5 complete.\nRunning migration 6...\nMigration 6 complete.\nRunning migration 7...\nMigration 7 complete.\nPASS Decide shows 4 pending (expired excluded; the one you already answered auto-completed)\nPASS auto-completed item shows in Completed with your sent message as evidence\nPASS Completed today shows checked-off Google Tasks and end-of-day done items\nPASS overdue commitment flagged\nPASS page renders and polls every 5 seconds\nPASS approve from the board\nPASS next poll: item moved from Decide to Completed\nPASS send preview shows exact recipient and body\nPASS send without explicit confirm is refused\nPASS confirmed send sends exactly that draft\nPASS next poll: sent reply shows in Completed\nPASS Done already from the board\nPASS next poll: manually done item in Completed\nPASS mark a commitment kept with evidence\nPASS next poll: commitment moved to Completed\n(node:59399) [DEP0205] DeprecationWarning: `module.register()` is deprecated. Use `module.registerHooks()` instead.\n(Use `node --trace-deprecation ...` to show where the warning was created)",
   "negative_validation": {
     "env": {
       "BOARD_MODULE": "tests/fixtures/cos/board-frozen.ts"
     },
     "reason": "a board that serves a frozen state is not live",
     "exit_code": 1,
-    "output": "Running migration 1...\nMigration 1 complete.\nRunning migration 2...\nMigration 2 complete.\nRunning migration 3...\nMigration 3 complete.\nRunning migration 4...\nMigration 4 complete.\nRunning migration 5...\nMigration 5 complete.\nRunning migration 6...\nMigration 6 complete.\nRunning migration 7...\nMigration 7 complete.\nPASS Decide shows 4 pending (expired excluded; the one you already answered auto-completed)\nPASS auto-completed item shows in Completed with your sent message as evidence\nPASS Completed today shows checked-off Google Tasks and end-of-day done items\nPASS overdue commitment flagged\nPASS page renders and polls every 5 seconds\nPASS approve from the board\nFAIL next poll: item moved from Decide to Completed\nPASS send preview shows exact recipient and body\nPASS send without explicit confirm is refused\nPASS confirmed send sends exactly that draft\nFAIL next poll: sent reply shows in Completed\nPASS Done already from the board\nFAIL next poll: manually done item in Completed\nPASS mark a commitment kept with evidence\nFAIL next poll: commitment moved to Completed\n(node:43800) [DEP0205] DeprecationWarning: `module.register()` is deprecated. Use `module.registerHooks()` instead.\n(Use `node --trace-deprecation ...` to show where the warning was created)"
+    "output": "Running migration 1...\nMigration 1 complete.\nRunning migration 2...\nMigration 2 complete.\nRunning migration 3...\nMigration 3 complete.\nRunning migration 4...\nMigration 4 complete.\nRunning migration 5...\nMigration 5 complete.\nRunning migration 6...\nMigration 6 complete.\nRunning migration 7...\nMigration 7 complete.\nPASS Decide shows 4 pending (expired excluded; the one you already answered auto-completed)\nPASS auto-completed item shows in Completed with your sent message as evidence\nPASS Completed today shows checked-off Google Tasks and end-of-day done items\nPASS overdue commitment flagged\nPASS page renders and polls every 5 seconds\nPASS approve from the board\nFAIL next poll: item moved from Decide to Completed\nPASS send preview shows exact recipient and body\nPASS send without explicit confirm is refused\nPASS confirmed send sends exactly that draft\nFAIL next poll: sent reply shows in Completed\nPASS Done already from the board\nFAIL next poll: manually done item in Completed\nPASS mark a commitment kept with evidence\nFAIL next poll: commitment moved to Completed\n(node:59447) [DEP0205] DeprecationWarning: `module.register()` is deprecated. Use `module.registerHooks()` instead.\n(Use `node --trace-deprecation ...` to show where the warning was created)"
   },
-  "timestamp": "2026-09-25T05:36:39.618Z"
+  "timestamp": "2026-09-25T06:36:10.151Z"
 }
