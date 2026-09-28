@@ -262,7 +262,7 @@ export function createBoardServer(deps: BoardDeps, token: string, port = BOARD_P
 }
 
 export const BOARD_HTML = `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="referrer" content="no-referrer"><title>Chief of Staff Board</title><style>
+<meta name="referrer" content="no-referrer"><title>Chief of Staff Board</title><style>details.agent-ready>summary{cursor:pointer}
 :root{--bg:#f7f6f2;--card:#fff;--ink:#1c1b18;--muted:#6b675e;--line:#e2dfd6;--accent:#2f5d50;--accent-ink:#fff;--warn:#9a5b12;--warn-soft:#f6ead6;--bad:#a3312a;--ok:#2f7d4f}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#141412;--card:#1d1c1a;--ink:#ecebe6;--muted:#a19d93;--line:#34322d;--accent:#7fc3ab;--accent-ink:#0f1a16;--warn:#e2ad63;--warn-soft:#3a2d18;--bad:#f08b82;--ok:#7fd3a0}}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 -apple-system,system-ui,sans-serif}
@@ -330,13 +330,18 @@ function mins(a,b){const m=Math.max(0,Math.round(((b?new Date(b):new Date())-new
 function elsewhereBlock(d){const e=d.elsewhere;if(!e)return'';
  return '<div class="preview"><div class="t">✉ Reply from '+esc(e.app)+' ('+esc(e.mailbox)+' address)</div><div class="m">This came to your '+esc(e.mailbox)+' address. A Gmail reply would come from your Gmail address, so no draft was made.</div>'+
   (e.suggested?'<pre>'+esc(e.suggested)+'</pre>':'')+'<div class="btns"><a href="'+esc(e.link)+'" target="_blank" rel="noreferrer"><button>Open '+esc(e.app)+'</button></a>'+(e.suggested?'<button data-copy="'+d.date+'/'+d.n+'">Copy text</button>':'')+'</div></div>'}
+// Minimized agent panels stay minimized across refreshes (per browser; storage may be unavailable).
+const minAgents=new Set((()=>{try{return JSON.parse(localStorage.getItem('cos-min-agents')||'[]')}catch(e){return[]}})());
+document.addEventListener('toggle',e=>{const el=e.target;if(!el.classList||!el.classList.contains('agent-ready'))return;const id=el.dataset.job;
+ if(el.open)minAgents.delete(id);else minAgents.add(id);const hint=el.querySelector('summary .m');if(hint)hint.textContent=' · click to '+(el.open?'minimize':'expand');
+ try{localStorage.setItem('cos-min-agents',JSON.stringify([...minAgents].slice(-200)))}catch(e){}},true);
 function agentBlock(d){const a=d.agent;if(!a)return'';
  if(a.status==='queued'||a.status==='running')return '<div class="preview"><div class="t">🤖 Agent working…'+(a.started_at?' ('+mins(a.started_at)+')':' (starting)')+'</div><div class="m">Reading the thread and searching your mail. It prepares; you review.</div><div class="btns"><button data-stop="'+a.id+'">Stop</button></div></div>';
- if(a.status==='ready')return '<div class="preview"><div class="t">🤖 Ready for review</div><div>'+esc(a.summary)+'</div>'+
+ if(a.status==='ready')return '<details class="preview agent-ready" data-job="'+a.id+'"'+(minAgents.has(String(a.id))?'':' open')+'><summary class="t">🤖 Ready for review<span class="m"> · click to '+(minAgents.has(String(a.id))?'expand':'minimize')+'</span></summary><div>'+esc(a.summary)+'</div>'+
   (a.needs_from_you.length?'<div class="m" style="margin-top:6px"><b>Needs from you:</b></div><ul>'+a.needs_from_you.map(x=>'<li>'+esc(x)+'</li>').join('')+'</ul>':'')+
   (a.findings.length?'<details><summary class="m">What it found ('+a.findings.length+')</summary><ul>'+a.findings.map(f=>'<li>'+esc(f.claim)+' <span class="m">'+esc(f.source_ref)+'</span></li>').join('')+'</ul></details>':'')+
   (a.gaps.length?'<div class="m">Could not find: '+esc(a.gaps.join('; '))+'</div>':'')+
-  '<div class="m">'+(a.drafted?'Draft reply saved to Gmail: use Review &amp; send.':'No draft made.')+(a.cost_usd!=null?' · $'+a.cost_usd.toFixed(2):'')+'</div></div>';
+  '<div class="m">'+(a.drafted?'Draft reply saved to Gmail: use Review &amp; send.':'No draft made.')+(a.cost_usd!=null?' · $'+a.cost_usd.toFixed(2):'')+'</div></details>';
  if(a.status==='failed')return '<div class="warn">Agent could not finish: '+esc(a.error||'unknown error')+'</div>';
  if(a.status==='cancelled')return '<div class="m">Agent stopped.</div>';return''}
 document.addEventListener('click',async e=>{const b=e.target.closest('button');if(!b)return;
