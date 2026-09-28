@@ -1,0 +1,19 @@
+{
+  "projects": [
+    {
+      "name": "clientco",
+      "path": "/Users/x/Documents/Sites/clientco",
+      "active": true
+    },
+    {
+      "name": "agency-hq",
+      "path": "/Users/x/Documents/Sites/agency-hq",
+      "active": true
+    },
+    {
+      "name": "core",
+      "path": "/Users/x/Documents/Sites/core",
+      "active": false
+    }
+  ]
+}

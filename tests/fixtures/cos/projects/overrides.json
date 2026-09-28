@@ -1,0 +1,13 @@
+{
+  "aliases": {
+    "clientco": [
+      "Dana"
+    ]
+  },
+  "parents": {
+    "clientco": {
+      "parent": "agency-hq",
+      "relation": "client"
+    }
+  }
+}

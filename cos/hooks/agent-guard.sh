@@ -9,6 +9,9 @@ block() { echo "BLOCKED by agent-guard: $1. This agent may only read Gmail (gws 
 
 # No command substitution, backgrounding, or here-strings that could smuggle other programs.
 printf '%s' "$cmd" | grep -Eq '\$\(|`|<\(|>\(|&[^&]|&$' && block "command substitution or background jobs"
+# No file-system paths outside the temp dir: file reads go through Read/Grep/Glob and their path guard.
+# A home-wide or ~/Library path makes macOS ask Jermaine to let "node" read other apps' data.
+printf '%s' "$cmd" | grep -Eq "(^|[[:space:]\"'=])(~|\\\$HOME|\\\$\\{HOME\\}|/Users([/[:space:]\"']|$)|/Library|/System|/Volumes|/private/var|/([[:space:]\"']|$))" && block "file-system path in a shell command (use Read/Grep/Glob inside a project folder)"
 # Output redirection only into the temp dir.
 while read -r target; do
   [ -z "$target" ] && continue

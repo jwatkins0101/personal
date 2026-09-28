@@ -84,6 +84,24 @@ try {
     check(Number(args[args.indexOf("--max-budget-usd") + 1]) <= 1.5, "per-run budget capped at $1.50");
     const settings = JSON.parse(readFileSync(agent.agentSettings(), "utf8"));
     check(settings.hooks.PreToolUse[0].hooks[0].command.includes("agent-guard.sh"), "settings wire the agent guard");
+    check(settings.hooks.PreToolUse.some((h: { matcher: string; hooks: { command: string }[] }) => h.matcher === "Read|Grep|Glob" && h.hooks[0].command.includes("agent-path-guard.sh")), "settings wire the path guard on Read, Grep and Glob");
+    // Path guard: a search rooted at home or ~/Library makes macOS ask to let node read other apps' data.
+    for (const c of ["grep -r password ~", "cat /Users/jermainewatkins/Library/Messages/chat.db", "grep -r x /", "cat $HOME/.zshrc"]) check(run(c) === 2, `blocked: ${c}`);
+    const pathGuard = process.env.PATH_GUARD ?? "cos/hooks/agent-path-guard.sh";
+    const H = "/Users/tester", cwd = `${H}/Library/Application Support/assistance/agent`;
+    const pg = (tool: string, input: Record<string, string>) => spawnSync(pathGuard, [], { input: JSON.stringify({ tool_name: tool, cwd, tool_input: input }), encoding: "utf8", env: { ...process.env, GUARD_HOME: H, TMPDIR: "/var/empty-tmp/" } }).status;
+    const pgBlocked: [string, Record<string, string>][] = [["Glob", { pattern: "**/README.md", path: H }], ["Glob", { pattern: "**/x", path: "~/Library" }], ["Grep", { pattern: "x", path: `${H}/Documents/Sites` }],
+      ["Grep", { pattern: "x", path: `${H}/Code/assistance` }], ["Read", { file_path: `${H}/Code/assistance/credentials/token.json` }], ["Read", { file_path: `${H}/Documents/Sites/a/../../../Library/x` }], ["Glob", { pattern: "*", path: "/" }]];
+    const pgAllowed: [string, Record<string, string>][] = [["Read", { file_path: `${H}/Documents/Sites/clientco/hosting/README.md` }], ["Glob", { pattern: "**/*.md", path: `${H}/Documents/Documents - Jermaine’s MacBook Pro/Sites/clientco` }],
+      ["Glob", { pattern: "*.json" }], ["Read", { file_path: `${H}/Code/assistance/cos/projects/cards/clientco.md` }]];
+    for (const [t, i] of pgBlocked) check(pg(t, i) === 2, `path guard blocks ${t} ${i.path ?? i.file_path}`);
+    for (const [t, i] of pgAllowed) check(pg(t, i) === 0, `path guard allows ${t} ${i.path ?? i.file_path ?? "(agent folder)"}`);
+    check(spawnSync(pathGuard, [], { input: "not json", encoding: "utf8" }).status === 2, "path guard: unparseable input blocked (fail closed)");
+    // The agent is told where the project lives instead of hunting for it.
+    const fx = "tests/fixtures/cos/projects";
+    const m = agent.matchProjects("Plaintext password in clientco/hosting/README.md", fx);
+    check(m.map((x) => x.name).join() === "clientco,agency-hq" && m[0].card?.endsWith("cards/clientco.md") === true && m[1].card === null, "item matched to its project and the parent project");
+    check(agent.matchProjects("Reply to Dana", fx)[0]?.name === "clientco" && agent.matchProjects("Brex limit reached", fx).length === 0, "aliases match; unrelated items match nothing");
   } else if (which === "reply-elsewhere") {
     const { replyElsewhere } = await import("../../src/cos/mailboxes.ts");
     check(replyElsewhere("'Watkins, Jermaine' <jermaine.watkins@louisville.edu>, x@y.com")?.app === "Outlook", "mail to your UofL address is recognized");
