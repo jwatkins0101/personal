@@ -7,7 +7,7 @@
   ],
   "passed": true,
   "problems": [],
-  "tested_commit": "a3ab23f7758499bf6dec9ce25e3353bca4231914",
+  "tested_commit": "5cab898ebbfa28f8d6d0b518680f9bf6f4421594",
   "worktree_dirty": true,
   "prd_revision": 14,
   "gate_sha256": "36ba55c7cd56f4224895af545f201ac4cac237bc7876aac5495b9de70127fdc6",
@@ -15,7 +15,7 @@
     "src/cos/approvals.ts": "53259f6b9c77f03d4bc1c01088e1c607105d59a9a6dc9d0dba2b610e602e34d4",
     "src/storage/migrations/008_approvals_hold.ts": "ac7f74b7d6bc5e4bd55e14ac04995ff3ec7be27817f070b394d12c7d65849917",
     "src/cos/render.ts": "aa71f5591bf2e12739380e38d7555b5d3a6a94d7d45e3acced05fa47af797755",
-    "src/cos/board.ts": "4abfd1b142be05c00aeb2c06650194e4050f770cee96974547576831584c0476",
+    "src/cos/board.ts": "2f5a3560e69d45833cfbf4645cd2be40a08f4dfd3f6896e32be1f44158366cf9",
     "src/cos/executors.ts": "136d6195edbb5e4983b955ef92440d3f61740e2fcb1f964d0333cb95217ad48c",
     "tests/fixtures/cos/respond-broken.ts": "71ba797e75c037d1f673627fd6b1f20c7f8c2843389047d0cb8526ed6d22a8e4"
   },
@@ -28,7 +28,7 @@
     },
     "reason": "answers that don't move spam or park holds must fail",
     "exit_code": 1,
-    "output": "Running migration 1...\nMigration 1 complete.\nRunning migration 2...\nMigration 2 complete.\nRunning migration 3...\nMigration 3 complete.\nRunning migration 4...\nMigration 4 complete.\nRunning migration 5...\nMigration 5 complete.\nRunning migration 6...\nMigration 6 complete.\nRunning migration 7...\nMigration 7 complete.\nRunning migration 8...\nMigration 8 complete.\nRunning migration 9...\nMigration 9 complete.\nFAIL Done records it as handled, with your note\nFAIL Spam moves the email to Spam in the right account and closes the item\nFAIL Dismiss closes the item\nFAIL Hold without a note is refused\nFAIL threw: Item 4 is approved; nothing done."
+    "output": "Running migration 1...\nMigration 1 complete.\nRunning migration 2...\nMigration 2 complete.\nRunning migration 3...\nMigration 3 complete.\nRunning migration 4...\nMigration 4 complete.\nRunning migration 5...\nMigration 5 complete.\nRunning migration 6...\nMigration 6 complete.\nRunning migration 7...\nMigration 7 complete.\nRunning migration 8...\nMigration 8 complete.\nRunning migration 9...\nMigration 9 complete.\nFAIL threw: Item 1 is expired; nothing done."
   },
-  "timestamp": "2026-09-25T15:15:24.352Z"
+  "timestamp": "2026-09-28T00:17:33.490Z"
 }

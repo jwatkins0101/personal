@@ -7,7 +7,7 @@
   ],
   "passed": true,
   "problems": [],
-  "tested_commit": "a3ab23f7758499bf6dec9ce25e3353bca4231914",
+  "tested_commit": "5cab898ebbfa28f8d6d0b518680f9bf6f4421594",
   "worktree_dirty": true,
   "prd_revision": 14,
   "gate_sha256": "1d44c64def143f74f8a25eada7777e6618b3519236a7b91cf59caf3a6e17ecb0",
@@ -27,5 +27,5 @@
     "exit_code": 1,
     "output": "Running migration 1...\nMigration 1 complete.\nRunning migration 2...\nMigration 2 complete.\nRunning migration 3...\nMigration 3 complete.\nRunning migration 4...\nMigration 4 complete.\nRunning migration 5...\nMigration 5 complete.\nRunning migration 6...\nMigration 6 complete.\nRunning migration 7...\nMigration 7 complete.\nRunning migration 8...\nMigration 8 complete.\nRunning migration 9...\nMigration 9 complete.\nFAIL send 1 sends exactly that draft\nFAIL send shows final recipient and body first\nPASS approve records a decision\nPASS approve creates the task\nFAIL recipient swap refused\nFAIL placeholder refused\nPASS skip closes the item\nFAIL expired item refused\nFAIL expired status recorded"
   },
-  "timestamp": "2026-09-25T15:15:05.363Z"
+  "timestamp": "2026-09-28T00:17:14.804Z"
 }
