@@ -43,9 +43,13 @@ set_lane inbox com.assistance.gmail-triage gmail-triage-launchd.log "$AS/triage"
   /bin/bash "$WRAP" inbox --attempts 2 -- /bin/bash "$AS/triage/run-gmail-triage.sh"
 set_lane deals com.jermaine.deal-watch deals-launchd.log "$AS" -- \
   /bin/bash "$WRAP" deals --attempts 1 --artifact "$CODE/deal-watch/briefs/brief-{date}.html" -- /bin/zsh "$CODE/deal-watch/run.sh"
+# yt fans out background video processors; print mode kills them after 10 min by default (failed 2026-09-26),
+# so wait up to 45 min. ulimit: claude hit the 256 open-file cap on Sep 17-24.
+# caffeinate: the 07:03 launch fires on a DarkWake and the Mac dropped back to Maintenance Sleep 7s later,
+# so both attempts died with "API Error: Your computer went to sleep mid-response" (failed 2026-09-27).
 set_lane yt com.jermaine.yt-daily-brief yt-launchd.log "$AS" -- \
   /bin/bash "$WRAP" yt --attempts 2 --artifact "$CODE/youtube-knowledge/briefs/{date}.md" -- \
-  /bin/zsh -lc 'cd "$HOME/Code" && "$HOME/.local/bin/claude" -p "Follow the instructions in youtube-knowledge/daily-brief.md exactly." --dangerously-skip-permissions'
+  /usr/bin/caffeinate -ims /bin/zsh -lc 'ulimit -n 65536 2>/dev/null; export CLAUDE_CODE_PRINT_BG_WAIT_CEILING_MS=2700000; cd "$HOME/Code" && "$HOME/.local/bin/claude" -p "Follow the instructions in youtube-knowledge/daily-brief.md exactly." --dangerously-skip-permissions'
 
 # Chief of Staff morning brief: 07:30 Mon-Fri (AC-17). Weekday 1-5 = Mon-Fri in launchd.
 CREATE=1 set_lane cos-morning com.assistance.cos-morning cos-morning-launchd.log "$AS" --time 07:30 --weekdays 1-5 -- \
