@@ -1,0 +1,174 @@
+{
+  "_about": "Manual layer merged with inventory.json by build-index.mjs. include = force active, exclude = force archived, aliases = words a goal might use (each sourced; see alias_sources). Edit freely, then run: node build-index.mjs parents = project -> {parent, relation}; a goal matching the child loads both cards.",
+  "include": [
+    "guardianowldigital",
+    "youtube-knowledge",
+    "deal-watch"
+  ],
+  "exclude": [],
+  "parents": {
+    "guardianowldigital": {
+      "parent": "owlthat-hq",
+      "relation": "OwlThat client (Jenna is an OwlThat client) — Jermaine, 2026-09-26"
+    }
+  },
+  "notes": {
+    "guardianowldigital": "Current CoS work (cos_work #1-7, goals \"Jenna 12:45 prep\" and \"Dropbox share links\", Sep 25 2026) is about the Guardian box, Jenna, Octic/Auctic and Dropbox; the scanner missed it because it matches folder names whole-word only. Last commit 2026-05-13 and memory 2026-05-12 fall outside the 90-day window.",
+    "youtube-knowledge": "Backs the CoS lane \"yt\" (cos health, 2026-09-26: FAIL, missing briefs/2026-09-26.md). Not a git repo and has no mapped memory, so the scanner had no activity signal.",
+    "deal-watch": "Backs the CoS lane \"deals\" (cos health, 2026-09-26: STALE, last=never). Not a git repo and has no mapped memory, so the scanner had no activity signal."
+  },
+  "aliases": {
+    "guardianowldigital": [
+      "Guardian Owl Digital",
+      "Guardian",
+      "Guardian box",
+      "Jenna",
+      "Jenna Ahern",
+      "Octic",
+      "Auctic",
+      "Process Discovery Hub"
+    ],
+    "owlthat-hq": [
+      "OwlThat",
+      "Cortex",
+      "Cortex box",
+      "owlctl",
+      "Cortex Companion"
+    ],
+    "assistance": [
+      "chief of staff",
+      "CoS",
+      "Gmail triage",
+      "Second Brain"
+    ],
+    "AIAgents": [
+      "Blackboard",
+      "CIS-290",
+      "MSBA 698",
+      "GE class",
+      "UofL training",
+      "Building AI Agents"
+    ],
+    "Life": [
+      "family calendar",
+      "fantasy football",
+      "Paytons Place",
+      "Lyndon Lightning"
+    ],
+    "youtube-knowledge": [
+      "daily brief",
+      "WORLDVIEW",
+      "yt"
+    ],
+    "deal-watch": [
+      "coupon sweep",
+      "deals"
+    ],
+    "bouvier-bridge": [
+      "ABRL",
+      "American Bouvier Rescue League",
+      "Happy Tails"
+    ],
+    "jermainewatkins.com": [
+      "Gmail Triage privacy policy"
+    ],
+    "reelectmccraney": [
+      "Re-Elect McCraney",
+      "McCraney"
+    ],
+    "stella-venues-reveal": [
+      "Stella's Venue"
+    ],
+    "when-the-ville-stood-still": [
+      "When the Ville Stood Still",
+      "Louisville basketball"
+    ],
+    "SmartCalltimeMonorepo": [
+      "SCTS",
+      "Smart Call Time Solutions",
+      "Blue Dot Methodology",
+      "BDM"
+    ],
+    "veryapp": [
+      "Very Health Platform",
+      "Valant"
+    ],
+    "veryweb": [
+      "VERY Health marketing site",
+      "very.health"
+    ],
+    "softwareharness": [
+      "Ralph",
+      "Ralph workflow"
+    ],
+    "wethejuryroom": [
+      "We The Jury Room"
+    ]
+  },
+  "alias_sources": {
+    "guardianowldigital": [
+      "~/.claude/projects/-Users-jermainewatkins-Documents-Sites/memory/project_guardianowl_billing.md (\"Guardian Owl Digital (Jenna Ahern, Founder + CEO\")",
+      "Sites/guardianowldigital/INDEX.md (\"# Guardian Owl Digital — Process Discovery Hub\")",
+      "cos_work #1,#3 (\"Guardian box\"), #2 (\"Octic auction pilot\"), goal \"Jenna 12:45 prep\"",
+      "~/.claude/projects/-Users-jermainewatkins-Documents-Documents---Jermaine-s-MacBook-Pro-Sites/memory/guardian-auction-sop-docs.md (\"Octic/Auctic auction pilot\")"
+    ],
+    "owlthat-hq": [
+      "Sites/owlthat-hq/CLAUDE.md (folder table: Cortex, Cortex Companion)",
+      "cos_work #1 (\"owlthat-hq Cortex box\"), #5/#7 (\"owlctl\")"
+    ],
+    "assistance": [
+      "~/Code/assistance/cos/CLAUDE.md (\"You are Jermaine's AI chief of staff\")",
+      "~/Code/assistance/CLAUDE.md (\"Storage Layer (Second Brain)\")",
+      "~/.claude/projects/-Users-jermainewatkins-Documents-Sites/memory/project_gmail_triage.md"
+    ],
+    "AIAgents": [
+      "Sites/AIAgents/CLAUDE.md (Blackboard; active courses CIS-290, MSBA 698)",
+      "~/.claude/projects/-Users-jermainewatkins-Documents-Sites-assistance/memory/project_ge_uofl_course.md (\"GE class,\" \"UofL training,\" \"Building AI Agents\")"
+    ],
+    "Life": [
+      "Sites/Life/CLAUDE.md (\"Yahoo Fantasy (Paytons Place\", \"Lyndon Lightning Pee Wee football\")",
+      "~/.claude/projects/-Users-jermainewatkins-Documents-Sites-Life/memory/pref_apple_calendar.md (family calendar)"
+    ],
+    "youtube-knowledge": [
+      "~/Code/youtube-knowledge/README.md (\"channels the daily brief tracks\", WORLDVIEW.md)",
+      "~/Code/assistance CoS lane name \"yt\" (cos health)"
+    ],
+    "deal-watch": [
+      "~/Code/deal-watch/CLAUDE.md (\"Twice-weekly coupon sweep\")",
+      "~/Code/assistance CoS lane name \"deals\" (cos health)"
+    ],
+    "bouvier-bridge": [
+      "Sites/bouvier-bridge/CLAUDE.md (\"American Bouvier Rescue League (ABRL)\")",
+      "~/.claude/projects/-Users-jermainewatkins-Documents-Sites-bouvier-bridge/memory/project_abrl_overview.md (\"Happy Tails\")"
+    ],
+    "jermainewatkins.com": [
+      "~/Code/jermainewatkins.com/README.md (\"the Gmail Triage privacy policy\")"
+    ],
+    "reelectmccraney": [
+      "Sites/reelectmccraney/README.md (\"# Re-Elect McCraney Website\")"
+    ],
+    "stella-venues-reveal": [
+      "Sites/stella-venues-reveal/index.html (<title>Stella's Venue | Louisville's Waterfront Event Venue)"
+    ],
+    "when-the-ville-stood-still": [
+      "Sites/when-the-ville-stood-still/CLAUDE.md (title; \"Louisville basketball history\")"
+    ],
+    "SmartCalltimeMonorepo": [
+      "Sites/SmartCalltimeMonorepo/CLAUDE.md (\"# SCTS - Smart Call Time Solutions\"; \"Blue Dot Methodology (BDM)\")"
+    ],
+    "veryapp": [
+      "Sites/veryapp/README.md (\"# Very Health Platform\")",
+      "~/.claude/projects/-Users-jermainewatkins-Documents-Sites-veryapp/memory/MEMORY.md (\"Valant contract deadline\")"
+    ],
+    "veryweb": [
+      "Sites/veryweb/README.md (\"# VERY Health — Marketing Site\", very.health)"
+    ],
+    "softwareharness": [
+      "Sites/softwareharness/README.md (\"project-neutral Ralph delivery workflow\")"
+    ],
+    "wethejuryroom": [
+      "~/.claude/projects/-Users-jermainewatkins-Documents-Sites-wethejuryroom/memory/project_overview.md (\"We The Jury Room\")"
+    ]
+  },
+  "alias_notes": "Sites/ = ~/Documents/Documents - Jermaine’s MacBook Pro/Sites. Deliberately NOT seeded because ambiguous across projects: \"Dropbox\" (guardianowldigital + owlthat-hq), \"Sensei Console\" (owlthat-hq subrepo and AIAgents memory), \"core\", \"GO\", \"fleet\"."
+}
