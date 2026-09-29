@@ -7,7 +7,7 @@
   ],
   "passed": true,
   "problems": [],
-  "tested_commit": "59cbf33e27882ca557e2082bdb960b72be0fd4cd",
+  "tested_commit": "1c16bdef118dbced763eeb3eac2154fc49517cfc",
   "worktree_dirty": true,
   "prd_revision": 14,
   "gate_sha256": "1d44c64def143f74f8a25eada7777e6618b3519236a7b91cf59caf3a6e17ecb0",
@@ -26,7 +26,7 @@
     },
     "reason": "with no effective ceiling the over-budget path must not trigger, failing the gate",
     "exit_code": 1,
-    "output": "PASS only today's spend counts ($4.90, not yesterday's $3)\nRunning migration 1...\nMigration 1 complete.\nRunning migration 2...\nMigration 2 complete.\nRunning migration 3...\nMigration 3 complete.\nRunning migration 4...\nMigration 4 complete.\nRunning migration 5...\nMigration 5 complete.\nRunning migration 6...\nMigration 6 complete.\nRunning migration 7...\nMigration 7 complete.\nRunning migration 8...\nMigration 8 complete.\nRunning migration 9...\nMigration 9 complete.\nFAIL over budget: model skipped and escalated\nFAIL no actions proposed without the model\nPASS stale lanes and input gaps still escalate\n(node:74437) [DEP0205] DeprecationWarning: `module.register()` is deprecated. Use `module.registerHooks()` instead.\n(Use `node --trace-deprecation ...` to show where the warning was created)"
+    "output": "PASS only today's spend counts ($4.90, not yesterday's $3)\nRunning migration 1...\nMigration 1 complete.\nRunning migration 2...\nMigration 2 complete.\nRunning migration 3...\nMigration 3 complete.\nRunning migration 4...\nMigration 4 complete.\nRunning migration 5...\nMigration 5 complete.\nRunning migration 6...\nMigration 6 complete.\nRunning migration 7...\nMigration 7 complete.\nRunning migration 8...\nMigration 8 complete.\nRunning migration 9...\nMigration 9 complete.\nFAIL over budget: model skipped and escalated\nFAIL no actions proposed without the model\nPASS stale lanes and input gaps still escalate\n(node:78716) [DEP0205] DeprecationWarning: `module.register()` is deprecated. Use `module.registerHooks()` instead.\n(Use `node --trace-deprecation ...` to show where the warning was created)"
   },
-  "timestamp": "2026-09-29T15:11:56.822Z"
+  "timestamp": "2026-09-29T17:41:14.850Z"
 }

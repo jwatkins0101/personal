@@ -7,7 +7,7 @@
   ],
   "passed": true,
   "problems": [],
-  "tested_commit": "59cbf33e27882ca557e2082bdb960b72be0fd4cd",
+  "tested_commit": "1c16bdef118dbced763eeb3eac2154fc49517cfc",
   "worktree_dirty": true,
   "prd_revision": 14,
   "gate_sha256": "4b9e05a9aafdf52e417aa5c4589757a12054a043fd5bd8030f39787e6281d80a",
@@ -29,5 +29,5 @@
     "exit_code": 1,
     "output": "PASS work is added as queued, default agent cos\nPASS work needs a goal\nFAIL closing work without a result is refused\nPASS unknown status is refused\nFAIL list shows open work (review first), not old closed work\nFAIL list includes work closed today, with its result\nPASS board shows work in progress\nPASS the /cos skill registers and closes every task\nPASS the /cos skill keeps his rules: confirm first, sub-agents prepare only, no sends without his yes\n\n6 passed, 3 failed"
   },
-  "timestamp": "2026-09-29T15:12:14.406Z"
+  "timestamp": "2026-09-29T17:41:31.701Z"
 }
