@@ -7,7 +7,7 @@
   ],
   "passed": true,
   "problems": [],
-  "tested_commit": "5cab898ebbfa28f8d6d0b518680f9bf6f4421594",
+  "tested_commit": "59cbf33e27882ca557e2082bdb960b72be0fd4cd",
   "worktree_dirty": true,
   "prd_revision": 14,
   "gate_sha256": "36ba55c7cd56f4224895af545f201ac4cac237bc7876aac5495b9de70127fdc6",
@@ -30,5 +30,5 @@
     "exit_code": 1,
     "output": "Running migration 1...\nMigration 1 complete.\nRunning migration 2...\nMigration 2 complete.\nRunning migration 3...\nMigration 3 complete.\nRunning migration 4...\nMigration 4 complete.\nRunning migration 5...\nMigration 5 complete.\nRunning migration 6...\nMigration 6 complete.\nRunning migration 7...\nMigration 7 complete.\nRunning migration 8...\nMigration 8 complete.\nRunning migration 9...\nMigration 9 complete.\nFAIL threw: Item 1 is expired; nothing done."
   },
-  "timestamp": "2026-09-28T00:17:33.490Z"
+  "timestamp": "2026-09-29T15:12:13.818Z"
 }

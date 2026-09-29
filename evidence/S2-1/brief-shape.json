@@ -7,7 +7,7 @@
   ],
   "passed": true,
   "problems": [],
-  "tested_commit": "5cab898ebbfa28f8d6d0b518680f9bf6f4421594",
+  "tested_commit": "59cbf33e27882ca557e2082bdb960b72be0fd4cd",
   "worktree_dirty": true,
   "prd_revision": 14,
   "gate_sha256": "1d44c64def143f74f8a25eada7777e6618b3519236a7b91cf59caf3a6e17ecb0",
@@ -29,5 +29,5 @@
     "exit_code": 1,
     "output": "PASS items citing sources not in the inputs are dropped\nPASS markdown sections in charter order\nPASS html sections in charter order\nFAIL escalations rendered\nPASS every Decide item carries its source_ref\nFAIL mp3 generated and embedded\nFAIL speed control 0.75x-2x with pitch preserved"
   },
-  "timestamp": "2026-09-28T00:17:13.516Z"
+  "timestamp": "2026-09-29T15:11:53.570Z"
 }
