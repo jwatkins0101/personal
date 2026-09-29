@@ -7,7 +7,7 @@
   ],
   "passed": true,
   "problems": [],
-  "tested_commit": "1c16bdef118dbced763eeb3eac2154fc49517cfc",
+  "tested_commit": "b1c84ca9ce3a7e95c87b991607ac003c5de7f629",
   "worktree_dirty": true,
   "prd_revision": 14,
   "gate_sha256": "d144fd73d3221530b88072470808d33e662948bf81af8568593904111bc57dc0",
@@ -25,5 +25,5 @@
     "exit_code": 1,
     "output": "FAIL drift: repo=5910c19c445d1c7dfc95a8c127581fe2476471a4b3b331ba1111af9b046c5440 deployed=8108d7f79edce01907c0b8fbd03091fb24e026fe5e7b090a294e6d84ef638510. Run scripts/deploy-triage-launchd.sh (or reconcile edits back into the repo first)."
   },
-  "timestamp": "2026-09-29T17:39:38.199Z"
+  "timestamp": "2026-09-29T18:11:15.623Z"
 }

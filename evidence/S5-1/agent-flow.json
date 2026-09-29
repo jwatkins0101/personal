@@ -7,7 +7,7 @@
   ],
   "passed": true,
   "problems": [],
-  "tested_commit": "1c16bdef118dbced763eeb3eac2154fc49517cfc",
+  "tested_commit": "b1c84ca9ce3a7e95c87b991607ac003c5de7f629",
   "worktree_dirty": true,
   "prd_revision": 14,
   "gate_sha256": "3568a1ae1e6d17f700452afdda8a6f919eb74b0f19404d13281d1867360dfe2f",
@@ -28,7 +28,7 @@
     },
     "reason": "an agent path that trusts the agent's recipient or drafts placeholders must fail",
     "exit_code": 1,
-    "output": "Running migration 1...\nMigration 1 complete.\nRunning migration 2...\nMigration 2 complete.\nRunning migration 3...\nMigration 3 complete.\nRunning migration 4...\nMigration 4 complete.\nRunning migration 5...\nMigration 5 complete.\nRunning migration 6...\nMigration 6 complete.\nRunning migration 7...\nMigration 7 complete.\nRunning migration 8...\nMigration 8 complete.\nRunning migration 9...\nMigration 9 complete.\nPASS hand-off creates a queued job\nPASS a fresh job is not reaped as stale\nPASS a job stuck past the timeout is reaped\nPASS second hand-off of the same item refused while one is active\nPASS job finishes ready with a summary\nFAIL draft goes to the ORIGINAL sender in the original thread, not the agent's 'to'\nFAIL findings without a real message ref are dropped\nFAIL item becomes a pending reply: sending still needs Review & send\nFAIL placeholder reply: no draft, listed under needs-from-you\nPASS placeholder item stays a decision\nPASS no more than 2 agents at once\nFAIL a stopped job never runs or drafts\nFAIL threw: ENOENT: no such file or directory, open '/var/folders/nn/g7_sgcl51rgc44hx6bxjd1qw0000gn/T/cos-agent-0TMHxH/ledger/cos-agent.jsonl'"
+    "output": "Running migration 1...\nMigration 1 complete.\nRunning migration 2...\nMigration 2 complete.\nRunning migration 3...\nMigration 3 complete.\nRunning migration 4...\nMigration 4 complete.\nRunning migration 5...\nMigration 5 complete.\nRunning migration 6...\nMigration 6 complete.\nRunning migration 7...\nMigration 7 complete.\nRunning migration 8...\nMigration 8 complete.\nRunning migration 9...\nMigration 9 complete.\nPASS hand-off creates a queued job\nPASS a fresh job is not reaped as stale\nPASS a job stuck past the timeout is reaped\nPASS second hand-off of the same item refused while one is active\nPASS job finishes ready with a summary\nFAIL draft goes to the ORIGINAL sender in the original thread, not the agent's 'to'\nFAIL findings without a real message ref are dropped\nFAIL item becomes a pending reply: sending still needs Review & send\nFAIL placeholder reply: no draft, listed under needs-from-you\nPASS placeholder item stays a decision\nPASS no more than 2 agents at once\nFAIL a stopped job never runs or drafts\nFAIL threw: ENOENT: no such file or directory, open '/var/folders/nn/g7_sgcl51rgc44hx6bxjd1qw0000gn/T/cos-agent-LPK4P5/ledger/cos-agent.jsonl'"
   },
-  "timestamp": "2026-09-29T17:41:20.526Z"
+  "timestamp": "2026-09-29T18:13:00.418Z"
 }

@@ -7,7 +7,7 @@
   ],
   "passed": true,
   "problems": [],
-  "tested_commit": "1c16bdef118dbced763eeb3eac2154fc49517cfc",
+  "tested_commit": "b1c84ca9ce3a7e95c87b991607ac003c5de7f629",
   "worktree_dirty": true,
   "prd_revision": 14,
   "gate_sha256": "884ccc75cf4d226035048e8c3f05aa3f9269cb5831d8f0495c308176a2cb0ab0",
@@ -26,5 +26,5 @@
     "exit_code": 1,
     "output": "Running migration 1...\nMigration 1 complete.\nRunning migration 2...\nMigration 2 complete.\nRunning migration 3...\nMigration 3 complete.\nRunning migration 4...\nMigration 4 complete.\nRunning migration 5...\nMigration 5 complete.\nRunning migration 6...\nMigration 6 complete.\nRunning migration 7...\nMigration 7 complete.\nRunning migration 8...\nMigration 8 complete.\nRunning migration 9...\nMigration 9 complete.\nFAIL same promise by SMS merges into the email one\nFAIL one commitment, both sources kept\nFAIL different promise, or the other direction, stays separate"
   },
-  "timestamp": "2026-09-29T17:41:16.677Z"
+  "timestamp": "2026-09-29T18:12:55.716Z"
 }

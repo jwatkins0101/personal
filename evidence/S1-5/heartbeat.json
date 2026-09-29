@@ -7,7 +7,7 @@
   ],
   "passed": true,
   "problems": [],
-  "tested_commit": "1c16bdef118dbced763eeb3eac2154fc49517cfc",
+  "tested_commit": "b1c84ca9ce3a7e95c87b991607ac003c5de7f629",
   "worktree_dirty": true,
   "prd_revision": 14,
   "gate_sha256": "2ab62c645ac7ce3b4a7d0600705e89a7e094f65a13156e33df475494edb0274a",
@@ -27,5 +27,5 @@
     "exit_code": 1,
     "output": "PASS inbox ran at 08:00, healthy at 09:00\nFAIL yt last ran 09-16: stale\nPASS deals last run failed: failing\nPASS within grace period nothing is stale\nPASS no 09:00 slot configured: still ok at 10:00"
   },
-  "timestamp": "2026-09-29T17:41:09.203Z"
+  "timestamp": "2026-09-29T18:12:47.557Z"
 }
