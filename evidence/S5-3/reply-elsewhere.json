@@ -7,7 +7,7 @@
   ],
   "passed": true,
   "problems": [],
-  "tested_commit": "e191fe867abd9be79062d85412974f623eacea0c",
+  "tested_commit": "f3b87a49e06cfc06ac62c3cc21f477b95d185d58",
   "worktree_dirty": true,
   "prd_revision": 14,
   "gate_sha256": "3568a1ae1e6d17f700452afdda8a6f919eb74b0f19404d13281d1867360dfe2f",
@@ -21,14 +21,14 @@
   },
   "command": "npx tsx tests/gates/cos-agent.ts reply-elsewhere",
   "exit_code": 0,
-  "output": "PASS mail to your UofL address is recognized\nPASS UofL subdomains match; lookalike domains don't\nRunning migration 1...\nMigration 1 complete.\nRunning migration 2...\nMigration 2 complete.\nRunning migration 3...\nMigration 3 complete.\nRunning migration 4...\nMigration 4 complete.\nRunning migration 5...\nMigration 5 complete.\nRunning migration 6...\nMigration 6 complete.\nRunning migration 7...\nMigration 7 complete.\nRunning migration 8...\nMigration 8 complete.\nRunning migration 9...\nMigration 9 complete.\nPASS brief drafts the Gmail reply only; no Gmail draft for the UofL email\nPASS UofL item says reply from Outlook and keeps the suggested text\nPASS agent: no Gmail draft for UofL mail; says reply from Outlook; keeps suggestion\nPASS board shows Open Outlook and Copy text for these items\n(node:79253) [DEP0205] DeprecationWarning: `module.register()` is deprecated. Use `module.registerHooks()` instead.\n(Use `node --trace-deprecation ...` to show where the warning was created)",
+  "output": "PASS mail to your UofL address is recognized\nPASS UofL subdomains match; lookalike domains don't\nRunning migration 1...\nMigration 1 complete.\nRunning migration 2...\nMigration 2 complete.\nRunning migration 3...\nMigration 3 complete.\nRunning migration 4...\nMigration 4 complete.\nRunning migration 5...\nMigration 5 complete.\nRunning migration 6...\nMigration 6 complete.\nRunning migration 7...\nMigration 7 complete.\nRunning migration 8...\nMigration 8 complete.\nRunning migration 9...\nMigration 9 complete.\nPASS brief drafts the Gmail reply only; no Gmail draft for the UofL email\nPASS UofL item says reply from Outlook and keeps the suggested text\nPASS agent: no Gmail draft for UofL mail; says reply from Outlook; keeps suggestion\nPASS board shows Open Outlook and Copy text for these items\n(node:91460) [DEP0205] DeprecationWarning: `module.register()` is deprecated. Use `module.registerHooks()` instead.\n(Use `node --trace-deprecation ...` to show where the warning was created)",
   "negative_validation": {
     "env": {
       "COS_ACCOUNTS_PATH": "tests/fixtures/cos/accounts-no-elsewhere.json"
     },
     "reason": "without the reply-elsewhere rule UofL mail would get Gmail drafts",
     "exit_code": 1,
-    "output": "FAIL mail to your UofL address is recognized\nFAIL UofL subdomains match; lookalike domains don't\nRunning migration 1...\nMigration 1 complete.\nRunning migration 2...\nMigration 2 complete.\nRunning migration 3...\nMigration 3 complete.\nRunning migration 4...\nMigration 4 complete.\nRunning migration 5...\nMigration 5 complete.\nRunning migration 6...\nMigration 6 complete.\nRunning migration 7...\nMigration 7 complete.\nRunning migration 8...\nMigration 8 complete.\nRunning migration 9...\nMigration 9 complete.\nFAIL brief drafts the Gmail reply only; no Gmail draft for the UofL email\nFAIL UofL item says reply from Outlook and keeps the suggested text\nFAIL agent: no Gmail draft for UofL mail; says reply from Outlook; keeps suggestion\nPASS board shows Open Outlook and Copy text for these items\n(node:79311) [DEP0205] DeprecationWarning: `module.register()` is deprecated. Use `module.registerHooks()` instead.\n(Use `node --trace-deprecation ...` to show where the warning was created)"
+    "output": "FAIL mail to your UofL address is recognized\nFAIL UofL subdomains match; lookalike domains don't\nRunning migration 1...\nMigration 1 complete.\nRunning migration 2...\nMigration 2 complete.\nRunning migration 3...\nMigration 3 complete.\nRunning migration 4...\nMigration 4 complete.\nRunning migration 5...\nMigration 5 complete.\nRunning migration 6...\nMigration 6 complete.\nRunning migration 7...\nMigration 7 complete.\nRunning migration 8...\nMigration 8 complete.\nRunning migration 9...\nMigration 9 complete.\nFAIL brief drafts the Gmail reply only; no Gmail draft for the UofL email\nFAIL UofL item says reply from Outlook and keeps the suggested text\nFAIL agent: no Gmail draft for UofL mail; says reply from Outlook; keeps suggestion\nPASS board shows Open Outlook and Copy text for these items\n(node:91773) [DEP0205] DeprecationWarning: `module.register()` is deprecated. Use `module.registerHooks()` instead.\n(Use `node --trace-deprecation ...` to show where the warning was created)"
   },
-  "timestamp": "2026-09-30T00:42:12.848Z"
+  "timestamp": "2026-09-30T21:41:45.168Z"
 }

@@ -7,7 +7,7 @@
   ],
   "passed": true,
   "problems": [],
-  "tested_commit": "e191fe867abd9be79062d85412974f623eacea0c",
+  "tested_commit": "f3b87a49e06cfc06ac62c3cc21f477b95d185d58",
   "worktree_dirty": true,
   "prd_revision": 14,
   "gate_sha256": "884ccc75cf4d226035048e8c3f05aa3f9269cb5831d8f0495c308176a2cb0ab0",
@@ -26,5 +26,5 @@
     "exit_code": 1,
     "output": "Running migration 1...\nMigration 1 complete.\nRunning migration 2...\nMigration 2 complete.\nRunning migration 3...\nMigration 3 complete.\nRunning migration 4...\nMigration 4 complete.\nRunning migration 5...\nMigration 5 complete.\nRunning migration 6...\nMigration 6 complete.\nRunning migration 7...\nMigration 7 complete.\nRunning migration 8...\nMigration 8 complete.\nRunning migration 9...\nMigration 9 complete.\nPASS ISO week label\nFAIL dropped ball counted (open, past due)\nPASS failed approval and refused send counted as caught errors\nPASS approvals this week and unchanged rate (7/8; the edited send doesn't count)\nPASS median decision latency in hours\nPASS cost from lane ledgers\nFAIL task kind listed as promotion candidate (25 clean, 0 corrections); reply is not\nPASS scorecard has all metrics\nPASS autonomy not changed by the review"
   },
-  "timestamp": "2026-09-30T00:41:51.636Z"
+  "timestamp": "2026-09-30T21:41:25.215Z"
 }
