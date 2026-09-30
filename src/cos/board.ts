@@ -237,8 +237,23 @@ export function createBoardServer(deps: BoardDeps, token: string, port = BOARD_P
         const file = m ? join(deps.briefDir ?? BRIEF_DIR, `${m[1]}.${m[2]}`) : "";
         if (!m || !existsSync(file)) { res.writeHead(404); return res.end("not found"); }
         let body = readFileSync(file);
-        if (m[2] === "html") body = Buffer.from(body.toString("utf8").replace(/src="(\d{4}-\d{2}-\d{2}\.mp3)"/, `src="/brief/$1?t=${token}"`));
-        res.writeHead(200, { "Content-Type": m[2] === "html" ? "text/html; charset=utf-8" : "audio/mpeg", "Referrer-Policy": "no-referrer" });
+        if (m[2] === "html") {
+          body = Buffer.from(body.toString("utf8").replace(/src="(\d{4}-\d{2}-\d{2}\.mp3)"/, `src="/brief/$1?t=${token}"`));
+          res.writeHead(200, { "Content-Type": "text/html; charset=utf-8", "Content-Length": body.length, "Referrer-Policy": "no-referrer" });
+          return res.end(body);
+        }
+        // Audio: honor byte ranges. Safari/iOS won't play media without 206 replies, and Chrome can't seek.
+        const size = body.length;
+        const audioHead = { "Content-Type": "audio/mpeg", "Accept-Ranges": "bytes", "Cache-Control": "no-store", "Referrer-Policy": "no-referrer" };
+        const rm = String(req.headers.range ?? "").match(/^bytes=(\d*)-(\d*)$/);
+        if (rm && (rm[1] || rm[2])) {
+          const start = rm[1] ? Number(rm[1]) : Math.max(0, size - Number(rm[2]));
+          const end = rm[1] && rm[2] ? Math.min(Number(rm[2]), size - 1) : size - 1;
+          if (start >= size || start > end) { res.writeHead(416, { ...audioHead, "Content-Range": `bytes */${size}` }); return res.end(); }
+          res.writeHead(206, { ...audioHead, "Content-Range": `bytes ${start}-${end}/${size}`, "Content-Length": end - start + 1 });
+          return res.end(body.subarray(start, end + 1));
+        }
+        res.writeHead(200, { ...audioHead, "Content-Length": size });
         return res.end(body);
       }
 

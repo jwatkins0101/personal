@@ -148,6 +148,24 @@ try {
     check((await call("POST", `/api/commitments/${cm.id}/close`, { body: { evidence: "gmail:sent-deck" } })).body?.ok === true, "mark a commitment kept with evidence");
     s = await state();
     check(s.commitments.length === 0 && s.completed.today.some((c: any) => c.kind === "closed" && /Send the deck/.test(c.text)), "next poll: commitment moved to Completed");
+    // Brief audio must answer byte ranges: Safari/iOS won't play media without 206, and Chrome can't seek.
+    mkdirSync(process.env.COS_BRIEF_DIR!, { recursive: true });
+    const mp3 = Buffer.from(Array.from({ length: 1000 }, (_, i) => i % 256));
+    writeFileSync(join(process.env.COS_BRIEF_DIR!, "2026-09-30.mp3"), mp3);
+    const getAudio = (range?: string) => new Promise<{ status: number; headers: Record<string, any>; body: Buffer }>((res, rej) => {
+      const headers: Record<string, string> = { host: `127.0.0.1:${port}`, ...(range ? { range } : {}) };
+      const r = request({ host: "127.0.0.1", port, method: "GET", path: `/brief/2026-09-30.mp3?t=${token}`, headers }, (resp) => {
+        const parts: Buffer[] = []; resp.on("data", (c) => parts.push(c)); resp.on("end", () => res({ status: resp.statusCode ?? 0, headers: resp.headers, body: Buffer.concat(parts) }));
+      });
+      r.on("error", rej); r.end();
+    });
+    const full = await getAudio();
+    check(full.status === 200 && full.headers["content-type"] === "audio/mpeg" && full.headers["accept-ranges"] === "bytes" && full.headers["content-length"] === "1000" && full.body.equals(mp3), "brief audio: 200 audio/mpeg with Accept-Ranges and Content-Length");
+    const probe = await getAudio("bytes=0-1");
+    check(probe.status === 206 && probe.headers["content-range"] === "bytes 0-1/1000" && probe.body.equals(mp3.subarray(0, 2)), "brief audio: Range bytes=0-1 answers 206 with 2 bytes (Safari probe)");
+    const mid = await getAudio("bytes=500-");
+    check(mid.status === 206 && mid.headers["content-range"] === "bytes 500-999/1000" && mid.body.equals(mp3.subarray(500)), "brief audio: open-ended range serves the tail (seeking)");
+    check((await getAudio("bytes=5000-")).status === 416, "brief audio: unsatisfiable range answers 416");
   } else if (which === "board-security") {
     check((await call("GET", "/api/state", { token: null })).status === 401, "no token: 401");
     check((await call("GET", "/api/state", { token: "wrong-token-0123456789abcd" })).status === 401, "wrong token: 401");
