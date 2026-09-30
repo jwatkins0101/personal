@@ -7,14 +7,14 @@
   ],
   "passed": true,
   "problems": [],
-  "tested_commit": "5d717f0649569b07783a76f9b9c438c15428527e",
+  "tested_commit": "e191fe867abd9be79062d85412974f623eacea0c",
   "worktree_dirty": true,
   "prd_revision": 14,
   "gate_sha256": "4b9e05a9aafdf52e417aa5c4589757a12054a043fd5bd8030f39787e6281d80a",
   "assertion_sha256": {
     "src/cos/work.ts": "3fc3fa84636854bd5d91c18ef66269c5bf9cde0baf7f3937007c0c1f70b1bfb9",
     "src/storage/migrations/009_work.ts": "423bad39e3fcdb0ee7b41557da3703f44394bc4376c08c75037ca32f60a5fad8",
-    "src/cos/board.ts": "4fd0e9746dc967642d88adec4a3aff1dc96ff86cdb0b91f53484341a60df92a1",
+    "src/cos/board.ts": "807a3b3a90aee93c161cf01ec4000b250d031c3413503f13de1a6870c2baf3cf",
     "cos/skills/cos/SKILL.md": "277bee44fc9f3b942868c38151024c65402b84223057d3e33eb79383d45ef37e",
     "tests/fixtures/cos/work-broken.ts": "ffc19d48ced52082cd31289b9f1c49ac9d73d84bf5590af28f128be38eff524c"
   },
@@ -29,5 +29,5 @@
     "exit_code": 1,
     "output": "PASS work is added as queued, default agent cos\nPASS work needs a goal\nFAIL closing work without a result is refused\nPASS unknown status is refused\nFAIL list shows open work (review first), not old closed work\nFAIL list includes work closed today, with its result\nPASS board shows work in progress\nPASS the /cos skill registers and closes every task\nPASS the /cos skill keeps his rules: confirm first, sub-agents prepare only, no sends without his yes\n\n6 passed, 3 failed"
   },
-  "timestamp": "2026-09-30T00:31:42.228Z"
+  "timestamp": "2026-09-30T00:42:22.193Z"
 }

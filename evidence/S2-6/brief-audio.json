@@ -7,7 +7,7 @@
   ],
   "passed": true,
   "problems": [],
-  "tested_commit": "5d717f0649569b07783a76f9b9c438c15428527e",
+  "tested_commit": "e191fe867abd9be79062d85412974f623eacea0c",
   "worktree_dirty": true,
   "prd_revision": 14,
   "gate_sha256": "49686679ba5b19ec62d16f6b0403bb80c69b002ba1fac1f661438562067ee080",
@@ -26,5 +26,5 @@
     "exit_code": 1,
     "output": "FAIL audio is staged outside ~/Library/Application Support (Messages can't send from there)\nPASS keeps only the newest 14 audio copies\nPASS the staged file is the brief's audio\nPASS the morning ping is followed by the audio attachment\nPASS a failed attachment is reported, not silent"
   },
-  "timestamp": "2026-09-30T00:31:40.792Z"
+  "timestamp": "2026-09-30T00:42:20.022Z"
 }

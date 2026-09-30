@@ -95,6 +95,21 @@ try {
     const page = await call("GET", `/?t=${token}`);
     check(page.status === 200 && /Completed/.test(page.text) && /new EventSource\('\/api\/events\?t='/.test(page.text) && /pollH=setInterval\(\(\)=>\{if\(!document\.hidden\)refresh\(\)\},5000\)/.test(page.text) && /id="conn"/.test(page.text), "page subscribes to live updates, shows live/reconnecting, falls back to 5-second polling");
     check(/function put\(id,html\)\{const el=\$\(id\);if\(el\.__h===html\)return/.test(page.text) && /details\[data-k\]/.test(page.text), "page re-renders only changed sections and keeps open details, typed input and scroll");
+    // Collapsible sections (D-collapse): every section is a <details data-sec>; Completed starts closed, the rest start open.
+    check(/<details class="sec" data-sec="decide" open>/.test(page.text) && /<details class="sec" data-sec="work" open>/.test(page.text) && /<details class="sec" data-sec="review" open>/.test(page.text) && /<details class="sec" data-sec="commitments" open>/.test(page.text) && /<details class="sec" data-sec="lanes" open>/.test(page.text), "Decide, Work in progress, For review, Commitments and Lanes default expanded");
+    check(/<details class="sec" data-sec="completed">/.test(page.text) && !/<details class="sec" data-sec="completed" open>/.test(page.text), "Completed section is collapsed by default");
+    // Every section header shows a live count, including Completed's, which names today explicitly (e.g. "Completed today (42)").
+    check(/id="doneHead"/.test(page.text) && /\$\('doneHead'\)\.textContent='Completed today \('\+s\.completed\.today\.length\+'\) · earlier this week \('\+s\.completed\.week\.length\+'\)'/.test(page.text), 'Completed header text is dynamic, e.g. "Completed today (42) · earlier this week (12)"');
+    check(/\$\('nd'\)\.textContent='\('\+s\.decide\.length\+'\)'/.test(page.text) && /\$\('nw'\)\.textContent='\('\+wip\.length\+'\)'/.test(page.text) && /\$\('nr'\)\.textContent='\('\+\(rev\.length\+bad\.length\)/.test(page.text) && /\$\('nl'\)\.textContent='\('\+s\.lanes\.length\+'\)'/.test(page.text), "Decide, Work in progress, For review and Lanes headers always show a count, even at zero");
+    // Section open/closed state persists per browser via localStorage, wrapped in try/catch (falls back to the HTML default when storage is unavailable).
+    check(/function loadSecState\(\)\{try\{return JSON\.parse\(localStorage\.getItem\(SEC_KEY\)\|\|'\{\}'\)\}catch\(e\)\{return\{\}\}\}/.test(page.text) && /function saveSecState\(st\)\{try\{localStorage\.setItem\(SEC_KEY,JSON\.stringify\(st\)\)\}catch\(e\)\{\}\}/.test(page.text), "section state read/written via localStorage, wrapped in try/catch");
+    check(/document\.addEventListener\('toggle',e=>\{const d=e\.target;if\(!d\.classList\|\|!d\.classList\.contains\('sec'\)\)return;const st=loadSecState\(\);st\[d\.dataset\.sec\]=d\.open;saveSecState\(st\)\},true\)/.test(page.text), "toggling a section (click on its header) persists its open/closed state");
+    // Headless proof that a live SSE redraw can never reopen a collapsed section or collapse an open one:
+    // render() drives every redraw (poll and SSE), and it never references a <details data-sec> node or sets .open;
+    // it only ever calls put(id, html) against the <div> nested inside a section, which put() replaces via innerHTML
+    // without touching its ancestor <details>. So the section's open/closed DOM state is structurally untouched by data updates.
+    { const renderBody = page.text.match(/function render\(s\)\{[\s\S]*?\n\}\n/)?.[0] ?? "";
+      check(renderBody.length > 1000 && !/data-sec/.test(renderBody) && !/\.open\s*=/.test(renderBody), "render() (run on every poll and SSE push) never reads or sets <details data-sec>.open — a live update cannot change section collapse state"); }
     // Live push: a write from another process (the cos CLI) must reach an open stream within 3 seconds.
     const ev = openStream(`/api/events?t=${token}`);
     const first = await ev.waitFor(() => true, 3000);
@@ -111,6 +126,7 @@ try {
     const got2 = await ev.waitFor((s) => s.work?.some((x: any) => x.id === w.id && x.status === "done" && x.result === "probe"), 3000);
     check(!!got2, `SSE pushes cos work update within 3s (${got2 ? Date.now() - t1 + "ms" : "timed out"})`);
     check(!!got2 && got2.completed.today.some((c: any) => c.ref === `work:${w.id}` && c.kind === "done" && c.text === "live update probe" && /probe/.test(c.detail)), "work marked done moves into Completed today (live)");
+    check(!!got2 && got2.completed.today.length >= 1, "Completed today's count (rendered in the section header from s.completed.today.length on every poll/SSE push, regardless of collapsed state) increases live as items complete");
     const rv = addWork(other, "Board test", "review probe", "general-purpose"); updateWork(other, rv.id, "review", "draft ready");
     const fl = addWork(other, "Board test", "failed probe", "general-purpose"); updateWork(other, fl.id, "failed", "boom");
     const got3 = await ev.waitFor((s) => s.work?.some((x: any) => x.id === fl.id && x.status === "failed"), 3000);

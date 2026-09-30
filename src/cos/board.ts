@@ -316,7 +316,7 @@ export function createBoardServer(deps: BoardDeps, token: string, port = BOARD_P
 }
 
 export const BOARD_HTML = `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="referrer" content="no-referrer"><title>Chief of Staff Board</title><style>details.agent-ready>summary{cursor:pointer}
+<meta name="referrer" content="no-referrer"><title>Chief of Staff Board</title><style>details.agent-ready>summary,details.sec>summary{cursor:pointer}details.sec>summary>h2{display:inline-block}
 :root{--bg:#f7f6f2;--card:#fff;--ink:#1c1b18;--muted:#6b675e;--line:#e2dfd6;--accent:#2f5d50;--accent-ink:#fff;--warn:#9a5b12;--warn-soft:#f6ead6;--bad:#a3312a;--ok:#2f7d4f}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#141412;--card:#1d1c1a;--ink:#ecebe6;--muted:#a19d93;--line:#34322d;--accent:#7fc3ab;--accent-ink:#0f1a16;--warn:#e2ad63;--warn-soft:#3a2d18;--bad:#f08b82;--ok:#7fd3a0}}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 -apple-system,system-ui,sans-serif}
@@ -336,17 +336,17 @@ input{border:1px solid var(--line);background:var(--bg);color:var(--ink);border-
 <header><h1>Chief of Staff</h1><div class="live"><span class="dot stale" id="dot"></span><span id="conn">connecting…</span> · <span id="upd">loading…</span> · <span id="cost"></span> · <a id="brief" href="#" target="_blank" rel="noreferrer">today's brief</a></div></header>
 <div id="warn"></div>
 <div class="grid">
-<section><h2>Decide <span id="nd"></span></h2><div id="decide"></div></section>
-<section><h2>Work in progress <span id="nw"></span></h2><div id="work"></div></section>
-<section><h2>For review <span id="nr"></span></h2><div id="review"></div></section>
-<section><h2>Completed</h2><h3>Today</h3><div id="done-today"></div><h3>Earlier this week</h3><div id="done-week"></div></section>
-<section><h2>Commitments <span id="nc"></span></h2><div id="commit"></div><h3>On hold</h3><div id="held"></div></section>
-<section><h2>Lanes</h2><div class="lanes" id="lanes"></div></section>
+<section><details class="sec" data-sec="decide" open><summary><h2>Decide <span id="nd"></span></h2></summary><div id="decide"></div></details></section>
+<section><details class="sec" data-sec="work" open><summary><h2>Work in progress <span id="nw"></span></h2></summary><div id="work"></div></details></section>
+<section><details class="sec" data-sec="review" open><summary><h2>For review <span id="nr"></span></h2></summary><div id="review"></div></details></section>
+<section><details class="sec" data-sec="completed"><summary><h2 id="doneHead">Completed</h2></summary><h3>Today <span id="ndone-today"></span></h3><div id="done-today"></div><h3>Earlier this week <span id="ndone-week"></span></h3><div id="done-week"></div></details></section>
+<section><details class="sec" data-sec="commitments" open><summary><h2>Commitments <span id="nc"></span></h2></summary><div id="commit"></div><h3>On hold</h3><div id="held"></div></details></section>
+<section><details class="sec" data-sec="lanes" open><summary><h2>Lanes <span id="nl"></span></h2></summary><div class="lanes" id="lanes"></div></details></section>
 </div></main><div class="msg" id="msg"></div>
 <script>
 const T=new URLSearchParams(location.search).get('t')||'';history.replaceState(null,'',location.pathname+'?t='+T);
 const $=id=>document.getElementById(id);const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-let busy=false,openPreview=null,openAgent=null,lastOk=0,es=null,live=false,pollH=null;
+let busy=false,openPreview=null,openAgent=null,lastOk=0,es=null,live=false,pollH=null,showAllDone={today:false,week:false};
 // Replace a section only when its HTML changed; keep open <details data-k>, typed input values, focus and scroll.
 function put(id,html){const el=$(id);if(el.__h===html)return;const y=window.scrollY;
  const open=new Set([...el.querySelectorAll("details[data-k]")].filter(d=>d.open).map(d=>d.dataset.k));
@@ -364,26 +364,31 @@ function render(s){window.__s=s;
  $('upd').textContent='updated '+time(s.generated_at);$('cost').textContent='$'+s.cost_today.toFixed(2)+' of $'+s.budget.toFixed(2);
  $('brief').href=s.brief.exists?'/brief/'+s.date+'.html?t='+T:'#';$('brief').style.display=s.brief.exists?'':'none';
  put('warn',s.warnings.map(w=>'<div class="warn">'+esc(w)+'</div>').join(''));
- $('nd').textContent=s.decide.length?'('+s.decide.length+')':'';
+ $('nd').textContent='('+s.decide.length+')';
  if(!(busy||openPreview||openAgent)) put('decide',s.decide.length?s.decide.map(d=>{const id=d.date+'/'+d.n;return '<div class="item" data-id="'+id+'"><div class="t">'+d.n+'. '+(d.account&&d.account!=='personal'?'<span class="pill">'+esc(d.account)+'</span>':'')+esc(d.title)+'</div>'+
   (d.detail?'<div class="m">'+esc(d.detail)+'</div>':'')+'<div class="m">'+esc(d.source_ref)+(d.link?' · <a href="'+esc(d.link)+'" target="_blank" rel="noreferrer">source</a>':'')+(d.date!==s.date?' · from '+esc(d.date):'')+'</div>'+
   (d.kind==='reply'&&d.draft_body?'<div class="preview"><div class="m">Draft to '+esc(d.to)+'</div><pre>'+esc(d.draft_body)+'</pre>'+(d.has_placeholder?'<div class="warn">Has placeholder text: edit it in Gmail before sending.</div>':'')+'</div>':'')+
   elsewhereBlock(d)+agentBlock(d)+'<div class="btns">'+(d.kind==='reply'?'<button class="primary" onclick="preview(\\''+id+'\\')">Review &amp; send…</button>':'<button class="primary" onclick="act(\\''+id+'\\',\\'approve\\')">Approve</button>')+
   (d.agent&&(d.agent.status==='queued'||d.agent.status==='running')?'':'<button data-agent="'+id+'">'+(d.agent&&d.agent.status==='ready'?'Ask agent again':'Hand to agent')+'</button>')+
   '<button onclick="act(\\''+id+'\\',\\'done\\')">Done already</button><button onclick="act(\\''+id+'\\',\\'skip\\')">Skip</button></div><div id="ag-'+id.replace('/','-')+'"></div><div id="pv-'+id.replace('/','-')+'"></div></div>'}).join(''):'<div class="empty">Nothing waiting on you.</div>');
- const done=xs=>xs.length?xs.map(c=>'<div class="item"><span class="pill '+c.kind+'">'+c.kind+'</span>'+esc(c.text)+'<div class="m">'+(c.at?day(c.at)+' '+time(c.at):'')+(c.detail?' · '+esc(c.detail):'')+'</div></div>').join(''):'<div class="empty">Nothing yet.</div>';
- put('done-today',done(s.completed.today));put('done-week',done(s.completed.week));
+ $('doneHead').textContent='Completed today ('+s.completed.today.length+') · earlier this week ('+s.completed.week.length+')';
+ $('ndone-today').textContent='('+s.completed.today.length+')';$('ndone-week').textContent='('+s.completed.week.length+')';
+ const doneRow=c=>'<div class="item"><span class="pill '+c.kind+'">'+c.kind+'</span>'+esc(c.text)+'<div class="m">'+(c.at?day(c.at)+' '+time(c.at):'')+(c.detail?' · '+esc(c.detail):'')+'</div></div>';
+ const doneList=(xs,key)=>{const all=showAllDone[key],vis=all?xs:xs.slice(0,10),rows=vis.length?vis.map(doneRow).join(''):'<div class="empty">Nothing yet.</div>';
+  return rows+(xs.length>10?'<button data-showall="'+key+'">'+(all?'Show fewer':'Show all ('+xs.length+')')+'</button>':'')};
+ put('done-today',doneList(s.completed.today,'today'));put('done-week',doneList(s.completed.week,'week'));
  const od=s.commitments.filter(c=>c.overdue).length;$('nc').textContent='('+s.commitments.length+' open'+(od?', '+od+' overdue':'')+')';
  if(!busy) put('commit',s.commitments.length?s.commitments.map(c=>'<div class="item">'+(c.overdue?'<span class="pill overdue">overdue</span>':'')+'<span class="t">'+(c.owner==='me'?'You → '+esc(c.counterparty):esc(c.counterparty)+' → you')+'</span>: '+esc(c.what)+
   '<div class="m">due '+esc(c.due_at||'no date given')+(c.open_question?' · '+esc(c.open_question):'')+' · '+esc(c.sources.join(', '))+'</div>'+
   '<div class="btns"><input id="ev-'+c.id+'" placeholder="gmail:<sent id> / task:<id>"><button onclick="closeC('+c.id+')">Mark kept</button></div></div>').join(''):'<div class="empty">No open commitments.</div>');
  // Work in progress = queued or running only. Review and failed wait on you; done and cancelled are in Completed.
  const wip=s.work.filter(w=>w.status==='running'||w.status==='queued'),rev=s.work.filter(w=>w.status==='review'),bad=s.work.filter(w=>w.status==='failed');
- $('nw').textContent=wip.length?'('+wip.length+')':'';$('nr').textContent=rev.length||bad.length?'('+[rev.length?String(rev.length):'',bad.length?bad.length+' failed':''].filter(Boolean).join(', ')+')':'';
+ $('nw').textContent='('+wip.length+')';$('nr').textContent='('+(rev.length+bad.length)+(bad.length?', '+bad.length+' failed':'')+')';
  const wrow=w=>'<div class="item"><span class="pill '+esc(w.status)+'">'+esc(w.status)+'</span>'+esc(w.title)+'<div class="m">'+esc(w.agent)+' · '+esc(w.goal)+(w.result?' · '+esc(w.result):'')+'</div></div>';
  put('work',wip.length?wip.map(wrow).join(''):'<div class="empty">Nothing in progress. Start with /cos in Claude Code.</div>');
  put('review',rev.length||bad.length?rev.concat(bad).map(wrow).join(''):'<div class="empty">Nothing waiting for your review.</div>');
  put('held',s.held.length?s.held.map(h=>'<div class="item"><span class="pill">hold</span>'+esc(h.title)+'<div class="m">'+esc(h.note)+(h.link?' · <a href="'+esc(h.link)+'" target="_blank" rel="noreferrer">source</a>':'')+'</div><div class="btns"><button data-resume="'+h.id+'">Resume</button></div></div>').join(''):'<div class="empty">Nothing on hold.</div>');
+ $('nl').textContent='('+s.lanes.length+')';
  put('lanes',s.lanes.map(l=>'<span class="pill '+l.state+'" title="'+esc((l.last_started_at||'never')+' '+l.gaps.join('; '))+'">'+esc(l.lane)+' '+(l.state==='ok'?'✓':l.state)+'</span>').join(''));
 }
 function conn(){$('conn').textContent=live?'live':(pollH?'reconnecting… (polling every 5s)':'reconnecting…');$('dot').className='dot'+(live?'':' stale')}
@@ -430,6 +435,14 @@ document.addEventListener('click',async e=>{const b=e.target.closest('button');i
  else if(b.dataset.close){openAgent=null;$('decide').__h='';refresh()}
  else if(b.dataset.copy){const it=(window.__s&&window.__s.decide||[]).find(x=>x.date+'/'+x.n===b.dataset.copy);if(it&&it.elsewhere&&it.elsewhere.suggested){try{await navigator.clipboard.writeText(it.elsewhere.suggested);toast('Copied. Paste it into your reply in '+it.elsewhere.app+'.')}catch(e){toast('Could not copy: select the text instead.')}}}
  else if(b.dataset.resume){const r=await api('/api/held/'+b.dataset.resume+'/resume',{});toast(r.ok?r.message:r.error);refresh()}
- else if(b.dataset.stop){const r=await api('/api/agent/'+b.dataset.stop+'/cancel',{});toast(r.ok?r.message:r.error);refresh()}});
+ else if(b.dataset.stop){const r=await api('/api/agent/'+b.dataset.stop+'/cancel',{});toast(r.ok?r.message:r.error);refresh()}
+ else if(b.dataset.showall){showAllDone[b.dataset.showall]=!showAllDone[b.dataset.showall];render(window.__s)}});
+// Section collapse state (open/closed), remembered per browser. put() only ever replaces the <div> inside
+// a <details data-sec>, never the <details> itself, so a live SSE redraw can't reopen or close a section.
+const SEC_KEY='cos-sections';
+function loadSecState(){try{return JSON.parse(localStorage.getItem(SEC_KEY)||'{}')}catch(e){return{}}}
+function saveSecState(st){try{localStorage.setItem(SEC_KEY,JSON.stringify(st))}catch(e){}}
+(function(){const st=loadSecState();document.querySelectorAll('details.sec[data-sec]').forEach(d=>{const k=d.dataset.sec;if(k in st)d.open=!!st[k]})})();
+document.addEventListener('toggle',e=>{const d=e.target;if(!d.classList||!d.classList.contains('sec'))return;const st=loadSecState();st[d.dataset.sec]=d.open;saveSecState(st)},true);
 refresh();connect();setInterval(conn,10000);document.addEventListener('visibilitychange',()=>{if(!document.hidden)refresh()});
 </script></body></html>`;

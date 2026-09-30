@@ -7,7 +7,7 @@
   ],
   "passed": true,
   "problems": [],
-  "tested_commit": "5d717f0649569b07783a76f9b9c438c15428527e",
+  "tested_commit": "e191fe867abd9be79062d85412974f623eacea0c",
   "worktree_dirty": true,
   "prd_revision": 14,
   "gate_sha256": "59aa37baf7f4a63708863a848500ce89c584a8f9b89028a7b9d573b3d552fea0",
@@ -27,5 +27,5 @@
     "exit_code": 1,
     "output": "FAIL inline trailer blocked (want 2, got 0)\nFAIL lowercase trailer blocked (want 2, got 0)\nFAIL -F message file blocked (want 2, got 0)\nFAIL git -C path commit blocked (want 2, got 0)\nPASS clean commit allowed (exit 0)\nPASS non-commit command allowed (exit 0)\nFAIL unparseable input blocked (want 2, got 0)\nPASS hook registered in .claude/settings.json\nException ignored while flushing sys.stdout:\nBrokenPipeError: [Errno 32] Broken pipe\nException ignored while flushing sys.stdout:\nBrokenPipeError: [Errno 32] Broken pipe\nException ignored while flushing sys.stdout:\nBrokenPipeError: [Errno 32] Broken pipe\nException ignored while flushing sys.stdout:\nBrokenPipeError: [Errno 32] Broken pipe\nException ignored while flushing sys.stdout:\nBrokenPipeError: [Errno 32] Broken pipe\nException ignored while flushing sys.stdout:\nBrokenPipeError: [Errno 32] Broken pipe"
   },
-  "timestamp": "2026-09-30T00:29:33.483Z"
+  "timestamp": "2026-09-30T00:40:10.814Z"
 }

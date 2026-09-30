@@ -7,7 +7,7 @@
   ],
   "passed": true,
   "problems": [],
-  "tested_commit": "5d717f0649569b07783a76f9b9c438c15428527e",
+  "tested_commit": "e191fe867abd9be79062d85412974f623eacea0c",
   "worktree_dirty": true,
   "prd_revision": 14,
   "gate_sha256": "36ba55c7cd56f4224895af545f201ac4cac237bc7876aac5495b9de70127fdc6",
@@ -15,7 +15,7 @@
     "src/cos/approvals.ts": "53259f6b9c77f03d4bc1c01088e1c607105d59a9a6dc9d0dba2b610e602e34d4",
     "src/storage/migrations/008_approvals_hold.ts": "ac7f74b7d6bc5e4bd55e14ac04995ff3ec7be27817f070b394d12c7d65849917",
     "src/cos/render.ts": "aa71f5591bf2e12739380e38d7555b5d3a6a94d7d45e3acced05fa47af797755",
-    "src/cos/board.ts": "4fd0e9746dc967642d88adec4a3aff1dc96ff86cdb0b91f53484341a60df92a1",
+    "src/cos/board.ts": "807a3b3a90aee93c161cf01ec4000b250d031c3413503f13de1a6870c2baf3cf",
     "src/cos/executors.ts": "136d6195edbb5e4983b955ef92440d3f61740e2fcb1f964d0333cb95217ad48c",
     "tests/fixtures/cos/respond-broken.ts": "71ba797e75c037d1f673627fd6b1f20c7f8c2843389047d0cb8526ed6d22a8e4"
   },
@@ -30,5 +30,5 @@
     "exit_code": 1,
     "output": "Running migration 1...\nMigration 1 complete.\nRunning migration 2...\nMigration 2 complete.\nRunning migration 3...\nMigration 3 complete.\nRunning migration 4...\nMigration 4 complete.\nRunning migration 5...\nMigration 5 complete.\nRunning migration 6...\nMigration 6 complete.\nRunning migration 7...\nMigration 7 complete.\nRunning migration 8...\nMigration 8 complete.\nRunning migration 9...\nMigration 9 complete.\nFAIL threw: Item 1 is expired; nothing done."
   },
-  "timestamp": "2026-09-30T00:31:41.531Z"
+  "timestamp": "2026-09-30T00:42:21.345Z"
 }
