@@ -7,7 +7,7 @@
   ],
   "passed": true,
   "problems": [],
-  "tested_commit": "b1c84ca9ce3a7e95c87b991607ac003c5de7f629",
+  "tested_commit": "5d717f0649569b07783a76f9b9c438c15428527e",
   "worktree_dirty": true,
   "prd_revision": 14,
   "gate_sha256": "44271b20ff1fc2b7417ba5bc2d627475c37bc01045fb3b00175cf4667b1c8964",
@@ -29,5 +29,5 @@
     "exit_code": 1,
     "output": "FAIL CI status source is configured (owlthat CI alerts)\nFAIL latest result per workflow wins (checks.yml recovered; build-images still RED)\nFAIL only the still-RED workflow escalates, linking its alert\nPASS the brief reads CI status and escalates RED builds"
   },
-  "timestamp": "2026-09-29T18:13:10.645Z"
+  "timestamp": "2026-09-30T00:31:38.995Z"
 }

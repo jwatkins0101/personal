@@ -7,7 +7,7 @@
   ],
   "passed": true,
   "problems": [],
-  "tested_commit": "b1c84ca9ce3a7e95c87b991607ac003c5de7f629",
+  "tested_commit": "5d717f0649569b07783a76f9b9c438c15428527e",
   "worktree_dirty": true,
   "prd_revision": 14,
   "gate_sha256": "3568a1ae1e6d17f700452afdda8a6f919eb74b0f19404d13281d1867360dfe2f",
@@ -30,5 +30,5 @@
     "exit_code": 1,
     "output": "FAIL Word (.docx) attachment becomes plain text\nFAIL PDF attachment becomes plain text\nFAIL unsupported file types are reported, not guessed at\nFAIL a ~15k-character document (like the AACSB definitions) is read to the end\nFAIL oversized attachments are skipped\nPASS images skipped; at most 5 attachments read, the rest reported\nRunning migration 1...\nMigration 1 complete.\nRunning migration 2...\nMigration 2 complete.\nRunning migration 3...\nMigration 3 complete.\nRunning migration 4...\nMigration 4 complete.\nRunning migration 5...\nMigration 5 complete.\nRunning migration 6...\nMigration 6 complete.\nRunning migration 7...\nMigration 7 complete.\nRunning migration 8...\nMigration 8 complete.\nRunning migration 9...\nMigration 9 complete.\nFAIL the agent receives the attachment text\nPASS attachment text is framed as data, not instructions (it contains an injection attempt)\nPASS unreadable attachments show up in the agent's gaps"
   },
-  "timestamp": "2026-09-29T18:13:11.547Z"
+  "timestamp": "2026-09-30T00:31:39.992Z"
 }

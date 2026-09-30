@@ -7,7 +7,7 @@
   ],
   "passed": true,
   "problems": [],
-  "tested_commit": "b1c84ca9ce3a7e95c87b991607ac003c5de7f629",
+  "tested_commit": "5d717f0649569b07783a76f9b9c438c15428527e",
   "worktree_dirty": true,
   "prd_revision": 14,
   "gate_sha256": "66446270780b31455f11658b3c32d42d06a687b862520f83209fbe8a4c8a70ad",
@@ -26,5 +26,5 @@
     "exit_code": 1,
     "output": "FAIL drafts send blocked (want 2, got 0)\nFAIL messages send blocked (want 2, got 0)\nFAIL extra spacing blocked (want 2, got 0)\nFAIL REST send via curl blocked (want 2, got 0)\nFAIL repo send-mail.sh blocked (want 2, got 0)\nFAIL chained send blocked (want 2, got 0)\nPASS drafts create allowed (exit 0)\nPASS label/archive allowed (exit 0)\nPASS list allowed (exit 0)\nFAIL unparseable input blocked (want 2, got 0)\nPASS runner passes --settings with the hook\nPASS deploy copies the hook\nException ignored while flushing sys.stdout:\nBrokenPipeError: [Errno 32] Broken pipe\nException ignored while flushing sys.stdout:\nBrokenPipeError: [Errno 32] Broken pipe\nException ignored while flushing sys.stdout:\nBrokenPipeError: [Errno 32] Broken pipe\nException ignored while flushing sys.stdout:\nBrokenPipeError: [Errno 32] Broken pipe\nException ignored while flushing sys.stdout:\nBrokenPipeError: [Errno 32] Broken pipe\nException ignored while flushing sys.stdout:\nBrokenPipeError: [Errno 32] Broken pipe\nException ignored while flushing sys.stdout:\nBrokenPipeError: [Errno 32] Broken pipe\nException ignored while flushing sys.stdout:\nBrokenPipeError: [Errno 32] Broken pipe\nException ignored while flushing sys.stdout:\nBrokenPipeError: [Errno 32] Broken pipe"
   },
-  "timestamp": "2026-09-29T18:11:16.988Z"
+  "timestamp": "2026-09-30T00:29:34.151Z"
 }
