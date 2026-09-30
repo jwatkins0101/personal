@@ -57,6 +57,33 @@ const call = (method: string, path: string, opts: { token?: string | null; host?
     r.on("error", rej); if (payload) r.write(payload); r.end();
   });
 const state = async () => (await call("GET", "/api/state")).body;
+// SSE client: collects "state" events; waitFor resolves with the first event matching pred (or null on timeout).
+const openStream = (path: string, host = `127.0.0.1:${port}`) => {
+  const events: any[] = []; let status = 0, ctype = ""; let buf = "";
+  const waiters: { pred: (s: any) => boolean; done: (s: any) => void }[] = [];
+  const req = request({ host: "127.0.0.1", port, method: "GET", path, headers: { host } }, (resp) => {
+    status = resp.statusCode ?? 0; ctype = String(resp.headers["content-type"] ?? "");
+    resp.setEncoding("utf8");
+    resp.on("data", (c: string) => {
+      buf += c; let i: number;
+      while ((i = buf.indexOf("\n\n")) >= 0) {
+        const block = buf.slice(0, i); buf = buf.slice(i + 2);
+        if (!/^event: state$/m.test(block)) continue;
+        const ev = JSON.parse(block.split("\n").filter((l) => l.startsWith("data: ")).map((l) => l.slice(6)).join("\n"));
+        events.push(ev);
+        for (const w of [...waiters]) if (w.pred(ev)) { waiters.splice(waiters.indexOf(w), 1); w.done(ev); }
+      }
+    });
+  });
+  req.on("error", () => {}); req.end();
+  const waitFor = (pred: (s: any) => boolean, ms: number) => new Promise<any>((res) => {
+    const hit = events.find(pred); if (hit) return res(hit);
+    const w = { pred, done: (s: any) => { clearTimeout(t); res(s); } }; waiters.push(w);
+    const t = setTimeout(() => { waiters.splice(waiters.indexOf(w), 1); res(null); }, ms);
+  });
+  return { waitFor, status: () => status, ctype: () => ctype, close: () => req.destroy() };
+};
+const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
 try {
   if (which === "board-live") {
@@ -66,7 +93,30 @@ try {
     check(s.completed.today.some((c: any) => c.kind === "task" && c.text === "Renew car registration") && s.completed.today.some((c: any) => c.kind === "done" && /pay stubs/.test(c.text)), "Completed today shows checked-off Google Tasks and end-of-day done items");
     check(s.commitments.length === 1 && s.commitments[0].overdue === true, "overdue commitment flagged");
     const page = await call("GET", `/?t=${token}`);
-    check(page.status === 200 && /Completed/.test(page.text) && /setInterval\(\(\)=>\{if\(!document\.hidden\)refresh\(\)\},5000\)/.test(page.text), "page renders and polls every 5 seconds");
+    check(page.status === 200 && /Completed/.test(page.text) && /new EventSource\('\/api\/events\?t='/.test(page.text) && /pollH=setInterval\(\(\)=>\{if\(!document\.hidden\)refresh\(\)\},5000\)/.test(page.text) && /id="conn"/.test(page.text), "page subscribes to live updates, shows live/reconnecting, falls back to 5-second polling");
+    check(/function put\(id,html\)\{const el=\$\(id\);if\(el\.__h===html\)return/.test(page.text) && /details\[data-k\]/.test(page.text), "page re-renders only changed sections and keeps open details, typed input and scroll");
+    // Live push: a write from another process (the cos CLI) must reach an open stream within 3 seconds.
+    const ev = openStream(`/api/events?t=${token}`);
+    const first = await ev.waitFor(() => true, 3000);
+    check(ev.status() === 200 && /text\/event-stream/.test(ev.ctype()) && first?.decide?.length === 4, "SSE stream sends the current state on connect");
+    const Database = (await import("better-sqlite3")).default;
+    const other = new Database(process.env.DB_PATH!);
+    const { addWork, updateWork } = await import("../../src/cos/work.ts");
+    const t0 = Date.now();
+    const w = addWork(other, "Board test", "live update probe", "general-purpose");
+    const got = await ev.waitFor((s) => s.work?.some((x: any) => x.id === w.id && x.status === "queued"), 3000);
+    check(!!got, `SSE pushes cos work add from another connection within 3s (${got ? Date.now() - t0 + "ms" : "timed out"})`);
+    const t1 = Date.now();
+    updateWork(other, w.id, "done", "probe");
+    const got2 = await ev.waitFor((s) => s.work?.some((x: any) => x.id === w.id && x.status === "done" && x.result === "probe"), 3000);
+    check(!!got2, `SSE pushes cos work update within 3s (${got2 ? Date.now() - t1 + "ms" : "timed out"})`);
+    check(!!got2 && got2.completed.today.some((c: any) => c.ref === `work:${w.id}` && c.kind === "done" && c.text === "live update probe" && /probe/.test(c.detail)), "work marked done moves into Completed today (live)");
+    const rv = addWork(other, "Board test", "review probe", "general-purpose"); updateWork(other, rv.id, "review", "draft ready");
+    const fl = addWork(other, "Board test", "failed probe", "general-purpose"); updateWork(other, fl.id, "failed", "boom");
+    const got3 = await ev.waitFor((s) => s.work?.some((x: any) => x.id === fl.id && x.status === "failed"), 3000);
+    check(!!got3 && !got3.completed.today.some((c: any) => c.ref === `work:${rv.id}` || c.ref === `work:${fl.id}`), "review and failed work stay out of Completed");
+    check(/const wip=s\.work\.filter\(w=>w\.status==='running'\|\|w\.status==='queued'\)/.test(page.text) && /put\('work',wip\.length/.test(page.text) && /put\('review',rev\.length\|\|bad\.length\?rev\.concat\(bad\)/.test(page.text) && /<h2>For review/.test(page.text), "page: Work in progress lists only queued/running; review and failed get their own For review section");
+    other.close(); ev.close(); await sleep(50);
     check((await call("POST", `/api/approvals/${today}/2/approve`, { body: {} })).body?.ok === true, "approve from the board");
     s = await state();
     check(s.decide.length === 3 && s.completed.today.some((c: any) => c.kind === "approved" && c.text === "Pay Ecotech?"), "next poll: item moved from Decide to Completed");
@@ -87,6 +137,11 @@ try {
     check((await call("GET", "/api/state", { token: "wrong-token-0123456789abcd" })).status === 401, "wrong token: 401");
     check((await call("GET", "/", { token: null })).status === 401, "page without ?t= token: 401");
     check((await call("GET", "/api/state", { host: "evil.example:80" })).status === 403, "foreign Host header (DNS rebinding): 403");
+    check((await call("GET", "/api/events", { token: null })).status === 401, "live stream without token: 401");
+    check((await call("GET", "/api/events?t=wrong-token-0123456789abcd", { token: null })).status === 401, "live stream with wrong token: 401");
+    check((await call("GET", `/api/events?t=${token}`, { token: null, host: "evil.example:80" })).status === 403, "live stream from a foreign Host: 403");
+    const okStream = openStream(`/api/events?t=${token}`); await okStream.waitFor(() => true, 3000);
+    check(okStream.status() === 200 && /text\/event-stream/.test(okStream.ctype()), "live stream with the page token: 200 event-stream"); okStream.close();
     check((await call("POST", `/api/approvals/${today}/2/approve`, { body: {}, ctype: "text/plain" })).status === 415, "non-JSON post (cross-site form): refused");
     check((await call("POST", `/api/approvals/${today}/3/send`, { body: { confirm: true } })).body?.ok === false && sent.length === 0, "placeholder draft refused from the board");
     draft = { to: "attacker@evil.com", subject: "Re", body: "hi" };

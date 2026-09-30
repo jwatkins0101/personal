@@ -1,7 +1,9 @@
 /**
  * Live task board (D16, AC-24/AC-25): http://127.0.0.1:8787, kept running by launchd.
  * - Shows pending Decide items, what you completed (today / this week), open and overdue
- *   commitments, lane health, and today's brief. The page polls /api/state every 5 seconds.
+ *   commitments, lane health, and today's brief. Live: /api/events (Server-Sent Events) pushes a fresh
+ *   state within ~1s of any DB commit (cos work add/update, approve/skip, lanes); the page falls back
+ *   to polling /api/state every 5 seconds while the stream is down.
  * - Buttons run the same approvals code as the CLI: send always previews recipient and body
  *   first and keeps every refusal (placeholder, recipient swap, expiry).
  * - Bound to 127.0.0.1; every request needs the local token; Host must be localhost (blocks
@@ -37,7 +39,7 @@ export function loadOrCreateToken(path = TOKEN_PATH): string {
   return t;
 }
 
-export interface CompletedItem { at: string; kind: "sent" | "approved" | "skipped" | "closed" | "task" | "done"; text: string; detail?: string; ref?: string }
+export interface CompletedItem { at: string; kind: "sent" | "approved" | "skipped" | "closed" | "task" | "done" | "cancelled"; text: string; detail?: string; ref?: string }
 export interface BoardState {
   generated_at: string; date: string;
   decide: { date: string; n: number; kind: string; title: string; account: string | null; detail: string; source_ref: string; link?: string; to?: string; draft_body?: string; has_placeholder: boolean; expires_at: string;
@@ -120,6 +122,12 @@ export async function buildState(deps: BoardDeps): Promise<BoardState> {
     const at = new Date(c.updated_at.replace(" ", "T") + "Z");
     if (at >= weekStart) completed.push({ at: at.toISOString(), kind: "closed", text: `${c.owner === "me" ? "You kept" : `${c.counterparty} kept`}: ${c.what}`, detail: c.closed_evidence ?? undefined, ref: `commitment:${c.id}` });
   }
+  // /cos work closed this week (done or cancelled) moves here; failed stays in "For review" on the board.
+  for (const w of listWork(db, weekStart.toISOString())) {
+    if (w.status !== "done" && w.status !== "cancelled") continue;
+    const at = new Date(w.updated_at.replace(" ", "T") + "Z");
+    if (at >= weekStart) completed.push({ at: at.toISOString(), kind: w.status, text: w.title, detail: [w.agent, w.result].filter(Boolean).join(" · "), ref: `work:${w.id}` });
+  }
   // Google Tasks checked off (cached 60s: it is a network call).
   const since = weekStart.toISOString();
   if (!tasksCache || tasksCache.since !== since || Date.now() - tasksCache.at > 60_000) {
@@ -157,6 +165,17 @@ export async function buildState(deps: BoardDeps): Promise<BoardState> {
   };
 }
 
+/** Cheap change signature: data_version moves on commits by other connections (cos CLI, lanes); total_changes on ours. */
+export function dbSignature(db: Database.Database): string {
+  const dv = db.pragma("data_version", { simple: true });
+  const tc = (db.prepare("SELECT total_changes() AS n").get() as { n: number }).n;
+  return `${dv}:${tc}`;
+}
+export const WATCH_MS = Number(process.env.COS_BOARD_WATCH_MS ?? "1000");
+const HEARTBEAT_MS = 15_000;
+/** Rebuild at least this often even without DB commits (lane ledgers, brief and end-of-day files live on disk). */
+const FORCE_REBUILD_MS = 30_000;
+
 const sameToken = (a: string, b: string) => { const x = Buffer.from(a), y = Buffer.from(b); return x.length === y.length && timingSafeEqual(x, y); };
 
 async function readJson(req: IncomingMessage): Promise<Record<string, unknown>> {
@@ -173,6 +192,34 @@ export function createBoardServer(deps: BoardDeps, token: string, port = BOARD_P
   const json = (res: ServerResponse, code: number, body: unknown) => {
     res.writeHead(code, { "Content-Type": "application/json", "Cache-Control": "no-store" });
     res.end(JSON.stringify(body));
+  };
+  // Live feed (SSE): one watcher shared by every open page; runs only while a page is connected.
+  const clients = new Set<ServerResponse>();
+  let watch: ReturnType<typeof setInterval> | null = null;
+  let lastSig = "", lastBody = "", lastBuild = 0, lastBeat = 0, building = false;
+  const frame = (s: BoardState) => `event: state\ndata: ${JSON.stringify(s)}\n\n`;
+  const comparable = (s: BoardState) => JSON.stringify({ ...s, generated_at: "" });
+  const tick = async () => {
+    if (building || !clients.size) return;
+    const t = Date.now();
+    if (t - lastBeat >= HEARTBEAT_MS) { lastBeat = t; for (const c of clients) c.write(": ping\n\n"); }
+    if (dbSignature(deps.db) === lastSig && t - lastBuild < FORCE_REBUILD_MS) return;
+    building = true;
+    try {
+      const s = await buildState(deps);
+      lastSig = dbSignature(deps.db); lastBuild = Date.now(); // after the build: its own expiry writes must not retrigger
+      const cmp = comparable(s);
+      if (cmp !== lastBody) { lastBody = cmp; const f = frame(s); for (const c of clients) c.write(f); }
+    } catch { /* keep the stream; the next tick retries */ } finally { building = false; }
+  };
+  const stopWatch = () => { if (watch) clearInterval(watch); watch = null; };
+  const openEvents = async (req: IncomingMessage, res: ServerResponse) => {
+    res.writeHead(200, { "Content-Type": "text/event-stream; charset=utf-8", "Cache-Control": "no-store", Connection: "keep-alive", "X-Accel-Buffering": "no" });
+    res.write("retry: 2000\n\n");
+    clients.add(res);
+    req.on("close", () => { clients.delete(res); if (!clients.size) stopWatch(); });
+    if (!watch) { lastSig = ""; lastBody = ""; watch = setInterval(() => void tick(), WATCH_MS); watch.unref?.(); }
+    try { const s = await buildState(deps); if (clients.has(res)) res.write(frame(s)); } catch { /* the watcher sends the next one */ }
   };
   const server = createServer(async (req, res) => {
     try {
@@ -197,6 +244,11 @@ export function createBoardServer(deps: BoardDeps, token: string, port = BOARD_P
 
       // API: token in a header (a custom header also blocks cross-site form posts).
       if (!url.pathname.startsWith("/api/")) { res.writeHead(404); return res.end("not found"); }
+      // EventSource cannot send headers, so the stream also accepts the page's ?t= token.
+      if (req.method === "GET" && url.pathname === "/api/events") {
+        if (!sameToken(hToken, token) && !sameToken(qToken, token)) return json(res, 401, { ok: false, error: "missing or wrong token" });
+        return openEvents(req, res);
+      }
       if (!sameToken(hToken, token)) return json(res, 401, { ok: false, error: "missing or wrong token" });
       if (req.method === "GET" && url.pathname === "/api/state") return json(res, 200, await buildState(deps));
       if (req.method !== "POST") return json(res, 405, { ok: false, error: "method not allowed" });
@@ -258,6 +310,8 @@ export function createBoardServer(deps: BoardDeps, token: string, port = BOARD_P
       return json(res, 500, { ok: false, error: (e as Error).message.slice(0, 200) });
     }
   });
+  const close = server.close.bind(server);
+  server.close = ((cb?: (err?: Error) => void) => { stopWatch(); for (const c of clients) c.end(); clients.clear(); return close(cb); }) as typeof server.close;
   return server;
 }
 
@@ -275,15 +329,16 @@ section{background:var(--card);border:1px solid var(--line);border-radius:12px;p
 button.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}button.danger{border-color:var(--bad);color:var(--bad)}button:disabled{opacity:.5;cursor:default}
 .preview{margin-top:8px;border:1px solid var(--line);border-radius:8px;padding:10px;background:var(--bg)}.preview pre{white-space:pre-wrap;margin:6px 0;font:14px/1.45 system-ui}
 .warn{background:var(--warn-soft);color:var(--warn);border-radius:8px;padding:6px 10px;font-size:13px;margin:6px 0}.pill{display:inline-block;font:700 11px system-ui;padding:2px 7px;border-radius:999px;border:1px solid var(--line);margin-right:6px}
-.pill.overdue,.pill.failing,.pill.stale{color:var(--bad);border-color:var(--bad)}.pill.ok{color:var(--ok);border-color:var(--ok)}.pill.sent,.pill.approved,.pill.closed,.pill.task,.pill.done{color:var(--ok);border-color:var(--ok)}.pill.skipped{color:var(--muted)}
+.pill.overdue,.pill.failing,.pill.failed,.pill.stale{color:var(--bad);border-color:var(--bad)}.pill.ok{color:var(--ok);border-color:var(--ok)}.pill.sent,.pill.approved,.pill.closed,.pill.task,.pill.done{color:var(--ok);border-color:var(--ok)}.pill.skipped,.pill.cancelled{color:var(--muted)}.pill.running,.pill.review{color:var(--accent);border-color:var(--accent)}
 .lanes{display:flex;flex-wrap:wrap;gap:6px}a{color:var(--accent)}.empty{color:var(--muted);font-size:14px}.msg{position:fixed;left:50%;bottom:16px;transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:8px 14px;border-radius:10px;font-size:14px;display:none;max-width:90vw}
 input{border:1px solid var(--line);background:var(--bg);color:var(--ink);border-radius:8px;padding:5px 8px;font:13px ui-monospace,monospace;width:220px}h3{font:600 13px system-ui;margin:12px 0 4px;color:var(--muted)}
 </style></head><body><main>
-<header><h1>Chief of Staff</h1><div class="live"><span class="dot" id="dot"></span><span id="upd">loading…</span> · <span id="cost"></span> · <a id="brief" href="#" target="_blank" rel="noreferrer">today's brief</a></div></header>
+<header><h1>Chief of Staff</h1><div class="live"><span class="dot stale" id="dot"></span><span id="conn">connecting…</span> · <span id="upd">loading…</span> · <span id="cost"></span> · <a id="brief" href="#" target="_blank" rel="noreferrer">today's brief</a></div></header>
 <div id="warn"></div>
 <div class="grid">
 <section><h2>Decide <span id="nd"></span></h2><div id="decide"></div></section>
 <section><h2>Work in progress <span id="nw"></span></h2><div id="work"></div></section>
+<section><h2>For review <span id="nr"></span></h2><div id="review"></div></section>
 <section><h2>Completed</h2><h3>Today</h3><div id="done-today"></div><h3>Earlier this week</h3><div id="done-week"></div></section>
 <section><h2>Commitments <span id="nc"></span></h2><div id="commit"></div><h3>On hold</h3><div id="held"></div></section>
 <section><h2>Lanes</h2><div class="lanes" id="lanes"></div></section>
@@ -291,40 +346,63 @@ input{border:1px solid var(--line);background:var(--bg);color:var(--ink);border-
 <script>
 const T=new URLSearchParams(location.search).get('t')||'';history.replaceState(null,'',location.pathname+'?t='+T);
 const $=id=>document.getElementById(id);const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-let busy=false,openPreview=null,openAgent=null,lastOk=0;
+let busy=false,openPreview=null,openAgent=null,lastOk=0,es=null,live=false,pollH=null;
+// Replace a section only when its HTML changed; keep open <details data-k>, typed input values, focus and scroll.
+function put(id,html){const el=$(id);if(el.__h===html)return;const y=window.scrollY;
+ const open=new Set([...el.querySelectorAll("details[data-k]")].filter(d=>d.open).map(d=>d.dataset.k));
+ const vals={};el.querySelectorAll("input[id],textarea[id]").forEach(i=>{if(i.value)vals[i.id]=i.value});
+ const a=document.activeElement,f=a&&a.id&&el.contains(a)?a.id:null;
+ el.innerHTML=html;el.__h=html;
+ el.querySelectorAll("details[data-k]").forEach(d=>{if(open.has(d.dataset.k))d.open=true});
+ for(const k in vals){const i=document.getElementById(k);if(i&&el.contains(i))i.value=vals[k]}
+ if(f){const i=document.getElementById(f);if(i)i.focus({preventScroll:true})}
+ if(window.scrollY!==y)window.scrollTo(0,y)}
 function toast(t){const m=$('msg');m.textContent=t;m.style.display='block';clearTimeout(toast.h);toast.h=setTimeout(()=>m.style.display='none',4000)}
 async function api(path,body){const r=await fetch(path,{method:body?'POST':'GET',headers:{'x-cos-token':T,...(body?{'content-type':'application/json'}:{})},body:body?JSON.stringify(body):undefined});return r.json()}
 const time=iso=>new Date(iso).toLocaleTimeString([], {hour:'numeric',minute:'2-digit'});const day=iso=>new Date(iso).toLocaleDateString([], {weekday:'short',month:'short',day:'numeric'});
 function render(s){window.__s=s;
  $('upd').textContent='updated '+time(s.generated_at);$('cost').textContent='$'+s.cost_today.toFixed(2)+' of $'+s.budget.toFixed(2);
  $('brief').href=s.brief.exists?'/brief/'+s.date+'.html?t='+T:'#';$('brief').style.display=s.brief.exists?'':'none';
- $('warn').innerHTML=s.warnings.map(w=>'<div class="warn">'+esc(w)+'</div>').join('');
+ put('warn',s.warnings.map(w=>'<div class="warn">'+esc(w)+'</div>').join(''));
  $('nd').textContent=s.decide.length?'('+s.decide.length+')':'';
- if(!(busy||openPreview||openAgent)) $('decide').innerHTML=s.decide.length?s.decide.map(d=>{const id=d.date+'/'+d.n;return '<div class="item" data-id="'+id+'"><div class="t">'+d.n+'. '+(d.account&&d.account!=='personal'?'<span class="pill">'+esc(d.account)+'</span>':'')+esc(d.title)+'</div>'+
+ if(!(busy||openPreview||openAgent)) put('decide',s.decide.length?s.decide.map(d=>{const id=d.date+'/'+d.n;return '<div class="item" data-id="'+id+'"><div class="t">'+d.n+'. '+(d.account&&d.account!=='personal'?'<span class="pill">'+esc(d.account)+'</span>':'')+esc(d.title)+'</div>'+
   (d.detail?'<div class="m">'+esc(d.detail)+'</div>':'')+'<div class="m">'+esc(d.source_ref)+(d.link?' · <a href="'+esc(d.link)+'" target="_blank" rel="noreferrer">source</a>':'')+(d.date!==s.date?' · from '+esc(d.date):'')+'</div>'+
   (d.kind==='reply'&&d.draft_body?'<div class="preview"><div class="m">Draft to '+esc(d.to)+'</div><pre>'+esc(d.draft_body)+'</pre>'+(d.has_placeholder?'<div class="warn">Has placeholder text: edit it in Gmail before sending.</div>':'')+'</div>':'')+
   elsewhereBlock(d)+agentBlock(d)+'<div class="btns">'+(d.kind==='reply'?'<button class="primary" onclick="preview(\\''+id+'\\')">Review &amp; send…</button>':'<button class="primary" onclick="act(\\''+id+'\\',\\'approve\\')">Approve</button>')+
   (d.agent&&(d.agent.status==='queued'||d.agent.status==='running')?'':'<button data-agent="'+id+'">'+(d.agent&&d.agent.status==='ready'?'Ask agent again':'Hand to agent')+'</button>')+
-  '<button onclick="act(\\''+id+'\\',\\'done\\')">Done already</button><button onclick="act(\\''+id+'\\',\\'skip\\')">Skip</button></div><div id="ag-'+id.replace('/','-')+'"></div><div id="pv-'+id.replace('/','-')+'"></div></div>'}).join(''):'<div class="empty">Nothing waiting on you.</div>';
+  '<button onclick="act(\\''+id+'\\',\\'done\\')">Done already</button><button onclick="act(\\''+id+'\\',\\'skip\\')">Skip</button></div><div id="ag-'+id.replace('/','-')+'"></div><div id="pv-'+id.replace('/','-')+'"></div></div>'}).join(''):'<div class="empty">Nothing waiting on you.</div>');
  const done=xs=>xs.length?xs.map(c=>'<div class="item"><span class="pill '+c.kind+'">'+c.kind+'</span>'+esc(c.text)+'<div class="m">'+(c.at?day(c.at)+' '+time(c.at):'')+(c.detail?' · '+esc(c.detail):'')+'</div></div>').join(''):'<div class="empty">Nothing yet.</div>';
- $('done-today').innerHTML=done(s.completed.today);$('done-week').innerHTML=done(s.completed.week);
+ put('done-today',done(s.completed.today));put('done-week',done(s.completed.week));
  const od=s.commitments.filter(c=>c.overdue).length;$('nc').textContent='('+s.commitments.length+' open'+(od?', '+od+' overdue':'')+')';
- if(!busy) $('commit').innerHTML=s.commitments.length?s.commitments.map(c=>'<div class="item">'+(c.overdue?'<span class="pill overdue">overdue</span>':'')+'<span class="t">'+(c.owner==='me'?'You → '+esc(c.counterparty):esc(c.counterparty)+' → you')+'</span>: '+esc(c.what)+
+ if(!busy) put('commit',s.commitments.length?s.commitments.map(c=>'<div class="item">'+(c.overdue?'<span class="pill overdue">overdue</span>':'')+'<span class="t">'+(c.owner==='me'?'You → '+esc(c.counterparty):esc(c.counterparty)+' → you')+'</span>: '+esc(c.what)+
   '<div class="m">due '+esc(c.due_at||'no date given')+(c.open_question?' · '+esc(c.open_question):'')+' · '+esc(c.sources.join(', '))+'</div>'+
-  '<div class="btns"><input id="ev-'+c.id+'" placeholder="gmail:<sent id> / task:<id>"><button onclick="closeC('+c.id+')">Mark kept</button></div></div>').join(''):'<div class="empty">No open commitments.</div>';
- const open=s.work.filter(w=>['queued','running','review'].includes(w.status));$('nw').textContent=open.length?'('+open.length+')':'';
- $('work').innerHTML=s.work.length?s.work.map(w=>'<div class="item"><span class="pill '+esc(w.status)+'">'+esc(w.status)+'</span>'+esc(w.title)+'<div class="m">'+esc(w.agent)+' · '+esc(w.goal)+(w.result?' · '+esc(w.result):'')+'</div></div>').join(''):'<div class="empty">Nothing in progress. Start with /cos in Claude Code.</div>';
- $('held').innerHTML=s.held.length?s.held.map(h=>'<div class="item"><span class="pill">hold</span>'+esc(h.title)+'<div class="m">'+esc(h.note)+(h.link?' · <a href="'+esc(h.link)+'" target="_blank" rel="noreferrer">source</a>':'')+'</div><div class="btns"><button data-resume="'+h.id+'">Resume</button></div></div>').join(''):'<div class="empty">Nothing on hold.</div>';
- $('lanes').innerHTML=s.lanes.map(l=>'<span class="pill '+l.state+'" title="'+esc((l.last_started_at||'never')+' '+l.gaps.join('; '))+'">'+esc(l.lane)+' '+(l.state==='ok'?'✓':l.state)+'</span>').join('');
+  '<div class="btns"><input id="ev-'+c.id+'" placeholder="gmail:<sent id> / task:<id>"><button onclick="closeC('+c.id+')">Mark kept</button></div></div>').join(''):'<div class="empty">No open commitments.</div>');
+ // Work in progress = queued or running only. Review and failed wait on you; done and cancelled are in Completed.
+ const wip=s.work.filter(w=>w.status==='running'||w.status==='queued'),rev=s.work.filter(w=>w.status==='review'),bad=s.work.filter(w=>w.status==='failed');
+ $('nw').textContent=wip.length?'('+wip.length+')':'';$('nr').textContent=rev.length||bad.length?'('+[rev.length?String(rev.length):'',bad.length?bad.length+' failed':''].filter(Boolean).join(', ')+')':'';
+ const wrow=w=>'<div class="item"><span class="pill '+esc(w.status)+'">'+esc(w.status)+'</span>'+esc(w.title)+'<div class="m">'+esc(w.agent)+' · '+esc(w.goal)+(w.result?' · '+esc(w.result):'')+'</div></div>';
+ put('work',wip.length?wip.map(wrow).join(''):'<div class="empty">Nothing in progress. Start with /cos in Claude Code.</div>');
+ put('review',rev.length||bad.length?rev.concat(bad).map(wrow).join(''):'<div class="empty">Nothing waiting for your review.</div>');
+ put('held',s.held.length?s.held.map(h=>'<div class="item"><span class="pill">hold</span>'+esc(h.title)+'<div class="m">'+esc(h.note)+(h.link?' · <a href="'+esc(h.link)+'" target="_blank" rel="noreferrer">source</a>':'')+'</div><div class="btns"><button data-resume="'+h.id+'">Resume</button></div></div>').join(''):'<div class="empty">Nothing on hold.</div>');
+ put('lanes',s.lanes.map(l=>'<span class="pill '+l.state+'" title="'+esc((l.last_started_at||'never')+' '+l.gaps.join('; '))+'">'+esc(l.lane)+' '+(l.state==='ok'?'✓':l.state)+'</span>').join(''));
 }
-async function refresh(){try{const s=await api('/api/state');if(s.ok===false)throw new Error(s.error);render(s);lastOk=Date.now()}catch(e){$('upd').textContent='offline: '+e.message}$('dot').className='dot'+(Date.now()-lastOk>15000?' stale':'')}
+function conn(){$('conn').textContent=live?'live':(pollH?'reconnecting… (polling every 5s)':'reconnecting…');$('dot').className='dot'+(live?'':' stale')}
+async function refresh(){try{const s=await api('/api/state');if(s.ok===false)throw new Error(s.error);render(s);lastOk=Date.now()}catch(e){$('upd').textContent='offline: '+e.message}conn()}
+// Live updates: the server pushes state over SSE; while the stream is down, poll every 5 seconds.
+function startPoll(){if(!pollH)pollH=setInterval(()=>{if(!document.hidden)refresh()},5000)}
+function stopPoll(){if(pollH)clearInterval(pollH);pollH=null}
+function connect(){if(!window.EventSource){startPoll();conn();return}
+ es=new EventSource('/api/events?t='+encodeURIComponent(T));
+ es.onopen=()=>{live=true;stopPoll();conn()};
+ es.addEventListener('state',e=>{try{render(JSON.parse(e.data));lastOk=Date.now()}catch(err){}live=true;stopPoll();conn()});
+ es.onerror=()=>{live=false;startPoll();conn();if(es.readyState===2){es.close();setTimeout(connect,5000)}}}
 async function act(id,a){busy=true;const[d,n]=id.split('/');const r=await api('/api/approvals/'+d+'/'+n+'/'+a,{});busy=false;toast(r.ok?r.message:r.error);refresh()}
 async function preview(id){const[d,n]=id.split('/');const box=$('pv-'+id.replace('/','-'));const r=await api('/api/approvals/'+d+'/'+n+'/preview',{});
  if(!r.ok){toast(r.error);return}openPreview=id;box.innerHTML='<div class="preview"><div class="m">This exact email will be sent:</div><div><b>To:</b> '+esc(r.preview.to)+'</div><div><b>Subject:</b> '+esc(r.preview.subject)+'</div><pre>'+esc(r.preview.body)+'</pre>'+
  (r.placeholder?'<div class="warn">Contains placeholder "'+esc(r.placeholder)+'". Sending will be refused until you edit it in Gmail.</div>':'')+
  '<div class="btns"><button class="primary" onclick="sendNow(\\''+id+'\\')">Send now</button><button onclick="cancelPv(\\''+id+'\\')">Cancel</button></div></div>'}
-function cancelPv(id){openPreview=null;$('pv-'+id.replace('/','-')).innerHTML='';refresh()}
-async function sendNow(id){const[d,n]=id.split('/');busy=true;const r=await api('/api/approvals/'+d+'/'+n+'/send',{confirm:true});busy=false;openPreview=null;toast(r.ok?r.message:r.error);refresh()}
+function cancelPv(id){openPreview=null;$('decide').__h='';$('pv-'+id.replace('/','-')).innerHTML='';refresh()}
+async function sendNow(id){const[d,n]=id.split('/');busy=true;const r=await api('/api/approvals/'+d+'/'+n+'/send',{confirm:true});busy=false;openPreview=null;$('decide').__h='';toast(r.ok?r.message:r.error);refresh()}
 async function closeC(id){const ev=$('ev-'+id).value.trim();const r=await api('/api/commitments/'+id+'/close',{evidence:ev});toast(r.ok?r.message:r.error);refresh()}
 function mins(a,b){const m=Math.max(0,Math.round(((b?new Date(b):new Date())-new Date(a))/60000));return m<1?'<1 min':m+' min'}
 function elsewhereBlock(d){const e=d.elsewhere;if(!e)return'';
@@ -339,7 +417,7 @@ function agentBlock(d){const a=d.agent;if(!a)return'';
  if(a.status==='queued'||a.status==='running')return '<div class="preview"><div class="t">🤖 Agent working…'+(a.started_at?' ('+mins(a.started_at)+')':' (starting)')+'</div><div class="m">Reading the thread and searching your mail. It prepares; you review.</div><div class="btns"><button data-stop="'+a.id+'">Stop</button></div></div>';
  if(a.status==='ready')return '<details class="preview agent-ready" data-job="'+a.id+'"'+(minAgents.has(String(a.id))?'':' open')+'><summary class="t">🤖 Ready for review<span class="m"> · click to '+(minAgents.has(String(a.id))?'expand':'minimize')+'</span></summary><div>'+esc(a.summary)+'</div>'+
   (a.needs_from_you.length?'<div class="m" style="margin-top:6px"><b>Needs from you:</b></div><ul>'+a.needs_from_you.map(x=>'<li>'+esc(x)+'</li>').join('')+'</ul>':'')+
-  (a.findings.length?'<details><summary class="m">What it found ('+a.findings.length+')</summary><ul>'+a.findings.map(f=>'<li>'+esc(f.claim)+' <span class="m">'+esc(f.source_ref)+'</span></li>').join('')+'</ul></details>':'')+
+  (a.findings.length?'<details data-k="found-'+a.id+'"><summary class="m">What it found ('+a.findings.length+')</summary><ul>'+a.findings.map(f=>'<li>'+esc(f.claim)+' <span class="m">'+esc(f.source_ref)+'</span></li>').join('')+'</ul></details>':'')+
   (a.gaps.length?'<div class="m">Could not find: '+esc(a.gaps.join('; '))+'</div>':'')+
   '<div class="m">'+(a.drafted?'Draft reply saved to Gmail: use Review &amp; send.':'No draft made.')+(a.cost_usd!=null?' · $'+a.cost_usd.toFixed(2):'')+'</div></details>';
  if(a.status==='failed')return '<div class="warn">Agent could not finish: '+esc(a.error||'unknown error')+'</div>';
@@ -348,10 +426,10 @@ document.addEventListener('click',async e=>{const b=e.target.closest('button');i
  if(b.dataset.agent){const id=b.dataset.agent;openAgent=id;const box=$('ag-'+id.replace('/','-'));
   box.innerHTML='<div class="preview"><div class="m">Anything the agent should know? (optional)</div><textarea id="note-'+id.replace('/','-')+'" rows="2" style="width:100%;margin-top:6px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--ink);font:14px system-ui;padding:6px" placeholder="e.g. use last year&#39;s AACSB form"></textarea><div class="btns"><button class="primary" data-start="'+id+'">Start agent</button><button data-close="'+id+'">Cancel</button></div></div>'}
  else if(b.dataset.start){const id=b.dataset.start;const[d,n]=id.split('/');const note=($('note-'+id.replace('/','-'))||{}).value||'';b.disabled=true;
-  const r=await api('/api/approvals/'+d+'/'+n+'/agent',{note});openAgent=null;toast(r.ok?r.message:r.error);refresh()}
- else if(b.dataset.close){openAgent=null;refresh()}
+  const r=await api('/api/approvals/'+d+'/'+n+'/agent',{note});openAgent=null;$('decide').__h='';toast(r.ok?r.message:r.error);refresh()}
+ else if(b.dataset.close){openAgent=null;$('decide').__h='';refresh()}
  else if(b.dataset.copy){const it=(window.__s&&window.__s.decide||[]).find(x=>x.date+'/'+x.n===b.dataset.copy);if(it&&it.elsewhere&&it.elsewhere.suggested){try{await navigator.clipboard.writeText(it.elsewhere.suggested);toast('Copied. Paste it into your reply in '+it.elsewhere.app+'.')}catch(e){toast('Could not copy: select the text instead.')}}}
  else if(b.dataset.resume){const r=await api('/api/held/'+b.dataset.resume+'/resume',{});toast(r.ok?r.message:r.error);refresh()}
  else if(b.dataset.stop){const r=await api('/api/agent/'+b.dataset.stop+'/cancel',{});toast(r.ok?r.message:r.error);refresh()}});
-refresh();setInterval(()=>{if(!document.hidden)refresh()},5000);document.addEventListener('visibilitychange',()=>{if(!document.hidden)refresh()});
+refresh();connect();setInterval(conn,10000);document.addEventListener('visibilitychange',()=>{if(!document.hidden)refresh()});
 </script></body></html>`;
