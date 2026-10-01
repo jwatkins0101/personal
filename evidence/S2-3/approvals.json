@@ -7,9 +7,9 @@
   ],
   "passed": true,
   "problems": [],
-  "tested_commit": "f3b87a49e06cfc06ac62c3cc21f477b95d185d58",
+  "tested_commit": "8146bcb3585767ca4512a86ba83cdaffb5e50903",
   "worktree_dirty": true,
-  "prd_revision": 14,
+  "prd_revision": 15,
   "gate_sha256": "1d44c64def143f74f8a25eada7777e6618b3519236a7b91cf59caf3a6e17ecb0",
   "assertion_sha256": {
     "src/cos/approvals.ts": "53259f6b9c77f03d4bc1c01088e1c607105d59a9a6dc9d0dba2b610e602e34d4",
@@ -27,5 +27,5 @@
     "exit_code": 1,
     "output": "Running migration 1...\nMigration 1 complete.\nRunning migration 2...\nMigration 2 complete.\nRunning migration 3...\nMigration 3 complete.\nRunning migration 4...\nMigration 4 complete.\nRunning migration 5...\nMigration 5 complete.\nRunning migration 6...\nMigration 6 complete.\nRunning migration 7...\nMigration 7 complete.\nRunning migration 8...\nMigration 8 complete.\nRunning migration 9...\nMigration 9 complete.\nFAIL send 1 sends exactly that draft\nFAIL send shows final recipient and body first\nPASS approve records a decision\nPASS approve creates the task\nFAIL recipient swap refused\nFAIL placeholder refused\nPASS skip closes the item\nFAIL expired item refused\nFAIL expired status recorded"
   },
-  "timestamp": "2026-09-30T21:41:17.988Z"
+  "timestamp": "2026-10-01T11:05:13.197Z"
 }

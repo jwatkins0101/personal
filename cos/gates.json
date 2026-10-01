@@ -135,7 +135,7 @@
       },
       "script_sha256": "824aecf9d40a634fcd39f67a041b94bd548b4f113a8a3c5433d94fa7b8763cb2",
       "assertion_sha256": {
-        "cos/CLAUDE.md": "aa2fa40e2fdd4868ce8f82fa3c44055fa943b9d0664796d882f084a39e1f56bf",
+        "cos/CLAUDE.md": "36f10a77833f667411a8224689bcbb011f90a1f7307449e19e313744c96472f9",
         "src/cos/claude.ts": "316c9dd2299d338d7eed72bde58e979a5598ff5fe10904224b609027be21dc67"
       }
     },
@@ -1154,8 +1154,59 @@
         "src/cos/work.ts": "3fc3fa84636854bd5d91c18ef66269c5bf9cde0baf7f3937007c0c1f70b1bfb9",
         "src/storage/migrations/009_work.ts": "423bad39e3fcdb0ee7b41557da3703f44394bc4376c08c75037ca32f60a5fad8",
         "src/cos/board.ts": "fd1af37049a9a0f5084cc43bf03656a921b9d7ee23315a9b56117da9d690b958",
-        "cos/skills/cos/SKILL.md": "277bee44fc9f3b942868c38151024c65402b84223057d3e33eb79383d45ef37e",
+        "cos/skills/cos/SKILL.md": "79d9bf5d8f9d9ac817e4e474e77b0e8dbdc6c425c73dcf46acf6d6d88d6279ae",
         "tests/fixtures/cos/work-broken.ts": "ffc19d48ced52082cd31289b9f1c49ac9d73d84bf5590af28f128be38eff524c"
+      }
+    },
+    {
+      "id": "comms-check",
+      "story": "S8-1",
+      "tier": "unit",
+      "acceptance": [
+        "AC-38"
+      ],
+      "command": [
+        "npx",
+        "tsx",
+        "tests/gates/comms-check.ts"
+      ],
+      "script": "tests/gates/comms-check.ts",
+      "assertion_files": [
+        "src/comms/check-comms.ts",
+        "docs/research/ai-writing-tells.json",
+        "tests/fixtures/comms/tell-cases.json",
+        "tests/fixtures/comms/ai-email.txt",
+        "tests/fixtures/comms/human-email.txt",
+        "tests/fixtures/comms/ai-linkedin.txt",
+        "tests/fixtures/comms/human-linkedin.txt",
+        "tests/fixtures/comms/ai-text.txt",
+        "tests/fixtures/comms/human-text.txt",
+        "tests/fixtures/comms/ai-congrats.txt",
+        "tests/fixtures/comms/tells-broken.json",
+        "cos/skills/cos/SKILL.md",
+        "cos/CLAUDE.md"
+      ],
+      "negative": {
+        "env": {
+          "COMMS_TELLS_PATH": "tests/fixtures/comms/tells-broken.json"
+        },
+        "reason": "a tells file with one regex broken (lex-01 no longer catches 'delve') must fail"
+      },
+      "script_sha256": "e52781ca38a0a2757847ea4d2cf31addcf654e55975c304e26bca7b8e4762391",
+      "assertion_sha256": {
+        "src/comms/check-comms.ts": "7f3b4da6d9a704b411804e7209c84705c15704eb5cfb7de5a7b4d29365447b50",
+        "docs/research/ai-writing-tells.json": "a49c343a552325e62ce3624f3704b0b4bbb73da41b1ce52a0cbdf4c75bf3c1d3",
+        "tests/fixtures/comms/tell-cases.json": "3272da259a66ea5365828e24fbb97177254c693dac9d6ef256bfeab18d296baa",
+        "tests/fixtures/comms/ai-email.txt": "45ec0f6eae23fae698e9e338df5b2f20768368154d522ca7e073525206f6c15e",
+        "tests/fixtures/comms/human-email.txt": "35a061d333b6c9c2c564dbe7cd00149ca8d7e6e737534b57e4a2979799705472",
+        "tests/fixtures/comms/ai-linkedin.txt": "9615ebaa32c9445c61fd14d34820ee7568113c540290186f810f0441c04f6254",
+        "tests/fixtures/comms/human-linkedin.txt": "52eecf6e25241b53e3d15b34c1db49cf11a9aebf93a7703147b14023654c75ae",
+        "tests/fixtures/comms/ai-text.txt": "1b2fd41a66378c45f689afd4e8a00e5532fef3338febd78b35ef9a8a01e1516b",
+        "tests/fixtures/comms/human-text.txt": "0fd49549c15f8a1fd64b1f370322645252b24ab757f9c3a786905c3bf9cc3441",
+        "tests/fixtures/comms/ai-congrats.txt": "719fa8147ad187dbf971ce063248425bbe9517d44c9bb208bc6bce106b668423",
+        "tests/fixtures/comms/tells-broken.json": "4ec6e947864fca3d109f82dcde0aacb588aa13c4f7ba0800c8abcd46deca2ca5",
+        "cos/skills/cos/SKILL.md": "79d9bf5d8f9d9ac817e4e474e77b0e8dbdc6c425c73dcf46acf6d6d88d6279ae",
+        "cos/CLAUDE.md": "36f10a77833f667411a8224689bcbb011f90a1f7307449e19e313744c96472f9"
       }
     }
   ]

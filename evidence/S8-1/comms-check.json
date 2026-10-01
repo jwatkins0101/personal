@@ -1,0 +1,41 @@
+{
+  "gate": "comms-check",
+  "story": "S8-1",
+  "tier": "unit",
+  "acceptance": [
+    "AC-38"
+  ],
+  "passed": true,
+  "problems": [],
+  "tested_commit": "8146bcb3585767ca4512a86ba83cdaffb5e50903",
+  "worktree_dirty": true,
+  "prd_revision": 15,
+  "gate_sha256": "e52781ca38a0a2757847ea4d2cf31addcf654e55975c304e26bca7b8e4762391",
+  "assertion_sha256": {
+    "src/comms/check-comms.ts": "7f3b4da6d9a704b411804e7209c84705c15704eb5cfb7de5a7b4d29365447b50",
+    "docs/research/ai-writing-tells.json": "a49c343a552325e62ce3624f3704b0b4bbb73da41b1ce52a0cbdf4c75bf3c1d3",
+    "tests/fixtures/comms/tell-cases.json": "3272da259a66ea5365828e24fbb97177254c693dac9d6ef256bfeab18d296baa",
+    "tests/fixtures/comms/ai-email.txt": "45ec0f6eae23fae698e9e338df5b2f20768368154d522ca7e073525206f6c15e",
+    "tests/fixtures/comms/human-email.txt": "35a061d333b6c9c2c564dbe7cd00149ca8d7e6e737534b57e4a2979799705472",
+    "tests/fixtures/comms/ai-linkedin.txt": "9615ebaa32c9445c61fd14d34820ee7568113c540290186f810f0441c04f6254",
+    "tests/fixtures/comms/human-linkedin.txt": "52eecf6e25241b53e3d15b34c1db49cf11a9aebf93a7703147b14023654c75ae",
+    "tests/fixtures/comms/ai-text.txt": "1b2fd41a66378c45f689afd4e8a00e5532fef3338febd78b35ef9a8a01e1516b",
+    "tests/fixtures/comms/human-text.txt": "0fd49549c15f8a1fd64b1f370322645252b24ab757f9c3a786905c3bf9cc3441",
+    "tests/fixtures/comms/ai-congrats.txt": "719fa8147ad187dbf971ce063248425bbe9517d44c9bb208bc6bce106b668423",
+    "tests/fixtures/comms/tells-broken.json": "4ec6e947864fca3d109f82dcde0aacb588aa13c4f7ba0800c8abcd46deca2ca5",
+    "cos/skills/cos/SKILL.md": "79d9bf5d8f9d9ac817e4e474e77b0e8dbdc6c425c73dcf46acf6d6d88d6279ae",
+    "cos/CLAUDE.md": "36f10a77833f667411a8224689bcbb011f90a1f7307449e19e313744c96472f9"
+  },
+  "command": "npx tsx tests/gates/comms-check.ts",
+  "exit_code": 0,
+  "output": "PASS all 42 tell regexes compile in JS (42 compiled)\nPASS 173 research pos/neg cases pass in JS (173/173)\nPASS 41 before/after pairs: before trips the tell, after is clean\nPASS AI-ish email scores low and is blocked (score 0)\nPASS AI-ish email: subject line, bold labels, placeholder, sycophantic opener, participle tail, not-X-but-Y, hope opener all found\nPASS clean email scores high with no high tells (score 100)\nPASS LinkedIn: generic DM flagged (44), specific DM passes (100)\nPASS text: email-style text flagged (76), real text clean (100)\nPASS any em dash in a text is flagged\nPASS a header in a short email is high\nPASS congratulations: relational, severities raised, no 'missing ask' nag\nPASS single AI-vocabulary word is noted\nPASS CLI exits 1 on a high-severity tell (exit 1)\nPASS CLI reads stdin and exits 0 on a clean draft (exit 0)\nPASS CLI --json returns score and findings\nPASS the /cos skill routes every draft through comms-checker before he sees it\nPASS the charter requires the comms check on drafts\n\n17 passed, 0 failed",
+  "negative_validation": {
+    "env": {
+      "COMMS_TELLS_PATH": "tests/fixtures/comms/tells-broken.json"
+    },
+    "reason": "a tells file with one regex broken (lex-01 no longer catches 'delve') must fail",
+    "exit_code": 1,
+    "output": "PASS all 42 tell regexes compile in JS (42 compiled)\nFAIL 173 research pos/neg cases pass in JS (172/173)\n  lex-01 should match: \"Let's delve into the data.\"\nPASS 41 before/after pairs: before trips the tell, after is clean\nPASS AI-ish email scores low and is blocked (score 0)\nPASS AI-ish email: subject line, bold labels, placeholder, sycophantic opener, participle tail, not-X-but-Y, hope opener all found\nPASS clean email scores high with no high tells (score 100)\nPASS LinkedIn: generic DM flagged (44), specific DM passes (100)\nPASS text: email-style text flagged (76), real text clean (100)\nPASS any em dash in a text is flagged\nPASS a header in a short email is high\nPASS congratulations: relational, severities raised, no 'missing ask' nag\nFAIL single AI-vocabulary word is noted\nPASS CLI exits 1 on a high-severity tell (exit 1)\nPASS CLI reads stdin and exits 0 on a clean draft (exit 0)\nPASS CLI --json returns score and findings\nPASS the /cos skill routes every draft through comms-checker before he sees it\nPASS the charter requires the comms check on drafts\n\n15 passed, 2 failed"
+  },
+  "timestamp": "2026-10-01T11:05:51.904Z"
+}

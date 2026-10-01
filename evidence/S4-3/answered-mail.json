@@ -7,9 +7,9 @@
   ],
   "passed": true,
   "problems": [],
-  "tested_commit": "f3b87a49e06cfc06ac62c3cc21f477b95d185d58",
+  "tested_commit": "8146bcb3585767ca4512a86ba83cdaffb5e50903",
   "worktree_dirty": true,
-  "prd_revision": 14,
+  "prd_revision": 15,
   "gate_sha256": "fe78bb479ee7482867849fb05e95eda7c8a322ed019235fe5a283e05a1cc447d",
   "assertion_sha256": {
     "src/cos/replied.ts": "9ece76d093cade89b3b25e12886e961e192636316d158a03e601f0e942e442d5",
@@ -18,14 +18,14 @@
   },
   "command": "npx tsx tests/gates/cos-board.ts answered-mail",
   "exit_code": 0,
-  "output": "Running migration 1...\nMigration 1 complete.\nRunning migration 2...\nMigration 2 complete.\nRunning migration 3...\nMigration 3 complete.\nRunning migration 4...\nMigration 4 complete.\nRunning migration 5...\nMigration 5 complete.\nRunning migration 6...\nMigration 6 complete.\nRunning migration 7...\nMigration 7 complete.\nRunning migration 8...\nMigration 8 complete.\nRunning migration 9...\nMigration 9 complete.\nPASS answered mail dropped before the brief; unanswered kept\nPASS answered item records your sent message\nPASS a failed check keeps the mail (never hides on error)\nPASS brief reads yesterday's calendar and treats it as already happened (D18)\nPASS morning gather filters answered mail before synthesis\n(node:90502) [DEP0205] DeprecationWarning: `module.register()` is deprecated. Use `module.registerHooks()` instead.\n(Use `node --trace-deprecation ...` to show where the warning was created)",
+  "output": "Running migration 1...\nMigration 1 complete.\nRunning migration 2...\nMigration 2 complete.\nRunning migration 3...\nMigration 3 complete.\nRunning migration 4...\nMigration 4 complete.\nRunning migration 5...\nMigration 5 complete.\nRunning migration 6...\nMigration 6 complete.\nRunning migration 7...\nMigration 7 complete.\nRunning migration 8...\nMigration 8 complete.\nRunning migration 9...\nMigration 9 complete.\nPASS answered mail dropped before the brief; unanswered kept\nPASS answered item records your sent message\nPASS a failed check keeps the mail (never hides on error)\nPASS brief reads yesterday's calendar and treats it as already happened (D18)\nPASS morning gather filters answered mail before synthesis\n(node:71430) [DEP0205] DeprecationWarning: `module.register()` is deprecated. Use `module.registerHooks()` instead.\n(Use `node --trace-deprecation ...` to show where the warning was created)",
   "negative_validation": {
     "env": {
       "REPLIED_MODULE": "tests/fixtures/cos/replied-broken.ts"
     },
     "reason": "a filter that never detects your replies must fail",
     "exit_code": 1,
-    "output": "Running migration 1...\nMigration 1 complete.\nRunning migration 2...\nMigration 2 complete.\nRunning migration 3...\nMigration 3 complete.\nRunning migration 4...\nMigration 4 complete.\nRunning migration 5...\nMigration 5 complete.\nRunning migration 6...\nMigration 6 complete.\nRunning migration 7...\nMigration 7 complete.\nRunning migration 8...\nMigration 8 complete.\nRunning migration 9...\nMigration 9 complete.\nFAIL answered mail dropped before the brief; unanswered kept\nFAIL answered item records your sent message\nPASS a failed check keeps the mail (never hides on error)\nPASS brief reads yesterday's calendar and treats it as already happened (D18)\nPASS morning gather filters answered mail before synthesis\n(node:90542) [DEP0205] DeprecationWarning: `module.register()` is deprecated. Use `module.registerHooks()` instead.\n(Use `node --trace-deprecation ...` to show where the warning was created)"
+    "output": "Running migration 1...\nMigration 1 complete.\nRunning migration 2...\nMigration 2 complete.\nRunning migration 3...\nMigration 3 complete.\nRunning migration 4...\nMigration 4 complete.\nRunning migration 5...\nMigration 5 complete.\nRunning migration 6...\nMigration 6 complete.\nRunning migration 7...\nMigration 7 complete.\nRunning migration 8...\nMigration 8 complete.\nRunning migration 9...\nMigration 9 complete.\nFAIL answered mail dropped before the brief; unanswered kept\nFAIL answered item records your sent message\nPASS a failed check keeps the mail (never hides on error)\nPASS brief reads yesterday's calendar and treats it as already happened (D18)\nPASS morning gather filters answered mail before synthesis\n(node:71469) [DEP0205] DeprecationWarning: `module.register()` is deprecated. Use `module.registerHooks()` instead.\n(Use `node --trace-deprecation ...` to show where the warning was created)"
   },
-  "timestamp": "2026-09-30T21:41:37.644Z"
+  "timestamp": "2026-10-01T11:05:32.339Z"
 }
