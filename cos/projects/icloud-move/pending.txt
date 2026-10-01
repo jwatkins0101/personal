@@ -1,0 +1,301 @@
+core/.env
+website/backend/.env
+website/video/.auth/cortex-profile/ChromeFeatureState
+website/video/.auth/cortex-profile/component_crx_cache/metadata.json
+website/video/.auth/cortex-profile/Consent To Send Stats
+website/video/.auth/cortex-profile/Default/Account Web Data
+website/video/.auth/cortex-profile/Default/Account Web Data-journal
+website/video/.auth/cortex-profile/Default/Accounts/Avatar Images/102720191162422953113
+website/video/.auth/cortex-profile/Default/Affiliation Database
+website/video/.auth/cortex-profile/Default/Affiliation Database-journal
+website/video/.auth/cortex-profile/Default/AutofillAiModelCache/LOG
+website/video/.auth/cortex-profile/Default/AutofillAiModelCache/LOG.old
+website/video/.auth/cortex-profile/Default/AutofillStrikeDatabase/LOG
+website/video/.auth/cortex-profile/Default/AutofillStrikeDatabase/LOG.old
+website/video/.auth/cortex-profile/Default/BudgetDatabase/LOG
+website/video/.auth/cortex-profile/Default/BudgetDatabase/LOG.old
+website/video/.auth/cortex-profile/Default/Cache/Cache_Data/01591ca40a4f251e_0
+website/video/.auth/cortex-profile/Default/Cache/Cache_Data/02351659b1ca119e_0
+website/video/.auth/cortex-profile/Default/Cache/Cache_Data/034001931aebfdc5_0
+website/video/.auth/cortex-profile/Default/Cache/Cache_Data/04c736d73f6dee86_0
+website/video/.auth/cortex-profile/Default/Cache/Cache_Data/08225a78a534d460_0
+website/video/.auth/cortex-profile/Default/Cache/Cache_Data/0c525b6951a73428_0
+website/video/.auth/cortex-profile/Default/Cache/Cache_Data/1e35fe7b8cdd13b2_0
+website/video/.auth/cortex-profile/Default/Cache/Cache_Data/251efc053aff0cdd_0
+website/video/.auth/cortex-profile/Default/Cache/Cache_Data/2a89f0d67036cb0f_0
+website/video/.auth/cortex-profile/Default/Cache/Cache_Data/33166b95042feb2d_0
+website/video/.auth/cortex-profile/Default/Cache/Cache_Data/3c6904a59b9edaa6_0
+website/video/.auth/cortex-profile/Default/Cache/Cache_Data/4a06e61d2767572d_0
+website/video/.auth/cortex-profile/Default/Cache/Cache_Data/5f97a732467c42ee_0
+website/video/.auth/cortex-profile/Default/Cache/Cache_Data/60901438b7d1eb42_0
+website/video/.auth/cortex-profile/Default/Cache/Cache_Data/79ccf6115b079de8_0
+website/video/.auth/cortex-profile/Default/Cache/Cache_Data/7a7c2b2ad1e6a40d_0
+website/video/.auth/cortex-profile/Default/Cache/Cache_Data/7babca18b67b6e52_0
+website/video/.auth/cortex-profile/Default/Cache/Cache_Data/82a323461693ba1e_0
+website/video/.auth/cortex-profile/Default/Cache/Cache_Data/8708f6d779da4afc_0
+website/video/.auth/cortex-profile/Default/Cache/Cache_Data/8904ae939954ad15_0
+website/video/.auth/cortex-profile/Default/Cache/Cache_Data/8b557a31a329dd3f_0
+website/video/.auth/cortex-profile/Default/Cache/Cache_Data/8f0ca3a57f56bdcb_0
+website/video/.auth/cortex-profile/Default/Cache/Cache_Data/945e186ac3094533_0
+website/video/.auth/cortex-profile/Default/Cache/Cache_Data/9bfe2c2a2ed01ed9_0
+website/video/.auth/cortex-profile/Default/Cache/Cache_Data/a564fdafe6ec77a0_0
+website/video/.auth/cortex-profile/Default/Cache/Cache_Data/aa74cb92eeb63168_0
+website/video/.auth/cortex-profile/Default/Cache/Cache_Data/b3cace7067713f1e_0
+website/video/.auth/cortex-profile/Default/Cache/Cache_Data/b77d4e0d52917532_0
+website/video/.auth/cortex-profile/Default/Cache/Cache_Data/b81c4a051818e443_0
+website/video/.auth/cortex-profile/Default/Cache/Cache_Data/bdfb5486eb31eb92_0
+website/video/.auth/cortex-profile/Default/Cache/Cache_Data/c00e659ebba6a684_0
+website/video/.auth/cortex-profile/Default/Cache/Cache_Data/c22d380a7968fb06_0
+website/video/.auth/cortex-profile/Default/Cache/Cache_Data/d831bdb3336f110b_0
+website/video/.auth/cortex-profile/Default/Cache/Cache_Data/ddeb785a28097b38_0
+website/video/.auth/cortex-profile/Default/Cache/Cache_Data/e068284c066e7a24_0
+website/video/.auth/cortex-profile/Default/Cache/Cache_Data/e8266b6c57f55638_0
+website/video/.auth/cortex-profile/Default/Cache/Cache_Data/f2347facc1e193e7_0
+website/video/.auth/cortex-profile/Default/Cache/Cache_Data/f329308f24ec3302_0
+website/video/.auth/cortex-profile/Default/Cache/Cache_Data/f536d18bbc6028a2_0
+website/video/.auth/cortex-profile/Default/Cache/Cache_Data/f6bfa870317c11ad_0
+website/video/.auth/cortex-profile/Default/Cache/Cache_Data/fb17117b08446bf0_0
+website/video/.auth/cortex-profile/Default/Cache/Cache_Data/fe35078b8e696b29_0
+website/video/.auth/cortex-profile/Default/Cache/Cache_Data/index
+website/video/.auth/cortex-profile/Default/Cache/No_Vary_Search/journal.baj
+website/video/.auth/cortex-profile/Default/chrome_cart_db/LOCK
+website/video/.auth/cortex-profile/Default/ClientCertificates/LOCK
+website/video/.auth/cortex-profile/Default/Code Cache/js/0143e415fe01f23d_0
+website/video/.auth/cortex-profile/Default/Code Cache/js/10d0cb4d5da2be2f_0
+website/video/.auth/cortex-profile/Default/Code Cache/js/1d22a31c918b85e8_0
+website/video/.auth/cortex-profile/Default/Code Cache/js/1f610cb905eba0bd_0
+website/video/.auth/cortex-profile/Default/Code Cache/js/27fba8f2e98a4479_0
+website/video/.auth/cortex-profile/Default/Code Cache/js/3fc63095b4d22a7c_0
+website/video/.auth/cortex-profile/Default/Code Cache/js/410f89037dbb5680_0
+website/video/.auth/cortex-profile/Default/Code Cache/js/53b6038fb0b5d7fd_0
+website/video/.auth/cortex-profile/Default/Code Cache/js/584e031a0154bd3e_0
+website/video/.auth/cortex-profile/Default/Code Cache/js/741673daf9b8083c_0
+website/video/.auth/cortex-profile/Default/Code Cache/js/75de26c0f5763846_0
+website/video/.auth/cortex-profile/Default/Code Cache/js/77bfa063791e143b_0
+website/video/.auth/cortex-profile/Default/Code Cache/js/799355d37439ad02_0
+website/video/.auth/cortex-profile/Default/Code Cache/js/85ef57031327b325_0
+website/video/.auth/cortex-profile/Default/Code Cache/js/8bbf676c105fd643_0
+website/video/.auth/cortex-profile/Default/Code Cache/js/8e7ff7187ddad0ad_0
+website/video/.auth/cortex-profile/Default/Code Cache/js/a151fa68bb8b2826_0
+website/video/.auth/cortex-profile/Default/Code Cache/js/b1ecf3184774033c_0
+website/video/.auth/cortex-profile/Default/Code Cache/js/b3aedc59a4a80202_0
+website/video/.auth/cortex-profile/Default/Code Cache/js/b5c90901b62f9e7b_0
+website/video/.auth/cortex-profile/Default/Code Cache/js/b87495adef372cd1_0
+website/video/.auth/cortex-profile/Default/Code Cache/js/b94bb53486ac4f20_0
+website/video/.auth/cortex-profile/Default/Code Cache/js/c5e6da75a197f762_0
+website/video/.auth/cortex-profile/Default/Code Cache/js/c7f1fa3e34a6c54b_0
+website/video/.auth/cortex-profile/Default/Code Cache/js/d0468173793c6739_0
+website/video/.auth/cortex-profile/Default/Code Cache/js/d22c7c4e052810ad_0
+website/video/.auth/cortex-profile/Default/Code Cache/js/d74e8c9f5179bbae_0
+website/video/.auth/cortex-profile/Default/Code Cache/js/dc488fdb709f92a9_0
+website/video/.auth/cortex-profile/Default/Code Cache/js/e4b01324a5ee65a6_0
+website/video/.auth/cortex-profile/Default/Code Cache/js/e9c0259c14a306f2_0
+website/video/.auth/cortex-profile/Default/Code Cache/js/f4c99a9a1f41742a_0
+website/video/.auth/cortex-profile/Default/Code Cache/js/f4ce7bf6a844de2d_0
+website/video/.auth/cortex-profile/Default/Code Cache/js/index
+website/video/.auth/cortex-profile/Default/Code Cache/wasm/index
+website/video/.auth/cortex-profile/Default/Code Cache/wasm/index-dir/the-real-index
+website/video/.auth/cortex-profile/Default/commerce_subscription_db/LOG
+website/video/.auth/cortex-profile/Default/Cookies
+website/video/.auth/cortex-profile/Default/Cookies-journal
+website/video/.auth/cortex-profile/Default/DawnGraphiteCache/data_1
+website/video/.auth/cortex-profile/Default/DawnGraphiteCache/data_2
+website/video/.auth/cortex-profile/Default/DawnGraphiteCache/data_3
+website/video/.auth/cortex-profile/Default/DawnGraphiteCache/index
+website/video/.auth/cortex-profile/Default/DawnWebGPUCache/data_1
+website/video/.auth/cortex-profile/Default/DawnWebGPUCache/data_2
+website/video/.auth/cortex-profile/Default/DawnWebGPUCache/data_3
+website/video/.auth/cortex-profile/Default/DawnWebGPUCache/index
+website/video/.auth/cortex-profile/Default/declarative_performance_observer.db
+website/video/.auth/cortex-profile/Default/declarative_performance_observer.db-journal
+website/video/.auth/cortex-profile/Default/DIPS
+website/video/.auth/cortex-profile/Default/discount_infos_db/LOCK
+website/video/.auth/cortex-profile/Default/discounts_db/LOCK
+website/video/.auth/cortex-profile/Default/discounts_db/LOG.old
+website/video/.auth/cortex-profile/Default/Extension Rules/LOCK
+website/video/.auth/cortex-profile/Default/Extension Rules/MANIFEST-000001
+website/video/.auth/cortex-profile/Default/Extension Scripts/000003.log
+website/video/.auth/cortex-profile/Default/Extension Scripts/CURRENT
+website/video/.auth/cortex-profile/Default/Extension Scripts/LOCK
+website/video/.auth/cortex-profile/Default/Extension Scripts/MANIFEST-000001
+website/video/.auth/cortex-profile/Default/Extension State/LOG
+website/video/.auth/cortex-profile/Default/Extension State/LOG.old
+website/video/.auth/cortex-profile/Default/Extension State/MANIFEST-000001
+website/video/.auth/cortex-profile/Default/Favicons-journal
+website/video/.auth/cortex-profile/Default/Feature Engagement Tracker/AvailabilityDB/LOG
+website/video/.auth/cortex-profile/Default/Feature Engagement Tracker/EventDB/LOG.old
+website/video/.auth/cortex-profile/Default/GCM Store/000003.log
+website/video/.auth/cortex-profile/Default/GCM Store/CURRENT
+website/video/.auth/cortex-profile/Default/GCM Store/LOCK
+website/video/.auth/cortex-profile/Default/GCM Store/LOG
+website/video/.auth/cortex-profile/Default/GCM Store/MANIFEST-000001
+website/video/.auth/cortex-profile/Default/GPUCache/data_0
+website/video/.auth/cortex-profile/Default/GPUCache/data_1
+website/video/.auth/cortex-profile/Default/GPUCache/data_2
+website/video/.auth/cortex-profile/Default/GPUCache/data_3
+website/video/.auth/cortex-profile/Default/heavy_ad_intervention_opt_out.db-journal
+website/video/.auth/cortex-profile/Default/History-journal
+website/video/.auth/cortex-profile/Default/Local Storage/leveldb/000003.log
+website/video/.auth/cortex-profile/Default/Local Storage/leveldb/LOG
+website/video/.auth/cortex-profile/Default/Local Storage/leveldb/LOG.old
+website/video/.auth/cortex-profile/Default/LOCK
+website/video/.auth/cortex-profile/Default/Login Data
+website/video/.auth/cortex-profile/Default/Login Data For Account
+website/video/.auth/cortex-profile/Default/Login Data For Account-journal
+website/video/.auth/cortex-profile/Default/MediaDeviceSalts
+website/video/.auth/cortex-profile/Default/MediaDeviceSalts-journal
+website/video/.auth/cortex-profile/Default/Network Action Predictor
+website/video/.auth/cortex-profile/Default/Network Action Predictor-journal
+website/video/.auth/cortex-profile/Default/parcel_tracking_db/LOG.old
+website/video/.auth/cortex-profile/Default/PersistentOriginTrials/LOCK
+website/video/.auth/cortex-profile/Default/Preferences
+website/video/.auth/cortex-profile/Default/README
+website/video/.auth/cortex-profile/Default/Reporting and NEL
+website/video/.auth/cortex-profile/Default/Reporting and NEL-journal
+website/video/.auth/cortex-profile/Default/Segmentation Platform/SegmentInfoDB/LOCK
+website/video/.auth/cortex-profile/Default/Segmentation Platform/SegmentInfoDB/LOG
+website/video/.auth/cortex-profile/Default/Segmentation Platform/SignalDB/LOCK
+website/video/.auth/cortex-profile/Default/Segmentation Platform/SignalStorageConfigDB/LOCK
+website/video/.auth/cortex-profile/Default/ServerCertificate
+website/video/.auth/cortex-profile/Default/Service Worker/CacheStorage/28d04869f2a6292072dfebda10bc0eba0d52c0cc/13df13c8-fa34-40b7-b7e5-66a30dcc9817/06102678d6249f50_0
+website/video/.auth/cortex-profile/Default/Service Worker/CacheStorage/28d04869f2a6292072dfebda10bc0eba0d52c0cc/13df13c8-fa34-40b7-b7e5-66a30dcc9817/230ba03550100241_0
+website/video/.auth/cortex-profile/Default/Service Worker/CacheStorage/28d04869f2a6292072dfebda10bc0eba0d52c0cc/13df13c8-fa34-40b7-b7e5-66a30dcc9817/3736ffd0598b9bd5_0
+website/video/.auth/cortex-profile/Default/Service Worker/CacheStorage/28d04869f2a6292072dfebda10bc0eba0d52c0cc/13df13c8-fa34-40b7-b7e5-66a30dcc9817/38a7481ddd489ce2_0
+website/video/.auth/cortex-profile/Default/Service Worker/CacheStorage/28d04869f2a6292072dfebda10bc0eba0d52c0cc/13df13c8-fa34-40b7-b7e5-66a30dcc9817/73f6d7434b73eed3_0
+website/video/.auth/cortex-profile/Default/Service Worker/CacheStorage/28d04869f2a6292072dfebda10bc0eba0d52c0cc/13df13c8-fa34-40b7-b7e5-66a30dcc9817/827671861f8d26a9_0
+website/video/.auth/cortex-profile/Default/Service Worker/CacheStorage/28d04869f2a6292072dfebda10bc0eba0d52c0cc/13df13c8-fa34-40b7-b7e5-66a30dcc9817/87f14dbd704782ec_0
+website/video/.auth/cortex-profile/Default/Service Worker/CacheStorage/28d04869f2a6292072dfebda10bc0eba0d52c0cc/13df13c8-fa34-40b7-b7e5-66a30dcc9817/8d9fce0bebcb0f17_0
+website/video/.auth/cortex-profile/Default/Service Worker/CacheStorage/28d04869f2a6292072dfebda10bc0eba0d52c0cc/13df13c8-fa34-40b7-b7e5-66a30dcc9817/96a23490c5ced2ca_0
+website/video/.auth/cortex-profile/Default/Service Worker/CacheStorage/28d04869f2a6292072dfebda10bc0eba0d52c0cc/13df13c8-fa34-40b7-b7e5-66a30dcc9817/a88ef41eb83cb6f4_0
+website/video/.auth/cortex-profile/Default/Service Worker/CacheStorage/28d04869f2a6292072dfebda10bc0eba0d52c0cc/13df13c8-fa34-40b7-b7e5-66a30dcc9817/ab7965e98be6c9a5_0
+website/video/.auth/cortex-profile/Default/Service Worker/CacheStorage/28d04869f2a6292072dfebda10bc0eba0d52c0cc/13df13c8-fa34-40b7-b7e5-66a30dcc9817/c86f42bf6cf46d1e_0
+website/video/.auth/cortex-profile/Default/Service Worker/CacheStorage/28d04869f2a6292072dfebda10bc0eba0d52c0cc/13df13c8-fa34-40b7-b7e5-66a30dcc9817/dad53e35cfe5309e_0
+website/video/.auth/cortex-profile/Default/Service Worker/CacheStorage/28d04869f2a6292072dfebda10bc0eba0d52c0cc/13df13c8-fa34-40b7-b7e5-66a30dcc9817/ea55ef4026c24d11_0
+website/video/.auth/cortex-profile/Default/Service Worker/CacheStorage/28d04869f2a6292072dfebda10bc0eba0d52c0cc/13df13c8-fa34-40b7-b7e5-66a30dcc9817/ed47d9561f938940_0
+website/video/.auth/cortex-profile/Default/Service Worker/CacheStorage/28d04869f2a6292072dfebda10bc0eba0d52c0cc/13df13c8-fa34-40b7-b7e5-66a30dcc9817/fbef336f3c2fb0e4_0
+website/video/.auth/cortex-profile/Default/Service Worker/CacheStorage/28d04869f2a6292072dfebda10bc0eba0d52c0cc/index.txt
+website/video/.auth/cortex-profile/Default/Service Worker/Database/000003.log
+website/video/.auth/cortex-profile/Default/Service Worker/Database/CURRENT
+website/video/.auth/cortex-profile/Default/Service Worker/Database/LOCK
+website/video/.auth/cortex-profile/Default/Service Worker/Database/LOG
+website/video/.auth/cortex-profile/Default/Service Worker/Database/LOG.old
+website/video/.auth/cortex-profile/Default/Service Worker/Database/MANIFEST-000001
+website/video/.auth/cortex-profile/Default/Service Worker/ScriptCache/2cc80dabc69f58b6_0
+website/video/.auth/cortex-profile/Default/Service Worker/ScriptCache/index-dir/the-real-index
+website/video/.auth/cortex-profile/Default/Session Storage/000003.log
+website/video/.auth/cortex-profile/Default/Session Storage/CURRENT
+website/video/.auth/cortex-profile/Default/Session Storage/LOCK
+website/video/.auth/cortex-profile/Default/Session Storage/LOG
+website/video/.auth/cortex-profile/Default/Session Storage/MANIFEST-000001
+website/video/.auth/cortex-profile/Default/Sessions/Session_13434155630076678
+website/video/.auth/cortex-profile/Default/Sessions/Session_13434155649723137
+website/video/.auth/cortex-profile/Default/Sessions/Tabs_13434155630274958
+website/video/.auth/cortex-profile/Default/Shared Dictionary/cache/index-dir/the-real-index
+website/video/.auth/cortex-profile/Default/Shared Dictionary/db-journal
+website/video/.auth/cortex-profile/Default/shared_proto_db/000003.log
+website/video/.auth/cortex-profile/Default/shared_proto_db/LOCK
+website/video/.auth/cortex-profile/Default/shared_proto_db/LOG.old
+website/video/.auth/cortex-profile/Default/shared_proto_db/metadata/LOCK
+website/video/.auth/cortex-profile/Default/shared_proto_db/metadata/LOG.old
+website/video/.auth/cortex-profile/Default/shared_proto_db/metadata/MANIFEST-000001
+website/video/.auth/cortex-profile/Default/Shortcuts-journal
+website/video/.auth/cortex-profile/Default/Site Characteristics Database/LOCK
+website/video/.auth/cortex-profile/Default/Site Characteristics Database/LOG
+website/video/.auth/cortex-profile/Default/Site Characteristics Database/LOG.old
+website/video/.auth/cortex-profile/Default/Sync Data/LevelDB/CURRENT
+website/video/.auth/cortex-profile/Default/Sync Data/LevelDB/LOCK
+website/video/.auth/cortex-profile/Default/Sync Data/LevelDB/LOG
+website/video/.auth/cortex-profile/Default/Sync Data/LevelDB/LOG.old
+website/video/.auth/cortex-profile/Default/Sync Data/LevelDB/MANIFEST-000001
+website/video/.auth/cortex-profile/Default/Top Sites
+website/video/.auth/cortex-profile/Default/Top Sites-journal
+website/video/.auth/cortex-profile/Default/TransportSecurity
+website/video/.auth/cortex-profile/Default/Trust Tokens
+website/video/.auth/cortex-profile/Default/Trust Tokens-journal
+website/video/.auth/cortex-profile/Default/trusted_vault.pb
+website/video/.auth/cortex-profile/Default/Web Data
+website/video/.auth/cortex-profile/Default/WebStorage/QuotaManager
+website/video/.auth/cortex-profile/Default/WebStorage/QuotaManager-journal
+website/video/.auth/cortex-profile/extensions_crx_cache/metadata.json
+website/video/.auth/cortex-profile/first_party_sets.db
+website/video/.auth/cortex-profile/first_party_sets.db-journal
+website/video/.auth/cortex-profile/GPUPersistentCache/GPUCache/BD7RRYH6N2GU2SW4PUX52D2BXFCQMDPU/cache.db
+website/video/.auth/cortex-profile/GPUPersistentCache/GPUCache/BD7RRYH6N2GU2SW4PUX52D2BXFCQMDPU/cache.db-wal
+website/video/.auth/cortex-profile/GraphiteDawnCache/data_0
+website/video/.auth/cortex-profile/GraphiteDawnCache/data_1
+website/video/.auth/cortex-profile/GraphiteDawnCache/f_000004
+website/video/.auth/cortex-profile/GraphiteDawnCache/index
+website/video/.auth/cortex-profile/Last Version
+website/video/.auth/cortex-profile/OptimizationGuideModelsManifest/1.20260913.2/manifest.json
+website/video/.auth/cortex-profile/OptimizationGuideModelsManifest/1.20260913.2/prompt_gemma4_12b_solution_config.binarypb
+website/video/.auth/cortex-profile/OptimizationGuideModelsManifest/1.20260913.2/prompt_gemma4_4b_solution_config.binarypb
+website/video/.auth/cortex-profile/OptimizationGuideModelsManifest/1.20260913.2/prompt_gemma4_solution_config.binarypb
+website/video/.auth/cortex-profile/OptimizationGuideModelsManifest/1.20260913.2/prompt_solution_config.binarypb
+website/video/.auth/cortex-profile/OptimizationGuideModelsManifest/1.20260913.2/speech_recognition_small_expert_model_solution_config.binarypb
+website/video/.auth/cortex-profile/OptimizationGuideModelsManifest/1.20260913.2/summarizer_gemma4_12b_solution_config.binarypb
+website/video/.auth/cortex-profile/OptimizationGuideModelsManifest/1.20260913.2/summarizer_gemma4_4b_solution_config.binarypb
+website/video/.auth/cortex-profile/OptimizationGuideModelsManifest/1.20260913.2/summarizer_gemma4_solution_config.binarypb
+website/video/.auth/cortex-profile/OptimizationGuideModelsManifest/1.20260913.2/summarizer_nano_v3_solution_config.binarypb
+website/video/.auth/cortex-profile/OptimizationGuideModelsManifest/1.20260913.2/summarizer_small_expert_model_solution_config.binarypb
+website/video/.auth/cortex-profile/OptimizationGuideModelsManifest/1.20260913.2/writing_assistance_gemma4_4b_solution_config.binarypb
+website/video/.auth/cortex-profile/OptimizationGuideModelsManifest/1.20260913.2/writing_assistance_gemma4_solution_config.binarypb
+website/video/.auth/cortex-profile/OptimizationGuideModelsManifest/1.20260913.2/writing_assistance_solution_config.binarypb
+website/video/.auth/cortex-profile/segmentation_platform/ukm_db
+website/video/.auth/cortex-profile/Variations
+website/video/.auth/cortex-profile/VariationsSafeSeedV2
+website/video/out/hero/owlthat-hero-loop.webm
+website/video/out/kit/kit-1x1.mp4
+website/video/out/kit/kit-9x16.mp4
+website/video/out/stills/app16-046.jpg
+website/video/out/stills/app16-058.jpg
+website/video/out/stills/app16-118.jpg
+website/video/out/stills/app916-058.jpg
+website/video/out/stills/app916-118.jpg
+website/video/out/stills/logo-20.jpg
+website/video/out/stills/s16.jpg
+website/video/out/stills/s916.jpg
+website/video/out/teaser/f330.jpg
+website/video/out/teaser/f82.jpg
+website/video/out/teaser/g170.jpg
+website/video/out/teaser/g290.jpg
+website/video/out/teaser/g330.jpg
+website/video/out/teaser/g60.jpg
+website/video/out/teaser/green.jpg
+website/video/out/teaser/master.mp4
+website/video/public/captures/about/b1-exterior-story.mp4
+website/video/public/captures/about/b2-story-wall.mp4
+website/video/public/captures/about/b3-wall-phone.mp4
+website/video/public/captures/about/b4-phone-lamps.mp4
+website/video/public/captures/about/b5-lamps-team.mp4
+website/video/public/captures/about/night-shift-about.txt
+website/video/public/captures/canary-desks.png
+website/video/public/captures/canary-pages.png
+website/video/public/captures/consulting/night-shift-consulting.mp4
+website/video/public/captures/consulting/night-shift-consulting.txt
+website/video/public/captures/consulting/q3-spark-lead.mp4
+website/video/public/captures/consulting/q4-lead-build.mp4
+website/video/public/captures/consulting/q6-audience-dawn.mp4
+website/video/public/captures/cortex/k1-desk-capacity.mp4
+website/video/public/captures/cortex/k2-capacity-connect.mp4
+website/video/public/captures/cortex/k3-connect-control.mp4
+website/video/public/captures/cortex/night-shift-cortex.mp4
+website/video/public/captures/deck-approvals.png
+website/video/public/captures/deck-chat-fb.png
+website/video/public/captures/deck-chat-proof.png
+website/video/public/captures/deck-chat.png
+website/video/public/captures/deck-connections.png
+website/video/public/captures/deck-desk-sales.png
+website/video/public/captures/deck-desks.png
+website/video/public/captures/deck-playbook.png
+website/video/public/captures/deck-roster.png
+website/video/public/captures/deck-today-suggest.png
+website/video/public/captures/education/night-shift-education.mp4
+website/video/public/captures/education/night-shift-education.txt
+website/video/public/captures/education/w1-hero-workshop.mp4
+website/video/public/captures/education/w4-oneonone-speaking.mp4
+website/video/public/captures/night-shift.txt
+website/video/public/captures/t1-night-owl.mp4
+website/video/public/captures/t4-plan-build.mp4
+website/video/public/captures/t5-build-watch.mp4
+website/video/public/captures/t6-watch-dawn.mp4
+website/video/public/music/glass-morning.m4a
