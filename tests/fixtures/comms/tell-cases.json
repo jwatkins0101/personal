@@ -1,0 +1,556 @@
+{
+ "source": "docs/research ai-writing tells_data.py (Task #204), pos/neg cases verified with Python re on 2026-10-01",
+ "tells": [
+  {
+   "id": "lex-01",
+   "pos": [
+    "This project underscores our pivotal role.",
+    "Let's delve into the data."
+   ],
+   "neg": [
+    "We met Tuesday to review the budget.",
+    "The sales team is growing."
+   ],
+   "before": "This partnership underscores our pivotal role in a vibrant ecosystem.",
+   "after": "This partnership means our software now runs in 14 of the district's schools."
+  },
+  {
+   "id": "lex-02",
+   "pos": [
+    "We leverage robust tools for a seamless experience.",
+    "This is a game-changer."
+   ],
+   "neg": [
+    "The bridge is sturdy.",
+    "We use Postgres."
+   ],
+   "before": "We leverage cutting-edge tools to deliver a seamless, robust experience.",
+   "after": "We moved you to the new server, so pages load in about a second instead of four."
+  },
+  {
+   "id": "lex-03",
+   "pos": [
+    "In today's fast-paced world, data plays a crucial role.",
+    "It is a testament to the team."
+   ],
+   "neg": [
+    "Today we shipped the fix.",
+    "She played the role of Juliet."
+   ],
+   "before": "In today's fast-paced world, data plays a crucial role in student success.",
+   "after": "Advisors who saw the dashboard flagged 40 at-risk students two weeks earlier than last year."
+  },
+  {
+   "id": "lex-04",
+   "pos": [
+    "Hi Sam,\nI hope this email finds you well.",
+    "Hope all is well with the move."
+   ],
+   "neg": [
+    "Hope you can make it Friday.",
+    "I hope the demo goes well."
+   ],
+   "before": "Hi Dana,\nI hope this email finds you well. I wanted to reach out regarding the invoice.",
+   "after": "Hi Dana,\nInvoice 2207 went out Monday; it's the one with the corrected seat count."
+  },
+  {
+   "id": "lex-05",
+   "pos": [
+    "Certainly! I hope this helps.",
+    "Feel free to reach out anytime."
+   ],
+   "neg": [
+    "Let me know by Friday.",
+    "I can help Tuesday."
+   ],
+   "before": "Certainly! I've attached the deck. I hope this helps, and let me know if you have any other questions!",
+   "after": "Deck attached. Slide 6 has the pricing you asked about."
+  },
+  {
+   "id": "lex-06",
+   "pos": [
+    "Here's a revised version of your email:",
+    "As an AI language model, I cannot",
+    "the rate rose :contentReference[oaicite:0]{index=0}"
+   ],
+   "neg": [
+    "Here is the agenda.",
+    "AI is changing teaching."
+   ],
+   "before": "Here's a revised version of your email:\n\nHi Tom, the contract renews on March 1 :contentReference[oaicite:0]{index=0}.",
+   "after": "Hi Tom, the contract renews March 1."
+  },
+  {
+   "id": "lex-07",
+   "pos": [
+    "It's worth noting that costs rose.",
+    "Report done.\nAdditionally, we hired two people."
+   ],
+   "neg": [
+    "We also hired two people.",
+    "Note: office closed Friday."
+   ],
+   "before": "It's worth noting that the price changes in January. Additionally, setup takes two weeks.",
+   "after": "The price changes in January, and setup takes two weeks."
+  },
+  {
+   "id": "lex-08",
+   "pos": [
+    "I truly appreciate it, incredibly helpful."
+   ],
+   "neg": [
+    "I appreciate it.",
+    "Thanks for the notes."
+   ],
+   "before": "I truly appreciate your incredibly thoughtful feedback.",
+   "after": "Thanks for catching the pricing error on page 3."
+  },
+  {
+   "id": "str-01",
+   "pos": [
+    "It's not just a tool, it's a movement.",
+    "This isn't about speed — it's about trust.",
+    "Not only faster but also cheaper.",
+    "Is it hype? No. It works."
+   ],
+   "neg": [
+    "It's not ready yet, so we'll ship Monday.",
+    "This is not my area."
+   ],
+   "before": "It's not just a scheduling tool, it's a new way to run your advising office.",
+   "after": "Advisors stopped double-booking. Missed appointments dropped from 11% to 4% in the pilot."
+  },
+  {
+   "id": "str-02",
+   "pos": [
+    "efficient, scalable, and secure",
+    "clear, concise and actionable"
+   ],
+   "neg": [
+    "apples and pears",
+    "We met at noon."
+   ],
+   "before": "Our platform is efficient, scalable, and secure.",
+   "after": "It handled 3,000 registrations in the first hour without slowing down."
+  },
+  {
+   "id": "str-03",
+   "pos": [
+    "Our goal — simple — is growth.",
+    "Fast -- and cheap."
+   ],
+   "neg": [
+    "Our goal is growth.",
+    "A well-known pre-2020 tool."
+   ],
+   "before": "The rollout — which we planned carefully — went well — mostly.",
+   "after": "The rollout went mostly well. Two schools needed a second training session."
+  },
+  {
+   "id": "str-05",
+   "pos": [
+    "## Next Steps\nWe will...",
+    "**Project Update**\nAll good."
+   ],
+   "neg": [
+    "Next we will...",
+    "The **key** date is Friday."
+   ],
+   "before": "## Project Update\n**Status**\nOn track.\n**Next Steps**\nReview on Friday.",
+   "after": "We're on track. Can you review the draft Friday?"
+  },
+  {
+   "id": "str-06",
+   "pos": [
+    "- **Timeline:** two weeks",
+    "1. **Budget** - $8k",
+    "**Owner:** me"
+   ],
+   "neg": [
+    "- Timeline is two weeks",
+    "Budget: $8k"
+   ],
+   "before": "- **Timeline:** Two weeks\n- **Budget:** $8k\n- **Owner:** Me",
+   "after": "It'll take two weeks and about $8k. I'll own it."
+  },
+  {
+   "id": "str-08",
+   "pos": [
+    "Overall, it was good.",
+    "Thanks.\nIn summary: ship it."
+   ],
+   "neg": [
+    "We overall liked it.",
+    "The summary is attached."
+   ],
+   "before": "Overall, we believe this approach will drive meaningful results for your team.",
+   "after": "If you approve by the 15th, we start the 22nd."
+  },
+  {
+   "id": "str-09",
+   "pos": [
+    "Despite these challenges, we grew.",
+    "The program faces several challenges."
+   ],
+   "neg": [
+    "The challenge is hiring.",
+    "Despite the rain, we met."
+   ],
+   "before": "Despite these challenges, the future looks bright for the program.",
+   "after": "The one risk is hiring a second advisor by January; we have two finalists."
+  },
+  {
+   "id": "str-10",
+   "pos": [
+    "We updated the system, ensuring robust performance.",
+    "Sales rose, highlighting demand."
+   ],
+   "neg": [
+    "We updated the system on Friday.",
+    "Ensuring uptime is my job."
+   ],
+   "before": "We upgraded the servers, ensuring robust performance and enhancing user satisfaction.",
+   "after": "We upgraded the servers. Page loads dropped from 4 seconds to 1."
+  },
+  {
+   "id": "str-11",
+   "pos": [
+    "The office boasts a gym.",
+    "It serves as a hub."
+   ],
+   "neg": [
+    "He is the lead.",
+    "She boasts about it."
+   ],
+   "before": "The new office boasts a training room and serves as a hub for the region.",
+   "after": "The new office has a training room. The regional team works there."
+  },
+  {
+   "id": "str-12",
+   "pos": [
+    "The result? Growth.",
+    "Here's the thing: it works."
+   ],
+   "neg": [
+    "The result was growth.",
+    "Here is the file."
+   ],
+   "before": "We tried something new. The result? Engagement skyrocketed.",
+   "after": "Moving office hours to 4pm doubled attendance, from 6 to 13 students a week."
+  },
+  {
+   "id": "str-13",
+   "pos": [
+    "Key Benefits For Your Team\n"
+   ],
+   "neg": [
+    "Key benefits for your team\n",
+    "Jermaine Watkins\n"
+   ],
+   "before": "Key Benefits For Your Team\nYou save time.",
+   "after": "You'll save about two hours a week."
+  },
+  {
+   "id": "str-14",
+   "pos": [
+    "🚀 Faster onboarding",
+    "✅ Done"
+   ],
+   "neg": [
+    "Faster onboarding",
+    "thanks 👍"
+   ],
+   "before": "🚀 Faster onboarding\n✅ Fewer errors\n💡 Smarter insights",
+   "after": "Onboarding takes one day now, and data-entry errors are down by half."
+  },
+  {
+   "id": "str-15",
+   "pos": [
+    "Hi\n---\nBye"
+   ],
+   "neg": [
+    "a - b",
+    "pre-sale"
+   ],
+   "before": "Thanks for the call.\n---\nNext steps below.",
+   "after": "Thanks for the call. Next step: I'll send the contract tomorrow."
+  },
+  {
+   "id": "str-17",
+   "pos": [
+    "The implementation of the plan",
+    "optimization of scheduling"
+   ],
+   "neg": [
+    "We implemented the plan.",
+    "Plan approved."
+   ],
+   "before": "The implementation of the new system will enable the optimization of scheduling.",
+   "after": "Once we switch systems, scheduling takes half the time."
+  },
+  {
+   "id": "tone-01",
+   "pos": [
+    "Great question! Here's the answer.",
+    "You're absolutely right about that.",
+    "Hi Sarah, I hope you're well! Thank you so much for reaching out."
+   ],
+   "neg": [
+    "Great, see you then.",
+    "Thanks for the March numbers."
+   ],
+   "before": "Great question! Thank you so much for reaching out.",
+   "after": "Yes, the discount applies to renewals too."
+  },
+  {
+   "id": "tone-02",
+   "pos": [
+    "I'm thrilled to share!",
+    "So excited about this."
+   ],
+   "neg": [
+    "Glad it worked.",
+    "Good news: we signed."
+   ],
+   "before": "I'm absolutely thrilled to share this incredible news!!",
+   "after": "We signed Jefferson County. That's 22 schools starting in January."
+  },
+  {
+   "id": "tone-03",
+   "pos": [
+    "We apologize for any inconvenience this may have caused.",
+    "Reply at your earliest convenience."
+   ],
+   "neg": [
+    "Sorry, my mistake, fixed now.",
+    "Reply by Friday."
+   ],
+   "before": "We sincerely apologize for any inconvenience this may have caused and appreciate your patience and understanding.",
+   "after": "Sorry about that. The double charge is refunded; you'll see it in 3-5 days."
+  },
+  {
+   "id": "tone-04",
+   "pos": [
+    "I completely understand how frustrating this must be.",
+    "That sounds really frustrating."
+   ],
+   "neg": [
+    "I understand the login failed at 9am.",
+    "That sounds good."
+   ],
+   "before": "I completely understand how frustrating this must be.",
+   "after": "Losing a morning of class to the login bug is on us. I've moved your section to the fixed server."
+  },
+  {
+   "id": "tone-05",
+   "pos": [
+    "Both options have their merits.",
+    "Ultimately, it depends on your goals."
+   ],
+   "neg": [
+    "Pick option A.",
+    "Both of us agree."
+   ],
+   "before": "Both options have their merits, and ultimately the best choice depends on your specific needs.",
+   "after": "Go with the annual plan. You'll use it past month 8, which is where it gets cheaper."
+  },
+  {
+   "id": "tone-06",
+   "pos": [
+    "This may potentially help.",
+    "It seems that costs rose."
+   ],
+   "neg": [
+    "This will help.",
+    "Costs rose 4%."
+   ],
+   "before": "This may potentially help to some extent.",
+   "after": "This should cut wait times, if the second advisor starts on time."
+  },
+  {
+   "id": "spec-01",
+   "pos": [
+    "I came across your profile and was impressed by your journey.",
+    "Your story really resonated with me."
+   ],
+   "neg": [
+    "Your March post had the 6-hour number.",
+    "Saw your talk at ASU+GSV."
+   ],
+   "before": "I came across your profile and was truly impressed by your journey.",
+   "after": "Your post on Tuesday about cutting advising wait times from 3 weeks to 4 days is the problem we work on."
+  },
+  {
+   "id": "spec-03",
+   "pos": [
+    "Best,\n[Your Name]",
+    "Hi {first_name},",
+    "[CHECK: confirm date]"
+   ],
+   "neg": [
+    "See [1] for details.",
+    "Hi Maria,"
+   ],
+   "before": "Best regards,\n[Your Name]",
+   "after": "Jermaine"
+  },
+  {
+   "id": "spec-04",
+   "pos": [
+    "Key Takeaways:\n- a",
+    "**Next Steps**\n"
+   ],
+   "neg": [
+    "The next steps are simple.",
+    "takeaway food"
+   ],
+   "before": "Key Takeaways:\n- We're on track\n- Budget is fine",
+   "after": "We're on track and on budget."
+  },
+  {
+   "id": "spec-05",
+   "pos": [
+    "Up 40% this year.",
+    "according to Gartner",
+    "see https://example.com"
+   ],
+   "neg": [
+    "Up a lot this year.",
+    "We think so."
+   ],
+   "before": "According to a recent study, 73% of students prefer AI advisors.",
+   "after": "In our spring survey of 118 students, 41 said they'd rather book through the app than email."
+  },
+  {
+   "id": "spec-06",
+   "pos": [
+    "Thank you for your question about pricing.",
+    "You asked whether we support SSO."
+   ],
+   "neg": [
+    "Friday at 5.",
+    "Yes, we support SSO."
+   ],
+   "before": "Thank you for your question about the deadline. Regarding the deadline, it is Friday.",
+   "after": "Friday at 5."
+  },
+  {
+   "id": "spec-08",
+   "pos": [
+    "Studies show that remote teams are happier.",
+    "Experts agree this works."
+   ],
+   "neg": [
+    "Gallup's 2024 survey found 23%.",
+    "I think this works."
+   ],
+   "before": "Studies show that remote teams are more productive.",
+   "after": "Our own support team closed 12% more tickets per person in the six months after going remote (our ticket data, 2024)."
+  },
+  {
+   "id": "chan-01",
+   "pos": [
+    "Subject: Follow-up\nHi",
+    "**Subject:** Hello"
+   ],
+   "neg": [
+    "The subject of the call was pricing."
+   ],
+   "before": "Subject: Follow-Up on Our Discussion\n\nHi Ken,",
+   "after": "Hi Ken,"
+  },
+  {
+   "id": "chan-02",
+   "pos": [
+    "Looking forward to hearing from you.",
+    "Warm regards,\nJ"
+   ],
+   "neg": [
+    "Talk Thursday.",
+    "Best,\nJ"
+   ],
+   "before": "Looking forward to hearing from you!\n\nWarm regards,",
+   "after": "Talk Thursday.\nJermaine"
+  },
+  {
+   "id": "chan-04",
+   "pos": [
+    "Congratulations on the new role!",
+    "My condolences on your father."
+   ],
+   "neg": [
+    "The meeting is at 3.",
+    "Invoice attached.",
+    "Thank you so much for reaching out about the timeline."
+   ],
+   "before": null,
+   "after": null
+  },
+  {
+   "id": "chan-05",
+   "pos": [
+    "As a fellow founder, I'd love to connect.",
+    "Would you be open to a quick 15-minute call?"
+   ],
+   "neg": [
+    "Your team uses the same workflow we automated.",
+    "Call me at 3."
+   ],
+   "before": "As a fellow EdTech leader, I'd love to connect and explore potential synergies. Would you be open to a quick 15-minute call?",
+   "after": "Your registrar team is using the same transcript workflow we automated at two Kentucky schools. Want the 2-page summary of what changed?"
+  },
+  {
+   "id": "chan-06",
+   "pos": [
+    "Agree?",
+    "#AI #EdTech #Leadership"
+   ],
+   "neg": [
+    "I agree with Sam.",
+    "We use #general in Slack."
+   ],
+   "before": "AI is changing everything.\n\nHere's what I learned.\n\nAgree? 👇\n#AI #EdTech #Leadership",
+   "after": "I let half my class use AI on one paper. Their drafts were cleaner and more alike. Here's what I'm changing."
+  },
+  {
+   "id": "chan-07",
+   "pos": [
+    "Hi Jordan, see you at 2.",
+    "I wanted to follow up on lunch",
+    "ok\nBest,\nJermaine"
+   ],
+   "neg": [
+    "still good for 2 tomorrow?",
+    "hi! running late"
+   ],
+   "before": "Hi Jordan, I wanted to follow up regarding tomorrow's meeting. Please let me know if 2:00 PM still works.\nBest,\nJermaine",
+   "after": "still good for 2 tomorrow?"
+  },
+  {
+   "id": "chan-08",
+   "pos": [
+    "Sounds great!",
+    "Love that!!"
+   ],
+   "neg": [
+    "sounds good, see you",
+    "great"
+   ],
+   "before": "Sounds great!",
+   "after": "yes to thursday, no to the 7am slot"
+  },
+  {
+   "id": "chan-09",
+   "pos": [
+    "I am writing to express my keen interest in the role.",
+    "I have a proven track record."
+   ],
+   "neg": [
+    "I built the claims pipeline at WeatherCheck.",
+    "I like the team."
+   ],
+   "before": "I am writing to express my keen interest in the role. With a proven track record and a unique blend of skills, I am a perfect fit.",
+   "after": "At my last company I built the claims-data pipeline our insurance customers used for pricing; your job post says that's the gap on your team."
+  }
+ ]
+}

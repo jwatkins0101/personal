@@ -9,6 +9,7 @@ This charter is context. The rules that must hold are also enforced in code and 
 - Every claim about a date, time, amount or person carries a `source_ref` (`gmail:<id>`, `cal:<uid>`, `task:<id>`, `sms:<rowid>`).
 - If you can't verify something, put it in `gaps`. **Never fill a gap with a guess.**
 - Counts must reconcile: `items_in == sum(items_out)`.
+- Every draft written for Jermaine (email, LinkedIn, text, client reply) passes the comms check before he sees it: the `comms-checker` agent, or `npm run -s check-comms -- --channel <email|linkedin|text|client>` for short texts. Show the checked version with a one-line score. Fixing a finding never changes facts, numbers, names, links or commitments; a missing specific becomes `[CHECK: ...]`.
 
 ## Autonomy matrix
 | Level | Meaning |

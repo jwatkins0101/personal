@@ -1,0 +1,394 @@
+[
+  {
+    "id": "lex-01",
+    "category": "lexical",
+    "pattern": "(?i)\\b(delv(?:e|es|ed|ing)|tapestr(?:y|ies)|testament|pivotal|underscor(?:e|es|ed|ing)|showcas(?:e|es|ed|ing)|intricate|intricacies|meticulous(?:ly)?|bolster(?:s|ed|ing)?|garner(?:s|ed|ing)?|interplay|vibrant|realm|multifaceted|camaraderie|palpable|amidst|embark(?:s|ed|ing)?)\\b",
+    "heuristic": "Count distinct matches. 1 = note only. 2 distinct in under 150 words, or more than 1 per 75 words = flag. 3+ distinct = high. Words drift by model era (delve faded in 2025); refresh list every 6 months. False positives: academic and literary writers, non-native writers taught 'elevated' vocabulary.",
+    "severity": "med",
+    "fix": "Replace with the plain word or, better, the concrete fact the word was standing in for. Before: \"This partnership underscores our pivotal role in a vibrant ecosystem.\" After: \"This partnership means our software now runs in 14 of the district's schools.\""
+  },
+  {
+    "id": "lex-02",
+    "category": "lexical",
+    "pattern": "(?i)\\b(leverag(?:e|es|ed|ing)|seamless(?:ly)?|robust|elevat(?:e|es|ed|ing)|game[- ]chang(?:er|ers|ing)|cutting[- ]edge|synerg(?:y|ies)|holistic|streamlin(?:e|es|ed|ing)|empower(?:s|ed|ing)?|unlock(?:s|ed|ing)?|unleash(?:es|ed|ing)?|transformative|revolutioniz(?:e|es|ed|ing)|best[- ]in[- ]class|navigat(?:e|es|ed|ing) (?:the )?(?:complexit\\w*|challenges?|landscape|uncertaint\\w*))\\b",
+    "heuristic": "Flag at 2+ distinct in a short message, or any co-occurrence with lex-01 or lex-03. False positives: technical senses ('robust statistics', 'unlock the door', 'elevate the patient's leg'); marketing copy where this register is expected.",
+    "severity": "low",
+    "fix": "Use the plain verb (use, help, improve, handle) and say what actually changed. Before: \"We leverage cutting-edge tools to deliver a seamless, robust experience.\" After: \"We moved you to the new server, so pages load in about a second instead of four.\""
+  },
+  {
+    "id": "lex-03",
+    "category": "lexical",
+    "pattern": "(?i)\\b(?:plays?|played|playing) an? (?:crucial|pivotal|vital|key|significant|critical|instrumental) role\\b|\\b(?:is|are|was|stands as|serves as) a (?:testament|reminder) to\\b|\\bunderscor(?:es|ing) the (?:importance|significance|need)\\b|\\b(?:ever[- ]evolving|evolving|rapidly changing|dynamic) landscape\\b|\\bin today['’]?s (?:fast[- ]paced|digital|ever[- ]changing|competitive|modern|rapidly evolving) (?:world|landscape|environment|era|age|market)\\b|\\bindelible mark\\b|\\bdeeply rooted\\b|\\bsetting the stage for\\b|\\bmarks? a (?:significant |pivotal |major )?(?:shift|turning point|milestone)\\b",
+    "heuristic": "Any match = flag. 2+ = high. False positives: speeches, award citations, eulogies where significance language is the genre.",
+    "severity": "med",
+    "fix": "Delete the sentence, or replace it with the specific consequence. Before: \"In today's fast-paced world, data plays a crucial role in student success.\" After: \"Advisors who saw the dashboard flagged 40 at-risk students two weeks earlier than last year.\""
+  },
+  {
+    "id": "lex-04",
+    "category": "lexical",
+    "pattern": "(?im)^[^\\n]{0,40}\\b(?:i\\s+)?hope (?:this|the|my) (?:e-?mail|message|note) (?:finds|reaches) you\\b|^[^\\n]{0,40}\\bi hope you(?:['’]re| are) (?:doing )?(?:well|great|good)\\b|\\bhope all is well\\b",
+    "heuristic": "Note only when alone. Count toward the template score when 2+ other tells are present. False positives: very common human cliche.",
+    "severity": "low",
+    "fix": "Open with the point or a real reference to the person. Before: \"Hi Dana,\nI hope this email finds you well. I wanted to reach out regarding the invoice.\" After: \"Hi Dana,\nInvoice 2207 went out Monday; it's the one with the corrected seat count.\""
+  },
+  {
+    "id": "lex-05",
+    "category": "lexical",
+    "pattern": "(?i)\\b(?:certainly|absolutely|of course)!|\\bgreat question\\b|\\bi(?:['’]d| would) be (?:happy|glad|delighted) to (?:help|assist)\\b|\\bi hope this helps\\b|\\bhappy to help\\b|\\blet me know if you (?:have any (?:other|further|more|additional) questions|need anything else|(?:would|['’]d) like me to)\\b|\\bfeel free to (?:reach out|let me know|ask)\\b",
+    "heuristic": "1 = note; 2+ = flag; in a reply to a peer or client = med. False positives: support-desk staff and polite humans use these.",
+    "severity": "med",
+    "fix": "Cut the phrase. End on the ask or the next step. Before: \"Certainly! I've attached the deck. I hope this helps, and let me know if you have any other questions!\" After: \"Deck attached. Slide 6 has the pricing you asked about.\""
+  },
+  {
+    "id": "lex-06",
+    "category": "lexical",
+    "pattern": "(?i)\\bas an ai(?: language model)?\\b|\\bas of my (?:last )?(?:knowledge|training) (?:update|cutoff)\\b|oaicite|contentreference|oai_citation|turn\\d+search\\d+|attributableindex|\\[span_\\d+\\]|【\\d+†|\\bhere(?:['’]s| is) (?:a|the|your) (?:revised|polished|draft|rewritten|updated|refined|more concise|shorter|more professional|professional) (?:version|draft|email|message|reply|response)\\b|\\bsubject line options\\b|\\bi can(?:not|['’]t) browse\\b",
+    "heuristic": "Any match = high; block sending.",
+    "severity": "high",
+    "fix": "Delete the artifact and reread the whole message; leaked markup usually means nothing was reviewed. Before: \"Here's a revised version of your email:\n\nHi Tom, the contract renews on March 1 :contentReference[oaicite:0]{index=0}.\" After: \"Hi Tom, the contract renews March 1.\""
+  },
+  {
+    "id": "lex-07",
+    "category": "lexical",
+    "pattern": "(?im)\\bit(?:['’]s| is) (?:important|worth|crucial|essential) (?:to note|noting|mentioning|to remember|to highlight|to consider|to mention)\\b|^\\s*(?:additionally|furthermore|moreover|notably|importantly),",
+    "heuristic": "Flag at 2+ in a message under 200 words, or any in an SMS/DM. False positives: legal and academic writing.",
+    "severity": "low",
+    "fix": "Delete the signpost; if the point matters, put it first. Before: \"It's worth noting that the price changes in January. Additionally, setup takes two weeks.\" After: \"The price changes in January, and setup takes two weeks.\""
+  },
+  {
+    "id": "lex-08",
+    "category": "lexical",
+    "pattern": "(?i)\\b(?:truly|incredibly|genuinely|deeply|absolutely|immensely|tremendously)\\b",
+    "heuristic": "Flag at 3+ per 100 words, or 2+ in an SMS. False positives: 'deeply' and 'genuinely' are normal in sincere notes.",
+    "severity": "low",
+    "fix": "Delete the intensifier and add a reason instead. Before: \"I truly appreciate your incredibly thoughtful feedback.\" After: \"Thanks for catching the pricing error on page 3.\""
+  },
+  {
+    "id": "str-01",
+    "category": "structural",
+    "pattern": "(?i)\\b(?:it|this|that)(?:['’]s| is| was)\\s+not\\s+(?:just\\s+|only\\s+|merely\\s+|simply\\s+|about\\s+)?[^.!?\\n]{1,60}?[,;:—–.-]\\s*(?:it|this|that)(?:['’]s| is| was)\\b|\\bnot (?:just|only|merely) (?:about )?[^.!?\\n]{1,60}?\\bbut(?: also)?\\b|\\b(?:isn['’]t|aren['’]t|wasn['’]t) (?:just |only |merely )?(?:about )?[^.!?\\n]{1,60}?[,;:—–.-]\\s*(?:it['’]s|they['’]re|it was|it is)\\b|\\?\\s*no[.!]\\s",
+    "heuristic": "1 = med; 2+ in a short message = high. Boggia's field heuristic: 3+ frames in a short passage is a strong indicator. False positives: genuine corrections ('It's not Tuesday, it's Wednesday').",
+    "severity": "med",
+    "fix": "State the positive claim directly, with evidence. Before: \"It's not just a scheduling tool, it's a new way to run your advising office.\" After: \"Advisors stopped double-booking. Missed appointments dropped from 11% to 4% in the pilot.\""
+  },
+  {
+    "id": "str-02",
+    "category": "structural",
+    "pattern": "(?i)\\b[\\w'-]+(?: [\\w'-]+)?, [\\w'-]+(?: [\\w'-]+)?,? (?:and|or) [\\w'-]+\\b",
+    "heuristic": "Pattern over-matches real lists. Flag only when 2+ triplets appear per 150 words, or a triplet consists of abstract adjectives/nouns with no concrete referent. False positives: real enumerations (dates, people, deliverables).",
+    "severity": "low",
+    "fix": "Keep the one item that matters, or replace the triplet with a specific. Before: \"Our platform is efficient, scalable, and secure.\" After: \"It handled 3,000 registrations in the first hour without slowing down.\""
+  },
+  {
+    "id": "str-03",
+    "category": "structural",
+    "pattern": "—|\\s--\\s",
+    "heuristic": "Count per 100 words. Flag if more than 1 per 100 words, or 2+ in a message under 150 words, or any in an SMS. Human published-essay baseline about 0.3 per 100 words. False positives: professional writers and editors use em dashes legitimately.",
+    "severity": "low",
+    "fix": "Use a period, comma, colon, or parentheses. Keep at most one dash where it truly earns its place. Before: \"The rollout — which we planned carefully — went well — mostly.\" After: \"The rollout went mostly well. Two schools needed a second training session.\""
+  },
+  {
+    "id": "str-04",
+    "category": "structural",
+    "pattern": null,
+    "heuristic": "Split sentences; if 5+ sentences and coefficient of variation of word counts < 0.35, flag. Threshold is an unvalidated heuristic: calibrate on Jermaine's sent mail. False positives: formal templates, very short messages.",
+    "severity": "low",
+    "fix": "Merge two sentences, cut one to three words, or start one with the point. Before: \"We reviewed your proposal carefully. We think it has strong potential. We would like to discuss next steps. We are available next week.\" After: \"We like it. Can you do a 30-minute call Tuesday or Wednesday to talk budget and start date?\""
+  },
+  {
+    "id": "str-05",
+    "category": "structural",
+    "pattern": "(?m)^\\s{0,3}#{1,6}\\s+\\S|^\\s*\\*\\*[^*\\n]{2,60}\\*\\*\\s*:?\\s*$",
+    "heuristic": "High in email/DM/SMS under 300 words. Med in longer emails. Ignore in documents and reports. False positives: newsletters, formal reports.",
+    "severity": "high",
+    "fix": "Write it as two or three short paragraphs. The first sentence carries the point. Before: \"## Project Update\n**Status**\nOn track.\n**Next Steps**\nReview on Friday.\" After: \"We're on track. Can you review the draft Friday?\""
+  },
+  {
+    "id": "str-06",
+    "category": "structural",
+    "pattern": "(?m)^\\s*(?:[-*•]|\\d+[.)])\\s+\\*\\*[^*\\n]{1,60}\\*\\*\\s*[:\\-–—]?|^\\s*\\*\\*[^*\\n]{1,40}:\\*\\*|^\\s*\\*\\*[^*\\n]{1,40}\\*\\*:\\s",
+    "heuristic": "Any match in email/DM/SMS = high; in docs = low. Plain-text variant (markers stripped): 3+ consecutive lines each starting 'Label:' in a short email = med.",
+    "severity": "high",
+    "fix": "Turn the list into sentences, or use a plain list without bold labels. Before: \"- **Timeline:** Two weeks\n- **Budget:** $8k\n- **Owner:** Me\" After: \"It'll take two weeks and about $8k. I'll own it.\""
+  },
+  {
+    "id": "str-07",
+    "category": "structural",
+    "pattern": null,
+    "heuristic": "If a list has 3+ items and the coefficient of variation of item word counts < 0.25 and items share the same first part of speech, flag. Unvalidated heuristic.",
+    "severity": "low",
+    "fix": "Cut to the items that matter; let them be uneven. Before: \"- Streamlining onboarding processes\n- Enhancing team collaboration\n- Driving measurable outcomes\" After: \"Onboarding now takes one day instead of three. That's the main win.\""
+  },
+  {
+    "id": "str-08",
+    "category": "structural",
+    "pattern": "(?im)^\\s*(?:in summary|in conclusion|to summarize|to sum up|in short|overall|ultimately|all in all|in essence|the bottom line(?: is)?)\\b[,:]?",
+    "heuristic": "Med in any message under 300 words (nothing to summarize). Low in long reports.",
+    "severity": "med",
+    "fix": "Delete the closer. End on the ask, the date, or the decision. Before: \"Overall, we believe this approach will drive meaningful results for your team.\" After: \"If you approve by the 15th, we start the 22nd.\""
+  },
+  {
+    "id": "str-09",
+    "category": "structural",
+    "pattern": "(?i)\\bdespite (?:these|its|their|the|some|such) [^.!?\\n]{0,40}?challenges\\b|\\bfaces? (?:several|many|numerous|significant|a number of) challenges\\b|\\b(?:looking ahead|future outlook|moving forward),",
+    "heuristic": "Any match = flag in emails and posts. False positives: genuine risk sections in reports.",
+    "severity": "med",
+    "fix": "Name the actual risk and what you're doing about it, or cut. Before: \"Despite these challenges, the future looks bright for the program.\" After: \"The one risk is hiring a second advisor by January; we have two finalists.\""
+  },
+  {
+    "id": "str-10",
+    "category": "structural",
+    "pattern": "(?i),\\s+(?:thereby\\s+)?(?:highlighting|underscoring|emphasizing|showcasing|ensuring|reflecting|symbolizing|fostering|cultivating|enhancing|reinforcing|paving the way|contributing to|demonstrating|solidifying|marking)\\b",
+    "heuristic": "1 = med; 2+ = high.",
+    "severity": "med",
+    "fix": "Cut the tail, or make it its own sentence with a fact. Before: \"We upgraded the servers, ensuring robust performance and enhancing user satisfaction.\" After: \"We upgraded the servers. Page loads dropped from 4 seconds to 1.\""
+  },
+  {
+    "id": "str-11",
+    "category": "structural",
+    "pattern": "(?i)\\b(?:serves|stands|functions|acts) as (?:a|an|the)\\b|\\bboasts?\\b(?! about)",
+    "heuristic": "Flag at 2+; or 1 alongside other tells.",
+    "severity": "low",
+    "fix": "Use 'is' or 'has'. Before: \"The new office boasts a training room and serves as a hub for the region.\" After: \"The new office has a training room. The regional team works there.\""
+  },
+  {
+    "id": "str-12",
+    "category": "structural",
+    "pattern": "(?i)\\bthe (?:result|answer|catch|kicker|truth|secret|best part|twist|reality|lesson)\\?|\\bhere(?:['’]s| is) (?:the (?:thing|kicker|catch|truth|deal)|why|what (?:happened|i learned))\\s*[:.]|\\blet that sink in\\b|\\bread that again\\b|\\bplot twist\\b",
+    "heuristic": "Med on LinkedIn posts; high in email. False positives: some human LinkedIn writers use this deliberately.",
+    "severity": "med",
+    "fix": "State the result in the first sentence. Before: \"We tried something new. The result? Engagement skyrocketed.\" After: \"Moving office hours to 4pm doubled attendance, from 6 to 13 students a week.\""
+  },
+  {
+    "id": "str-13",
+    "category": "structural",
+    "pattern": "(?m)^(?:#{1,6}\\s+)?(?:[A-Z][a-z]+\\s+){2,6}[A-Z][a-z]+:?\\s*$",
+    "heuristic": "Count only when the line is followed by body text and there are 2+ such lines. Ignore signatures and names.",
+    "severity": "low",
+    "fix": "Remove the heading; if needed, use sentence case. Before: \"Key Benefits For Your Team\nYou save time.\" After: \"You'll save about two hours a week.\""
+  },
+  {
+    "id": "str-14",
+    "category": "structural",
+    "pattern": "(?m)^\\s*(?:[✅✨⭐➡✔☑]|[\\U0001F300-\\U0001FAFF])\\s*\\S",
+    "heuristic": "Any in email = med; 3+ in a LinkedIn post = med; casual texts exempt.",
+    "severity": "med",
+    "fix": "Remove the emoji bullets; write sentences. Before: \"🚀 Faster onboarding\n✅ Fewer errors\n💡 Smarter insights\" After: \"Onboarding takes one day now, and data-entry errors are down by half.\""
+  },
+  {
+    "id": "str-15",
+    "category": "structural",
+    "pattern": "(?m)^\\s*(?:-{3,}|\\*{3,}|_{3,})\\s*$",
+    "heuristic": "Any in email/DM = med.",
+    "severity": "med",
+    "fix": "Delete; use a paragraph break. Before: \"Thanks for the call.\n---\nNext steps below.\" After: \"Thanks for the call. Next step: I'll send the contract tomorrow.\""
+  },
+  {
+    "id": "str-16",
+    "category": "structural",
+    "pattern": null,
+    "heuristic": "Flag only if both straight and curly apostrophes occur in the same message (suggests pasted segments). Never flag curly quotes alone: macOS/iOS and Word convert automatically.",
+    "severity": "low",
+    "fix": "Normalize quotes; more importantly, reread the pasted section for other tells. Before: \"We’re ready, but the client's team isn't.\" After: \"We're ready, but the client's team isn't.\""
+  },
+  {
+    "id": "str-17",
+    "category": "structural",
+    "pattern": "(?i)\\b\\w{4,}(?:tion|ment|ance|ence|ity|ization|isation)\\s+of\\b",
+    "heuristic": "Flag at more than 2 per 100 words in an email or DM. False positives: legal, academic, and technical writing.",
+    "severity": "low",
+    "fix": "Turn the noun back into a verb with a subject. Before: \"The implementation of the new system will enable the optimization of scheduling.\" After: \"Once we switch systems, scheduling takes half the time.\""
+  },
+  {
+    "id": "tone-01",
+    "category": "tone",
+    "pattern": "(?im)(?:^|[.!?]\\s+)\\s*(?:(?:what a |such a )?(?:great|excellent|fantastic|wonderful|insightful|thoughtful) (?:question|point|idea|observation|post|insight)s?\\b|you(?:['’]re| are) (?:absolutely|totally|completely) right\\b|thank you (?:so much )?for (?:reaching out|sharing|your (?:thoughtful|insightful|kind|detailed) (?:message|note|email|question))|i love (?:this|that you)\\b|love this[.!])",
+    "heuristic": "Any match at the start of a reply = med; combined with tone-02 = high. False positives: sincere thanks for something specific (then it names the specific).",
+    "severity": "med",
+    "fix": "Start with the answer. If thanks are deserved, name exactly what you're thankful for. Before: \"Great question! Thank you so much for reaching out.\" After: \"Yes, the discount applies to renewals too.\""
+  },
+  {
+    "id": "tone-02",
+    "category": "tone",
+    "pattern": "(?i)\\b(?:thrilled|delighted|beyond excited|so excited|super excited|absolutely love|truly (?:honored|grateful|excited)|over the moon)\\b",
+    "heuristic": "Flag a match, or 2+ '!' in a business message under 120 words. False positives: genuine good news (hires, wins) where enthusiasm fits.",
+    "severity": "med",
+    "fix": "Match the energy of the actual news; one specific reason beats three adjectives. Before: \"I'm absolutely thrilled to share this incredible news!!\" After: \"We signed Jefferson County. That's 22 schools starting in January.\""
+  },
+  {
+    "id": "tone-03",
+    "category": "tone",
+    "pattern": "(?i)\\b(?:sincerely |deeply )?apologi[sz]e for any (?:inconvenience|confusion)\\b|\\bat your earliest convenience\\b|\\bthank you (?:in advance )?for your (?:patience|understanding|time and consideration)\\b|\\bi (?:truly |really |greatly )?appreciate your (?:patience|understanding)\\b|\\bplease (?:do not|don['’]t) hesitate\\b",
+    "heuristic": "Flag at 2+ in a message. False positives: cultural norms (high-context cultures use more politeness), formal customer service.",
+    "severity": "low",
+    "fix": "One clear apology with what you did about it. Before: \"We sincerely apologize for any inconvenience this may have caused and appreciate your patience and understanding.\" After: \"Sorry about that. The double charge is refunded; you'll see it in 3-5 days.\""
+  },
+  {
+    "id": "tone-04",
+    "category": "tone",
+    "pattern": "(?i)\\bi (?:completely |totally |fully )?understand (?:how|your|that this|the) (?:frustrat\\w*|concerns?|difficult\\w*|challenging)\\b|\\bthat (?:must be|sounds) (?:so |really |incredibly )?(?:frustrating|difficult|challenging|tough)\\b|\\byour (?:feelings|concerns) (?:are|is) (?:completely )?(?:valid|understandable)\\b",
+    "heuristic": "Med; high when the message is a complaint response or condolence (see chan-04).",
+    "severity": "med",
+    "fix": "Acknowledge the specific problem and say what you will do. Before: \"I completely understand how frustrating this must be.\" After: \"Losing a morning of class to the login bug is on us. I've moved your section to the fixed server.\""
+  },
+  {
+    "id": "tone-05",
+    "category": "tone",
+    "pattern": "(?i)\\bboth (?:approaches|options|sides|paths) (?:have )?(?:their )?(?:own )?(?:merits|pros and cons|strengths)\\b|\\bthere(?:['’]s| is) no one[- ]size[- ]fits[- ]all\\b|\\bultimately,? (?:(?:it|that|this|the (?:best|right) (?:choice|approach|option|decision)) )?(?:all )?(?:depends on|comes down to)\\b|\\bon (?:the )?one hand\\b[^.!?]*\\bon the other(?: hand)?\\b",
+    "heuristic": "Flag whenever the recipient asked for a recommendation.",
+    "severity": "med",
+    "fix": "Make the call and give the reason. Before: \"Both options have their merits, and ultimately the best choice depends on your specific needs.\" After: \"Go with the annual plan. You'll use it past month 8, which is where it gets cheaper.\""
+  },
+  {
+    "id": "tone-06",
+    "category": "tone",
+    "pattern": "(?i)\\b(?:may|might|could) (?:potentially|possibly|perhaps)\\b|\\b(?:potentially|possibly) (?:could|may|might)\\b|\\bit (?:seems|appears) (?:that|as though|likely)\\b|\\bto (?:some|a certain) (?:extent|degree)\\b|\\bgenerally speaking\\b|\\barguably\\b",
+    "heuristic": "Flag at 2+ per message, or any double hedge ('may potentially').",
+    "severity": "low",
+    "fix": "Use one hedge and say what it depends on. Before: \"This may potentially help to some extent.\" After: \"This should cut wait times, if the second advisor starts on time.\""
+  },
+  {
+    "id": "spec-01",
+    "category": "content_specificity",
+    "pattern": "(?i)\\b(?:i )?(?:came across|stumbled upon|noticed) your (?:profile|work|post|company|background|journey)\\b|\\b(?:was|am|really|truly) impressed (?:by|with) your\\b|\\byour (?:impressive|inspiring|remarkable|incredible) (?:background|journey|work|experience|achievements?)\\b|\\b(?:really |truly )?resonated with me\\b|\\bcaught my (?:eye|attention)\\b",
+    "heuristic": "Flag when the same sentence has no specific (digit, quoted phrase, or proper noun other than the recipient's name/company). High in DMs and cold email.",
+    "severity": "high",
+    "fix": "Reference one concrete thing they did or said, and tie it to your ask. Before: \"I came across your profile and was truly impressed by your journey.\" After: \"Your post on Tuesday about cutting advising wait times from 3 weeks to 4 days is the problem we work on.\""
+  },
+  {
+    "id": "spec-02",
+    "category": "content_specificity",
+    "pattern": null,
+    "heuristic": "Count digits, dates, capitalized named entities (excluding greeting/signature), and quotes. If 80+ words and zero specifics, flag high; 1 specific in 150+ words, flag med.",
+    "severity": "high",
+    "fix": "Add the one fact only you know: a number, a date, a name, what someone said. Before: \"We've made great progress and are excited about the next phase of our partnership.\" After: \"We finished the Spalding pilot: 212 students, 9 advisors, and two bugs left. Phase 2 starts October 14.\""
+  },
+  {
+    "id": "spec-03",
+    "category": "content_specificity",
+    "pattern": "(?i)\\[(?:your |recipient(?:['’]s)? |client(?:['’]s)? |company |first |last )?(?:name|company|title|date|role|position|link)\\]|\\[insert[^\\]]*\\]|\\[check:[^\\]]*\\]|\\{\\{?\\s*(?:first_?name|name|company|company_?name)\\s*\\}?\\}|<(?:name|company|first ?name)>|\\bxyz (?:company|corp)\\b",
+    "heuristic": "Any match = high; block sending.",
+    "severity": "high",
+    "fix": "Fill it in or delete it; reread the whole message. Before: \"Best regards,\n[Your Name]\" After: \"Jermaine\""
+  },
+  {
+    "id": "spec-04",
+    "category": "content_specificity",
+    "pattern": "(?im)^\\s*(?:#+\\s*|\\*\\*)?(?:key takeaways?|next steps|additional considerations|why (?:this|it) matters|the bottom line|final thoughts|tl;?dr)\\s*(?:\\*\\*)?\\s*:?\\s*$",
+    "heuristic": "Med in messages under 300 words; ignore in documents.",
+    "severity": "med",
+    "fix": "Delete the section, or fold its one useful line into the body. Before: \"Key Takeaways:\n- We're on track\n- Budget is fine\" After: \"We're on track and on budget.\""
+  },
+  {
+    "id": "spec-05",
+    "category": "content_specificity",
+    "pattern": "(?i)\\b\\d+(?:\\.\\d+)?\\s?%|\\bhttps?://\\S+|\\baccording to\\b|\\b(?:a|one) (?:recent )?(?:study|survey|report) (?:by|from|found|shows)\\b",
+    "heuristic": "Not a tell by itself: a verification trigger. Every match must be checked against a source before sending; any unverifiable item = high.",
+    "severity": "high",
+    "fix": "Check it, link the source, or remove it. Before: \"According to a recent study, 73% of students prefer AI advisors.\" After: \"In our spring survey of 118 students, 41 said they'd rather book through the app than email.\""
+  },
+  {
+    "id": "spec-06",
+    "category": "content_specificity",
+    "pattern": "(?im)^\\s*(?:thank you for (?:your|the) (?:question|email|message|inquiry) (?:about|regarding)|regarding your (?:question|request|inquiry) (?:about|on|regarding)|you (?:asked|mentioned|inquired) (?:about|whether|if)|to answer your question)\\b",
+    "heuristic": "Low alone; med with tone-01.",
+    "severity": "low",
+    "fix": "Answer first. Before: \"Thank you for your question about the deadline. Regarding the deadline, it is Friday.\" After: \"Friday at 5.\""
+  },
+  {
+    "id": "spec-07",
+    "category": "content_specificity",
+    "pattern": null,
+    "heuristic": "If the message is a request/follow-up and the last 2 sentences contain no question mark, date/time, or imperative verb directed at the reader, flag.",
+    "severity": "med",
+    "fix": "End with one specific ask and a date. Before: \"Looking forward to continuing our conversation and exploring next steps together.\" After: \"Can you send the signed SOW by Thursday so we can start Monday?\""
+  },
+  {
+    "id": "spec-08",
+    "category": "content_specificity",
+    "pattern": "(?i)\\b(?:experts|studies|research|reports|industry (?:leaders|experts|reports)|many (?:people|experts)|observers|critics) (?:say|suggest|show|agree|believe|note|have noted|indicate)\\b|\\bit is (?:widely|generally|often) (?:believed|recognized|acknowledged|accepted)\\b|\\bstudies have shown\\b|\\bmany believe\\b",
+    "heuristic": "Flag when no named source or link appears in the same or next sentence.",
+    "severity": "med",
+    "fix": "Name the source, or say it's your view. Before: \"Studies show that remote teams are more productive.\" After: \"Our own support team closed 12% more tickets per person in the six months after going remote (our ticket data, 2024).\""
+  },
+  {
+    "id": "chan-01",
+    "category": "channel_email",
+    "pattern": "(?im)^\\s*\\**subject(?: line)?\\**\\s*:\\s*\\S",
+    "heuristic": "Any match in an email body = high.",
+    "severity": "high",
+    "fix": "Move it to the subject field and delete it from the body. Before: \"Subject: Follow-Up on Our Discussion\n\nHi Ken,\" After: \"Hi Ken,\""
+  },
+  {
+    "id": "chan-02",
+    "category": "channel_email",
+    "pattern": "(?im)\\blooking forward to (?:hearing from you|your (?:response|reply|thoughts|feedback))\\b|^\\s*(?:warm(?:est)? regards|best regards|kind regards|with gratitude)\\b",
+    "heuristic": "Low alone; flag when 2+ closing formulas stack or when the closer doesn't match your usual sign-off.",
+    "severity": "low",
+    "fix": "Use your real sign-off; end on the ask. Before: \"Looking forward to hearing from you!\n\nWarm regards,\" After: \"Talk Thursday.\nJermaine\""
+  },
+  {
+    "id": "chan-03",
+    "category": "channel_email",
+    "pattern": null,
+    "heuristic": "If reply word count > 2.5x the incoming message and > 150 words, flag med; if it also has headers/bullets, high.",
+    "severity": "med",
+    "fix": "Answer at the length of the question. Before: \"(3-line question answered with 300 words and four headers)\" After: \"(3-4 sentence answer)\""
+  },
+  {
+    "id": "chan-04",
+    "category": "channel_email",
+    "pattern": "(?i)\\b(?:congratulations|congrats|condolences|sorry for your loss|thank you for everything|i apologi[sz]e|performance review|letter of recommendation|recommendation letter)\\b",
+    "heuristic": "If matched (or intent classifier says relational), raise every other tell's severity one level and recommend a human rewrite with AI limited to typo checks.",
+    "severity": "high",
+    "fix": "Write it yourself, short and specific. Before: \"Congratulations on this incredible milestone! Your dedication and hard work truly shine through.\" After: \"Congrats on the promotion, Ana. The way you rebuilt the intake process last spring is why this happened.\""
+  },
+  {
+    "id": "chan-05",
+    "category": "channel_linkedin",
+    "pattern": "(?i)\\bas a fellow\\b|\\bi(?:['’]d| would) love to (?:connect|pick your brain|learn more about|explore)\\b|\\b(?:quick|brief|short) (?:\\d+|five|ten|fifteen|twenty|thirty)[- ]?(?:min(?:ute)?s?)? (?:call|chat|meeting|conversation)\\b|\\bwould you be open to\\b|\\bexplore (?:potential |possible )?(?:synergies|collaboration|opportunities|ways we)\\b|\\bi noticed (?:that )?you(?:['’]re| are)\\b",
+    "heuristic": "1 = low; 2+ = med; 2+ with spec-01 = high. False positives: these are also classic human sales-template phrases.",
+    "severity": "med",
+    "fix": "Lead with the specific reason you're writing to this person; make the ask small and concrete. Before: \"As a fellow EdTech leader, I'd love to connect and explore potential synergies. Would you be open to a quick 15-minute call?\" After: \"Your registrar team is using the same transcript workflow we automated at two Kentucky schools. Want the 2-page summary of what changed?\""
+  },
+  {
+    "id": "chan-06",
+    "category": "channel_linkedin",
+    "pattern": "(?im)^\\s*(?:agree\\?|thoughts\\?|what do you think\\?|(?:drop|share) your thoughts|repost if|♻️?)|(?:#\\w+\\s*){3,}$",
+    "heuristic": "Med if pattern matches AND 60%+ of paragraphs are one sentence. False positives: many human LinkedIn writers use this format.",
+    "severity": "med",
+    "fix": "Open with a concrete event or number; write normal paragraphs; skip the engagement bait. Before: \"AI is changing everything.\n\nHere's what I learned.\n\nAgree? 👇\n#AI #EdTech #Leadership\" After: \"I let half my class use AI on one paper. Their drafts were cleaner and more alike. Here's what I'm changing.\""
+  },
+  {
+    "id": "chan-07",
+    "category": "channel_sms",
+    "pattern": "^\\s*(?:[Hh]i|[Hh]ello|[Dd]ear) [A-Z][a-z]+,|\\b(?:[Rr]egarding|[Ff]urthermore|[Aa]dditionally|I wanted to (?:follow up|reach out|confirm))\\b|\\n\\s*(?:Best|Regards|Thanks|Sincerely),?\\s*\\n\\s*[A-Z][a-z]+\\s*$",
+    "heuristic": "Apply only to SMS channel. Also flag > 60 words, any bullet list, any em dash, or 2+ semicolons.",
+    "severity": "med",
+    "fix": "Write like you text: short, lowercase is fine, no sign-off. Before: \"Hi Jordan, I wanted to follow up regarding tomorrow's meeting. Please let me know if 2:00 PM still works.\nBest,\nJermaine\" After: \"still good for 2 tomorrow?\""
+  },
+  {
+    "id": "chan-08",
+    "category": "channel_sms",
+    "pattern": "(?i)^\\s*(?:sounds (?:great|wonderful|amazing|perfect)|that sounds (?:wonderful|amazing|great|perfect)|love (?:that|this))!+",
+    "heuristic": "Low; flag only if the whole reply is this phrase and the incoming message asked a real question.",
+    "severity": "low",
+    "fix": "Answer the actual question. Before: \"Sounds great!\" After: \"yes to thursday, no to the 7am slot\""
+  },
+  {
+    "id": "chan-09",
+    "category": "channel_cover_letter",
+    "pattern": "(?i)\\bi am writing to (?:express|apply)\\b|\\b(?:keen|strong|great) interest in\\b|\\bperfect (?:fit|match)\\b|\\bpassionate about\\b|\\bproven track record\\b|\\bunique (?:blend|combination|mix) of\\b|\\bmake a (?:meaningful|lasting|significant|real) (?:impact|difference)\\b|\\bresults[- ]driven\\b|\\bdynamic (?:team|environment)\\b|\\bhit the ground running\\b|\\bthrive in (?:a )?fast[- ]paced\\b",
+    "heuristic": "2+ = med; 3+ = high. Also applies to recommendation letters Jermaine writes or reviews.",
+    "severity": "high",
+    "fix": "Replace each cliche with one verifiable accomplishment tied to this employer. Before: \"I am writing to express my keen interest in the role. With a proven track record and a unique blend of skills, I am a perfect fit.\" After: \"At my last company I built the claims-data pipeline our insurance customers used for pricing; your job post says that's the gap on your team.\""
+  },
+  {
+    "id": "chan-10",
+    "category": "channel_cover_letter",
+    "pattern": null,
+    "heuristic": "If the employer's name or products appear only in the first/last paragraph and no paragraph contains an employer-specific noun, flag high.",
+    "severity": "high",
+    "fix": "Add one paragraph that could only be sent to this employer. Before: \"I admire [Company]'s commitment to innovation and excellence.\" After: \"Your switch to usage-based pricing in March is the same move my last team made; here's what we learned about churn.\""
+  }
+]

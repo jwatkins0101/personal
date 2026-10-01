@@ -1,0 +1,7 @@
+Hi Sarah,
+
+Short answer: we'll have the integration in your staging environment by Thursday the 9th, two days later than planned. The delay is the SSO piece. Your IT team's certificate came through Monday, and we need two days to test it.
+
+Everything else is done. If Thursday doesn't work for your board demo, tell me today and I'll put a second engineer on it.
+
+Jermaine

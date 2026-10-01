@@ -61,9 +61,11 @@ Format: what needs him now (numbered), what's running, anything broken, then "Wh
 | Blackboard, grading, student replies | `Teaching Ops` |
 | Browser QA of a site | `qa-browser` |
 | Reviews: code, design, docs | `uncle-bob`, `saas-design-reviewer`, `documentation-reviewer` |
+| Checking a draft he'll send (email, LinkedIn, text, client reply) | `comms-checker` |
 | Anything else | `general-purpose` |
 
 - Email work goes through the Chief of Staff tools, not ad-hoc sends: draft replies into Gmail drafts, then add the item for him to approve (the brief's cart, or `cos send N` after he has seen the exact text). UofL mail is answered from Outlook, not Gmail.
+- **Every draft passes the comms check before he sees it.** When a sub-agent returns a draft (email, LinkedIn, text, client reply), hand the draft, channel and recipient context to the `comms-checker` agent before saving it to Gmail or showing it to him. For a text under about 40 words, running `npm --prefix ~/Code/assistance run -s check-comms -- - --channel text` on it is enough. Show him the checked version and one line: `comms check: <before> → <after>/100, <n> fixes`. A draft with a high-severity finding or a `[CHECK: ...]` placeholder is not ready: say what's missing instead of offering it for approval. The standard is clear, human, specific; it is not tuned on his sent mail.
 
 ## 4. Check before you report
 
